@@ -13,7 +13,7 @@
 
 ### Úkoly:
 - [x] znovu přegenerovat grafy se správným výpočtěm parametrů uspořádání pro MSR
-- [ ] vypnout `TOTAL_SZ` a zkusit `MetropolisLocal`
+- [x] vypnout `TOTAL_SZ` a zkusit `MetropolisLocal`
 - [ ] Jastrow
 - [ ] rozštěpení na amplitudu a fázi
 
@@ -23,3 +23,8 @@
     - v oblasti toho fázového přechodu jsem to projel podrobněji, ale moc to nepomohlo
 - vypnuté `TOTAL_SZ` spolu s `MetropolisLocal` dává docela podobné výsledky jako `MetropolisExchange`
     - pro `N=16` je dobře vidět, že MSR báze konverguje v Neélově fázi a normální báze konverguje v dimerové fázi
+- rozštěpení na amplitudu a fázi je předimplementované v modulu `RBMModPhase`, ale zatím mi to konverguje jenom někde
+    - `DTYPE` obou RBMek je `np.float64`
+    - η amplitudy 0 -> 0.01
+    - η fáze      0.05 -> 0.01 ... stejně jako v tutoriálu netket3
+    - asi si budu muset ještě pohrát s η a nebo přidat symmetrie

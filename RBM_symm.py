@@ -6,7 +6,6 @@ import jax
 import time	
 print("NetKet version: {}".format(nk.__version__))	
 print("NumPy version: {}".format(np.__version__))	
-input()
 
 """lattice"""	
 SITES    = 4            # 4, 8, 16, 20 ... number of vertices in a tile determines the tile shape 	
