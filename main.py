@@ -7,57 +7,47 @@ import time
 print("NetKet version: {}".format(nk.__version__))	
 print("NumPy version: {}".format(np.__version__))	
 
-"""lattice"""	
-SITES    = 8            # 4, 8, 16, 20 ... number of vertices in a tile determines the tile shape 	
-JEXCH1   = .8            # nn interaction	
-JEXCH2   = 1            # nnn interaction	
-#USE_MSR  = True        # should we use a Marshall sign rule?	
-"""machine learning"""	
-TOTAL_SZ = 0            # 0, None ... restriction of Hilbert space	
-SAMPLER = 'exact'       # 'local' = MetropolisLocal, 'exchange' = MetropolisExchange
-DTYPE = np.complex128   # type of weights in neural network
-ALPHA = 16              # N_hidden / N_visible	
-ETA   = .01             # learning rate (0.01 usually works)	
-SAMPLES = 1000	
-NUM_ITER = 1500	
-verbose = True         # should we print more detailed results
-steps = np.arange(0,1.21,step=0.1)	
+file = sys.argv[-1]
+if len(sys.argv) == 1:
+    file = "config"
+print(file)
+fq = __import__(file)
 
-OUT_NAME = "SS-RBM_ops"+str(SITES)+"j1="+str(JEXCH1) # output file name	
-print("N =",SITES, "samples =",SAMPLES,"iters =",NUM_ITER)
+OUT_NAME = "SS-RBM_ops"+str(fq.SITES) # output file name	
+print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, sep="")
 
-if SITES == 64:	
+if fq.SITES == 64:	
     indent = [0,0,0,0,0,0,0,0]	
     width = [8,8,8,8,8,8,8,8]	
     right_shift = 0	
     bottom_shift = 0	
-elif SITES == 36:	
+elif fq.SITES == 36:	
     indent = [0,0,0,0,0,0]	
     width = [6,6,6,6,6,6]	
     right_shift = 0	
     bottom_shift = 0	
-elif SITES == 20: #tile shape definition	
+elif fq.SITES == 20: #tile shape definition	
     indent = [3,1,0,1,1,2]	
     width = [1,4,5,5,4,1]	
     right_shift = 2 #vertical shift of the center of right cell (in the upward direction)	
     bottom_shift = 4 #horizontal shift of the center of bottom cell (in the left direction)
-elif SITES == 16:
+elif fq.SITES == 16:
     indent = [0,0,0,0]
     width = [4,4,4,4]
     right_shift = 0
     bottom_shift = 0
-elif SITES == 8:
+elif fq.SITES == 8:
     indent = [1,0,1]
     width = [2,4,2]
     right_shift = 2
     bottom_shift = 2
-elif SITES == 4:
+elif fq.SITES == 4:
     indent = [0,0]
     width = [2,2]
     right_shift = 0
     bottom_shift = 0
 else:
-    raise Exception("Invalid number of sites given.")
+    raise Exception("Invalid number of fq.SITES given.")
 N = sum(width) #number of nodes
 left_shift = len(width) - right_shift #vertical shift of the center of left cell (in the upward direction)
 
@@ -140,7 +130,7 @@ for node in range(N):
 # Define the netket graph object
 g = nk.graph.Graph(edges=edge_colors)
 
-hilbert = nk.hilbert.Spin(s=.5, N=g.n_nodes, total_sz=TOTAL_SZ)
+hilbert = nk.hilbert.Spin(s=.5, N=g.n_nodes, total_sz=fq.TOTAL_SZ)
 
 
 #Sigma^z*Sigma^z interactions
@@ -151,18 +141,18 @@ exchange = np.asarray([[0, 0, 0, 0], [0, 0, 2, 0], [0, 2, 0, 0], [0, 0, 0, 0]]) 
 full_spin = mszsz+exchange # = S*S = sx*sx + sy*sy + sz*sz
 bond_color = [1, 2, 1, 2]
 
-for JEXCH1 in steps:
+for JEXCH1 in fq.STEPS:
     bond_operator = [
         (JEXCH1 * mszsz).tolist(),
-        (JEXCH2 * mszsz).tolist(),
+        (fq.JEXCH2 * mszsz).tolist(),
         (JEXCH1 * exchange).tolist(), # minus in case of MSR
-        (JEXCH2 * exchange).tolist(),
+        (fq.JEXCH2 * exchange).tolist(),
     ]
     bond_operatorMSR = [
         (JEXCH1 * mszsz).tolist(),
-        (JEXCH2 * mszsz).tolist(),
+        (fq.JEXCH2 * mszsz).tolist(),
         (-JEXCH1 * exchange).tolist(), # minus in case of MSR
-        (JEXCH2 * exchange).tolist(),
+        (fq.JEXCH2 * exchange).tolist(),
     ]
     ha = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=bond_operator, bond_ops_colors=bond_color)
     ha_MSR = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=bond_operatorMSR, bond_ops_colors=bond_color)
@@ -178,36 +168,41 @@ for JEXCH1 in steps:
         exact_ground_energy = [0,0,0]
         eigvects = None
 
-    # Symmetric RBM Spin Machine
-    machine = nk.models.RBM(dtype=DTYPE, alpha=ALPHA)  #<--- zde je použita celá grupa symetrii (ne jen translace)
-    # Symmetric RBM Spin Machine with MSR
-    machine_MSR = nk.models.RBM(dtype=DTYPE, alpha=ALPHA)
+    # Symmetric RBM Spin fq.MACHINE
+    # and Symmetric RBM Spin fq.MACHINE with MSR
+    if fq.MACHINE == "RBMSymm":
+        machine = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=fq.ALPHA)  #<--- zde je použita celá grupa symetrii (ne jen translace)
+        machine_MSR = nk.models.RBMSymm(g.automorphisms(),dtype=fq.DTYPE, alpha=fq.ALPHA)
+    else:
+        machine = nk.models.RBM(dtype=fq.DTYPE, alpha=fq.ALPHA)  #<--- zde je použita celá grupa symetrii (ne jen translace)
+        machine_MSR = nk.models.RBM(dtype=fq.DTYPE, alpha=fq.ALPHA)
+        if fq.MACHINE != "RBM":
+            print("Warning! Undefined machine:", fq.MACHINE_NAME, ", dafaulting to (npn-symmetric) RBM machine")
 
     # Meropolis Exchange Sampling
-    if SAMPLER == 'local':
+    if fq.SAMPLER == 'local':
         sampler = nk.sampler.MetropolisLocal(hilbert=hilbert,n_chains=6)
         sampler_MSR = nk.sampler.MetropolisLocal(hilbert=hilbert)
-    elif SAMPLER == 'exact':
+    elif fq.SAMPLER == 'exact':
         sampler = nk.sampler.ExactSampler(hilbert=hilbert,n_chains=6)
         sampler_MSR = nk.sampler.ExactSampler(hilbert=hilbert)
-        print("exact")
     else:
         sampler = nk.sampler.MetropolisExchange(hilbert=hilbert, graph=g)
         sampler_MSR = nk.sampler.MetropolisExchange(hilbert=hilbert, graph=g)
-        if SAMPLER != 'exchange':
-            print("Warning! Undefined sampler:", SAMPLER, ", dafaulting to MetropolisExchange sampler")
+        if fq.SAMPLER != 'exchange':
+            print("Warning! Undefined fq.SAMPLER:", fq.SAMPLER, ", dafaulting to MetropolisExchange fq.SAMPLER")
 
     # Optimzer
-    optimizer = nk.optimizer.Sgd(learning_rate=ETA)
-    optimizer_MSR = nk.optimizer.Sgd(learning_rate=ETA)
+    optimizer = nk.optimizer.Sgd(learning_rate=fq.ETA)
+    optimizer_MSR = nk.optimizer.Sgd(learning_rate=fq.ETA)
 
     # Stochastic Reconfiguration
     sr  = nk.optimizer.SR(diag_shift=0.1)
     sr_MSR  = nk.optimizer.SR(diag_shift=0.1)
 
     # The variational state (drive to byla nk.variational.MCState)
-    vss = nk.vqs.MCState(sampler, machine, n_samples=SAMPLES)
-    vs_MSR  = nk.vqs.MCState(sampler_MSR, machine_MSR, n_samples=SAMPLES)
+    vss = nk.vqs.MCState(sampler, machine, n_samples=fq.SAMPLES)
+    vs_MSR  = nk.vqs.MCState(sampler_MSR, machine_MSR, n_samples=fq.SAMPLES)
     vss.init_parameters(jax.nn.initializers.normal(stddev=0.001))
     vs_MSR.init_parameters(jax.nn.initializers.normal(stddev=0.001))
 
@@ -217,7 +212,7 @@ for JEXCH1 in steps:
 
     
     def SS_old(i,j): # S_i * S_j
-        return 2*nk.operator.spin.sigmap(hilbert,i,dtype="float64")@nk.operator.spin.sigmam(hilbert,j,dtype="float64")+2*nk.operator.spin.sigmam(hilbert,i,dtype="float64")@nk.operator.spin.sigmap(hilbert,j,dtype="float64")+nk.operator.spin.sigmaz(hilbert,i,dtype="float64")@nk.operator.spin.sigmaz(hilbert,j,dtype="float64")
+        return 2*nk.operator.spin.sigmap(hilbert,i,DTYPE="float64")@nk.operator.spin.sigmam(hilbert,j,DTYPE="float64")+2*nk.operator.spin.sigmam(hilbert,i,DTYPE="float64")@nk.operator.spin.sigmap(hilbert,j,DTYPE="float64")+nk.operator.spin.sigmaz(hilbert,i,DTYPE="float64")@nk.operator.spin.sigmaz(hilbert,j,DTYPE="float64")
         #return nk.operator.spin.sigmax(hilbert, i)@nk.operator.spin.sigmax(hilbert, j) + nk.operator.spin.sigmay(hilbert, i)@nk.operator.spin.sigmay(hilbert, j) + nk.operator.spin.sigmaz(hilbert, i)@nk.operator.spin.sigmaz(hilbert, j)
 
     def SS(i,j): #different method of definition
@@ -259,11 +254,11 @@ for JEXCH1 in steps:
     def P_cykl_inv(i,j,k,l,msr): # inverse of 4 particle cyclic permutation operator
         return P(j,l,msr)@P(k,l,msr)@P(i,j,msr)
 
-    def P_r(i,msr): # cyclic permutation of 4 sites located at position i
+    def P_r(i,msr): # cyclic permutation of 4 fq.SITES located at position i
         return P_cykl(i,rt(i),lrt(i),bot(i),msr)
     # i --> i j  .... we assigne a lrt cell to each index i
     #       l k
-    def P_r_inv(i,msr): # inverse of cyclic permutation of 4 sites located at position i
+    def P_r_inv(i,msr): # inverse of cyclic permutation of 4 fq.SITES located at position i
         return P_cykl_inv(i,rt(i),lrt(i),bot(i),msr)
 
     def Q_r(i,msr):
@@ -305,21 +300,21 @@ for JEXCH1 in steps:
 
     no_of_runs = 2 #2 ... bude se pocitat i druhý způsob (za použití MSR)
     use_MSR = 0 # in case of one run
-    #NUM_ITER = 100
-    if exact_ground_energy != 0 and verbose == True:
+    #fq.NUM_ITER = 100
+    if exact_ground_energy != 0 and fq.VERBOSE == True:
         print("Expected exact energy:", exact_ground_energy)
     for i,gs in enumerate([gs_normal,gs_MSR][use_MSR:use_MSR+no_of_runs]):
         start = time.time()
-        gs.run(out=OUT_NAME+"_"+str(i), n_iter=int(NUM_ITER),show_progress=verbose)#,obs={'DS_factor': m_dimer_op})#,'PS_factor':m_plaquette_op,'AF_factor':m_s2_op})
+        gs.run(out=OUT_NAME+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)#,obs={'DS_factor': m_dimer_op})#,'PS_factor':m_plaquette_op,'AF_factor':m_s2_op})
         end = time.time()
         print("The type {} of RBM calculation took {} min".format(i, (end-start)/60))
 
 
-    if verbose == True:
+    if fq.VERBOSE == True:
         for i,gs in enumerate([gs_normal,gs_MSR][use_MSR:use_MSR+no_of_runs]):
             print("Trained RBM with MSR:" if i else "Trained RBM without MSR:")
             print("m_d^2 =", gs.estimate(m_dimer_op))
             print("m_p =", gs.estimate(m_plaquette_op))
             print("m_s^2 =", gs.estimate(m_s2_op_MSR))
             print("m_s^2 =", gs.estimate(m_s2_op), "<--- no MSR!!")
-    print("{:f}     {:f}    {:f}    {:f}    {:f}    {:f}    {:f}    {:f}    {:f}    {:f}  {:f}".format(JEXCH1, gs_normal.energy.mean.real, gs_MSR.energy.mean.real, gs_normal.estimate(m_dimer_op).mean.real, gs_normal.estimate(m_plaquette_op).mean.real, gs_normal.estimate(m_s2_op).mean.real, gs_MSR.estimate(m_dimer_op).mean.real, gs_MSR.estimate(m_plaquette_op_MSR).mean.real, gs_MSR.estimate(m_s2_op_MSR).mean.real, SAMPLES, NUM_ITER, sep='    '))
+    print("{:f}     {:f}    {:f}    {:f}    {:f}    {:f}    {:f}    {:f}    {:f}    {:f}  {:f}".format(JEXCH1, gs_normal.energy.mean.real, gs_MSR.energy.mean.real, gs_normal.estimate(m_dimer_op).mean.real, gs_normal.estimate(m_plaquette_op).mean.real, gs_normal.estimate(m_s2_op).mean.real, gs_MSR.estimate(m_dimer_op).mean.real, gs_MSR.estimate(m_plaquette_op_MSR).mean.real, gs_MSR.estimate(m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
