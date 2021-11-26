@@ -31,7 +31,7 @@
 
 ## Schůzka 26.11.2021
  - [ ] napočítat počty automorfismů pro 1D mřížku J1-J2 a zkontrolovat, jestli to sedí se skutečnými symetriemi
- - [ ] udělat grid-search na metacentru pro RBMsymm (variovat AMPHA a ETA)
+ - [ ] udělat grid-search na metacentru pro RBMsymm (variovat ALPHA a ETA)
  - [ ] udělat grid-search na metacentru pro RBMmodPhase (variovat všechny možné hyperparametry)
  - [ ] zdvojnásobit počet samplů (např 1500 samples) a nechat běžet dlouho na metacentru (několik dní - podívat se, kolik běželo předtím těch málo samplů)
  - [ ] znovu proběhnout všechny mřížky (i 36 + zvýšit počet MC kroků) s RBM (ne-sym!) zatím bez rozdělením na modPhase
