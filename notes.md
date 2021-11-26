@@ -28,3 +28,15 @@
     - η amplitudy 0 -> 0.01
     - η fáze      0.05 -> 0.01 ... stejně jako v tutoriálu netket3
     - asi si budu muset ještě pohrát s η a nebo přidat symmetrie
+
+## Schůzka 26.11.2021
+ - [ ] napočítat počty automorfismů pro 1D mřížku J1-J2 a zkontrolovat, jestli to sedí se skutečnými symetriemi
+ - [ ] udělat grid-search na metacentru pro RBMsymm (variovat AMPHA a ETA)
+ - [ ] udělat grid-search na metacentru pro RBMmodPhase (variovat všechny možné hyperparametry)
+ - [ ] zdvojnásobit počet samplů (např 1500 samples) a nechat běžet dlouho na metacentru (několik dní - podívat se, kolik běželo předtím těch málo samplů)
+ - [ ] znovu proběhnout všechny mřížky (i 36 + zvýšit počet MC kroků) s RBM (ne-sym!) zatím bez rozdělením na modPhase
+ - zjistit, kde je problém v RBMsymm
+    - buď je problém v automorfismech (tj. symetrická báze není vlastní podprostor H)
+    - nebo přímo v definici RBMsymm, jak to aplikuje
+ 
+ - udělat amplitudu symetrickou

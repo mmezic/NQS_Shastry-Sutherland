@@ -8,13 +8,13 @@ print("NetKet version: {}".format(nk.__version__))
 print("NumPy version: {}".format(np.__version__))	
 
 """lattice"""	
-SITES    = 4            # 4, 8, 16, 20 ... number of vertices in a tile determines the tile shape 	
+SITES    = 8            # 4, 8, 16, 20 ... number of vertices in a tile determines the tile shape 	
 JEXCH1   = .8            # nn interaction	
 JEXCH2   = 1            # nnn interaction	
 #USE_MSR  = True        # should we use a Marshall sign rule?	
 """machine learning"""	
 TOTAL_SZ = 0            # 0, None ... restriction of Hilbert space	
-SAMPLER = 'local'       # 'local' = MetropolisLocal, 'exchange' = MetropolisExchange
+SAMPLER = 'exact'       # 'local' = MetropolisLocal, 'exchange' = MetropolisExchange
 DTYPE = np.complex128   # type of weights in neural network
 ALPHA = 16              # N_hidden / N_visible	
 ETA   = .01             # learning rate (0.01 usually works)	
@@ -179,14 +179,18 @@ for JEXCH1 in steps:
         eigvects = None
 
     # Symmetric RBM Spin Machine
-    machine = nk.models.RBMSymm(g.automorphisms(),dtype=DTYPE, alpha=ALPHA)  #<--- zde je použita celá grupa symetrii (ne jen translace)
+    machine = nk.models.RBM(dtype=DTYPE, alpha=ALPHA)  #<--- zde je použita celá grupa symetrii (ne jen translace)
     # Symmetric RBM Spin Machine with MSR
-    machine_MSR = nk.models.RBMSymm(g.automorphisms(),dtype=DTYPE, alpha=ALPHA)
+    machine_MSR = nk.models.RBM(dtype=DTYPE, alpha=ALPHA)
 
     # Meropolis Exchange Sampling
     if SAMPLER == 'local':
         sampler = nk.sampler.MetropolisLocal(hilbert=hilbert,n_chains=6)
         sampler_MSR = nk.sampler.MetropolisLocal(hilbert=hilbert)
+    elif SAMPLER == 'exact':
+        sampler = nk.sampler.ExactSampler(hilbert=hilbert,n_chains=6)
+        sampler_MSR = nk.sampler.ExactSampler(hilbert=hilbert)
+        print("exact")
     else:
         sampler = nk.sampler.MetropolisExchange(hilbert=hilbert, graph=g)
         sampler_MSR = nk.sampler.MetropolisExchange(hilbert=hilbert, graph=g)
