@@ -317,4 +317,4 @@ for JEXCH1 in fq.STEPS:
             print("m_p =", gs.estimate(m_plaquette_op))
             print("m_s^2 =", gs.estimate(m_s2_op_MSR))
             print("m_s^2 =", gs.estimate(m_s2_op), "<--- no MSR!!")
-    print("{:f}     {:f}    {:f}    {:f}    {:f}    {:f}    {:f}    {:f}    {:f}    {:f}  {:f}".format(JEXCH1, gs_normal.energy.mean.real, gs_MSR.energy.mean.real, gs_normal.estimate(m_dimer_op).mean.real, gs_normal.estimate(m_plaquette_op).mean.real, gs_normal.estimate(m_s2_op).mean.real, gs_MSR.estimate(m_dimer_op).mean.real, gs_MSR.estimate(m_plaquette_op_MSR).mean.real, gs_MSR.estimate(m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
+    print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}".format(JEXCH1, gs_normal.energy.mean.real, gs_MSR.energy.mean.real, gs_normal.estimate(m_dimer_op).mean.real, gs_normal.estimate(m_plaquette_op).mean.real, gs_normal.estimate(m_s2_op).mean.real, gs_MSR.estimate(m_dimer_op).mean.real, gs_MSR.estimate(m_plaquette_op_MSR).mean.real, gs_MSR.estimate(m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
