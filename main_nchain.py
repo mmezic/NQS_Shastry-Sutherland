@@ -155,7 +155,7 @@ for JEXCH1 in fq.STEPS:
         (fq.JEXCH2 * exchange).tolist(),
     ]
     ha = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=bond_operator, bond_ops_colors=bond_color)
-    ha_MSR = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=bond_operatorMSR, bond_ops_colors=bond_color)
+    ha_MSR = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=bond_operator, bond_ops_colors=bond_color)
 
     if g.n_nodes < 20:
         start = time.time()
@@ -181,8 +181,8 @@ for JEXCH1 in fq.STEPS:
 
     # Meropolis Exchange Sampling
     if fq.SAMPLER == 'local':
-        sampler = nk.sampler.MetropolisLocal(hilbert=hilbert)
-        sampler_MSR = nk.sampler.MetropolisLocal(hilbert=hilbert)
+        sampler = nk.sampler.MetropolisLocal(hilbert=hilbert, n_chains = 6)
+        sampler_MSR = nk.sampler.MetropolisLocal(hilbert=hilbert,  n_chains = 1)
     elif fq.SAMPLER == 'exact':
         sampler = nk.sampler.ExactSampler(hilbert=hilbert)
         sampler_MSR = nk.sampler.ExactSampler(hilbert=hilbert)

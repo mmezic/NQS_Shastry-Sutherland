@@ -181,10 +181,10 @@ for JEXCH1 in fq.STEPS:
 
     # Meropolis Exchange Sampling
     if fq.SAMPLER == 'local':
-        sampler = nk.sampler.MetropolisLocal(hilbert=hilbert,n_chains=6)
+        sampler = nk.sampler.MetropolisLocal(hilbert=hilbert)
         sampler_MSR = nk.sampler.MetropolisLocal(hilbert=hilbert)
     elif fq.SAMPLER == 'exact':
-        sampler = nk.sampler.ExactSampler(hilbert=hilbert,n_chains=6)
+        sampler = nk.sampler.ExactSampler(hilbert=hilbert)
         sampler_MSR = nk.sampler.ExactSampler(hilbert=hilbert)
     else:
         sampler = nk.sampler.MetropolisExchange(hilbert=hilbert, graph=g)
