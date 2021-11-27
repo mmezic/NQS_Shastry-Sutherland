@@ -49,7 +49,23 @@ elif fq.SITES == 4:
 else:
     raise Exception("Invalid number of fq.SITES given.")
 N = sum(width) #number of nodes
-left_shift = len(width) - right_shift #vertical shift of the center of left cell (in the upward direction)
+
+deg45 = True # special case when angle of tiling is 45 deg
+i = 0
+while deg45 and i < len(width)-1:
+    deg45 = (width[i] == width[i+1] + 2 or width[i] == width[i+1] - 2)
+    i += 1
+vertical_gap = False # is there a 1-site-sized gap between bottom (left) tile and left (top) tile ? 
+horizontal_gap = False # is there a 1-site-sized gap between bottom (left) tile and bottom right tile ?
+if deg45:
+    if width[i]%2 == 0:
+        vertical_gap = True
+    else:
+        horizontal_gap = True
+        Exception("Not implemented ERROR during lattice definition. Please rotate given lattice by 90 degrees. This special case happens only when dealing with 45 deg tilings.")
+
+left_shift = len(width) - right_shift + vertical_gap #vertical shift of the center of (top) left tile (in the upward direction)
+
 
 # i j-->
 # | .   .   .   0  
@@ -88,13 +104,17 @@ def is_lowest(node):
             return True
 def rt(node): #returns index n of right neighbour
     if is_last(node):
-        new_row = (position(node)[0] + right_shift)%len(width)
+        new_row = (position(node)[0] + right_shift)%(len(width)+vertical_gap)
+        if new_row == len(width): # special case of gap
+            new_row -= right_shift
         return sum(width[0:new_row])
     else:
         return (node+1)%N
 def lft(node): #returns index n of left neighbour
     if is_first(node):
-        new_row = (position(node)[0] + left_shift)%len(width)
+        new_row = (position(node)[0] + left_shift)%(len(width)+vertical_gap)
+        if new_row == len(width):
+            new_row -= left_shift
         return sum(width[0:new_row])+width[new_row]-1
     else:
         return (node-1)%N
