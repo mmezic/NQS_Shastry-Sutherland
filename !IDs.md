@@ -16,4 +16,4 @@ párty hárder:
 9620394 - 20
 9620395 - 36
 
-9620396 - 8 ... korekce pro RBMSymm (je to ve slořce order_parameters)
+9620396 - 8 ... korekce pro RBMSymm (je to ve slořce order_parameters) 
