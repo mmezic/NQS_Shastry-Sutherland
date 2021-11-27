@@ -40,3 +40,6 @@
     - nebo přímo v definici RBMsymm, jak to aplikuje
  
  - udělat amplitudu symetrickou
+
+ ## poznámky
+ - RBM (ne-symm) to počítá opravdu hodně rychleji a lépe
