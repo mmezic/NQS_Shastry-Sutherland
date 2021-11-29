@@ -4,6 +4,7 @@ import netket as nk
 import numpy as np
 import jax
 import time	
+from itertools import product
 print("NetKet version: {}".format(nk.__version__))	
 print("NumPy version: {}".format(np.__version__))	
 
@@ -12,6 +13,8 @@ if len(sys.argv) == 1:
     file = "config"
 print(file)
 fq = __import__(file)
+
+JEXCH1 = fq.JEXCH1
 
 OUT_NAME = "SS-RBM_ops"+str(fq.SITES) # output file name	
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
@@ -161,33 +164,37 @@ exchange = np.asarray([[0, 0, 0, 0], [0, 0, 2, 0], [0, 2, 0, 0], [0, 0, 0, 0]]) 
 full_spin = mszsz+exchange # = S*S = sx*sx + sy*sy + sz*sz
 bond_color = [1, 2, 1, 2]
 
-for JEXCH1 in fq.STEPS:
-    bond_operator = [
-        (JEXCH1 * mszsz).tolist(),
-        (fq.JEXCH2 * mszsz).tolist(),
-        (JEXCH1 * exchange).tolist(), # minus in case of MSR
-        (fq.JEXCH2 * exchange).tolist(),
-    ]
-    bond_operatorMSR = [
-        (JEXCH1 * mszsz).tolist(),
-        (fq.JEXCH2 * mszsz).tolist(),
-        (-JEXCH1 * exchange).tolist(), # minus in case of MSR
-        (fq.JEXCH2 * exchange).tolist(),
-    ]
-    ha = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=bond_operator, bond_ops_colors=bond_color)
-    ha_MSR = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=bond_operatorMSR, bond_ops_colors=bond_color)
+print("alpha =",fq.ALPHA,"eta =", fq.ETA)
+bond_operator = [
+    (JEXCH1 * mszsz).tolist(),
+    (fq.JEXCH2 * mszsz).tolist(),
+    (JEXCH1 * exchange).tolist(), # minus in case of MSR
+    (fq.JEXCH2 * exchange).tolist(),
+]
+bond_operatorMSR = [
+    (JEXCH1 * mszsz).tolist(),
+    (fq.JEXCH2 * mszsz).tolist(),
+    (-JEXCH1 * exchange).tolist(), # minus in case of MSR
+    (fq.JEXCH2 * exchange).tolist(),
+]
+ha = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=bond_operator, bond_ops_colors=bond_color)
+ha_MSR = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=bond_operatorMSR, bond_ops_colors=bond_color)
 
-    if g.n_nodes < 20 and fq.VERBOSE == False:
-        start = time.time()
-        evals, eigvects = nk.exact.lanczos_ed(ha, k=3, compute_eigenvectors=True)
-        #evals = nk.exact.lanczos_ed(ha, compute_eigenvectors=False) #.lanczos_ed
-        end = time.time()
-        diag_time = end - start
-        exact_ground_energy = evals[0]
-    else:
-        exact_ground_energy = 0
-        eigvects = None
+if g.n_nodes < 20:
+    start = time.time()
+    evals, eigvects = nk.exact.lanczos_ed(ha, k=3, compute_eigenvectors=True)
+    #evals = nk.exact.lanczos_ed(ha, compute_eigenvectors=False) #.lanczos_ed
+    end = time.time()
+    diag_time = end - start
+    exact_ground_energy = evals[0]
+    file = open("out.txt", "a")
+    file.write("Exact energies:"+str(evals)+"\n")
+    file.close()
+else:
+    exact_ground_energy = 0
+    eigvects = None
 
+for fq.ALPHA, fq.ETA in product(fq.STEPS_A,fq.STEPS_E):
     # Symmetric RBM Spin fq.MACHINE
     # and Symmetric RBM Spin fq.MACHINE with MSR
     if fq.MACHINE == "RBMSymm":
@@ -321,8 +328,8 @@ for JEXCH1 in fq.STEPS:
     no_of_runs = 2 #2 ... bude se pocitat i druhý způsob (za použití MSR)
     use_MSR = 0 # in case of one run
     #fq.NUM_ITER = 100
-    if exact_ground_energy[0] != 0 and fq.VERBOSE == True:
-        print("Expected exact energy:", exact_ground_energy[0])
+    if exact_ground_energy != 0 and fq.VERBOSE == True:
+        print("Expected exact energy:", exact_ground_energy)
     for i,gs in enumerate([gs_normal,gs_MSR][use_MSR:use_MSR+no_of_runs]):
         start = time.time()
         gs.run(out=OUT_NAME+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)#,obs={'DS_factor': m_dimer_op})#,'PS_factor':m_plaquette_op,'AF_factor':m_s2_op})
@@ -337,7 +344,7 @@ for JEXCH1 in fq.STEPS:
             print("m_p =", gs.estimate(m_plaquette_op))
             print("m_s^2 =", gs.estimate(m_s2_op_MSR))
             print("m_s^2 =", gs.estimate(m_s2_op), "<--- no MSR!!")
-    print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}".format(JEXCH1, gs_normal.energy.mean.real, gs_MSR.energy.mean.real, gs_normal.estimate(m_dimer_op).mean.real, gs_normal.estimate(m_plaquette_op).mean.real, gs_normal.estimate(m_s2_op).mean.real, gs_MSR.estimate(m_dimer_op).mean.real, gs_MSR.estimate(m_plaquette_op_MSR).mean.real, gs_MSR.estimate(m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
+    print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}    {:9.5f}  {:9.5f}".format(JEXCH1, gs_normal.energy.mean.real, gs_MSR.energy.mean.real, gs_normal.estimate(m_dimer_op).mean.real, gs_normal.estimate(m_plaquette_op).mean.real, gs_normal.estimate(m_s2_op).mean.real, gs_MSR.estimate(m_dimer_op).mean.real, gs_MSR.estimate(m_plaquette_op_MSR).mean.real, gs_MSR.estimate(m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, fq.ALPHA, fq.ETA, sep='    '))
     file = open("out.txt", "a")
-    file.write("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}\n".format(JEXCH1, gs_normal.energy.mean.real, gs_MSR.energy.mean.real, gs_normal.estimate(m_dimer_op).mean.real, gs_normal.estimate(m_plaquette_op).mean.real, gs_normal.estimate(m_s2_op).mean.real, gs_MSR.estimate(m_dimer_op).mean.real, gs_MSR.estimate(m_plaquette_op_MSR).mean.real, gs_MSR.estimate(m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
+    file.write("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}    {:9.5f}  {:9.5f}\n".format(JEXCH1, gs_normal.energy.mean.real, gs_MSR.energy.mean.real, gs_normal.estimate(m_dimer_op).mean.real, gs_normal.estimate(m_plaquette_op).mean.real, gs_normal.estimate(m_s2_op).mean.real, gs_MSR.estimate(m_dimer_op).mean.real, gs_MSR.estimate(m_plaquette_op_MSR).mean.real, gs_MSR.estimate(m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, fq.ALPHA, fq.ETA, sep='    '))
     file.close()
