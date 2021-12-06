@@ -4,5 +4,6 @@
 *.o*
 __*
 planground/
+convergence_plots/
 old_logs/
 out.txt

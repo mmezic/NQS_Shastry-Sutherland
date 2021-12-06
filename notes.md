@@ -15,7 +15,7 @@
 - [x] znovu přegenerovat grafy se správným výpočtěm parametrů uspořádání pro MSR
 - [x] vypnout `TOTAL_SZ` a zkusit `MetropolisLocal`
 - [ ] Jastrow
-- [ ] rozštěpení na amplitudu a fázi
+- [x] rozštěpení na amplitudu a fázi
 
 ## poznámky
 - výsledky mřížky `N=36`:
@@ -30,19 +30,46 @@
     - asi si budu muset ještě pohrát s η a nebo přidat symmetrie
 
 ## Schůzka 26.11.2021
- - [ ] napočítat počty automorfismů pro 1D mřížku J1-J2 a zkontrolovat, jestli to sedí se skutečnými symetriemi
- - [ ] udělat grid-search na metacentru pro RBMsymm (variovat ALPHA a ETA)
+ - [x] 1) napočítat počty automorfismů pro 1D mřížku J1-J2 a zkontrolovat, jestli to sedí se skutečnými symetriemi
+    - zjistit, kde je problém v RBMsymm
+        - buď je problém v automorfismech (tj. symetrická báze není vlastní podprostor H)
+        - nebo přímo v definici RBMsymm, jak to aplikuje
+ - [ ] 2) udělat grid-search na metacentru pro RBMsymm (variovat ALPHA a ETA)
  - [ ] udělat grid-search na metacentru pro RBMmodPhase (variovat všechny možné hyperparametry)
- - [ ] zdvojnásobit počet samplů (např 1500 samples) a nechat běžet dlouho na metacentru (několik dní - podívat se, kolik běželo předtím těch málo samplů, abych věděl, kolik tomu dát času)
- - [ ] znovu proběhnout všechny mřížky (i 36 + zvýšit počet MC kroků) s RBM (ne-sym!) zatím bez rozdělením na modPhase
- - zjistit, kde je problém v RBMsymm
-    - buď je problém v automorfismech (tj. symetrická báze není vlastní podprostor H)
-    - nebo přímo v definici RBMsymm, jak to aplikuje
+    - udělat amplitudu symetrickou
+ - [x] zdvojnásobit počet samplů (např 1500 samples) a nechat běžet dlouho na metacentru (několik dní - podívat se, kolik běželo předtím těch málo samplů, abych věděl, kolik tomu dát času)
+ - [x] znovu proběhnout všechny mřížky (i 36 + zvýšit počet MC kroků) s RBM (ne-sym!) zatím bez rozdělením na modPhase
  
- - udělat amplitudu symetrickou
 
  ## poznámky
+ 1) funkce `automorphisms()` funguje správně - když přebarvím J_2
+    - až na to, že nedokáže rozlišit mezi tím, když je stejná hrana vícenásobná
+    - používají na to funkci: https://igraph.org/python/api/latest/igraph._igraph.GraphBase.html#get_isomorphisms_vf2
+
+2) mám to ve složce SS_model/energy_plots/GrodSearch-symmRBM, ale ještě jsem to nezvizualizoval a nezanalyzoval
+
  - RBM (ne-symm) to počítá opravdu hodně rychleji a lépe
  - udělal jsem grid-search (v `eta` a `alpha`) pro RBMsymm v dimerové fázi (J2=0.3)
     - pro N=4 to NIKDY nenašlo gs (viz data ve složce GridSearch-symmRBM)
-    - pro osatní to nechám běžet na metacentru
+    - pro osatní to jsem submitnul na metacentrum
+ - v nové verzi `3.2` netketu byla do `Heisenberg` přidána podpora různých kaplovacích konstant pro různé barvy hran grafu
+    - a taky implementovalý nějaký Parallel Tempering sampler (nevím, jestli může být užitečný)
+
+- Jaký mám použít Jastrow?
+    - zkoušel jsem $ \log\psi(\sigma) = \sum_i a_i \sigma_i + \sum_{i,j} \sigma_i J_{i,j} \sigma_j $ - na malých mřížkách to fungovalo, ale pro N=36 to nenašlo dimerovou fázi, tak jsem to vzdal...
+
+## další poznámky
+
+- <a href="https://www.physicsforums.com/threads/when-does-a-wavefunction-inherit-the-symmetries-of-the-hamiltonian.643672/">link</a> In general the whole eigensubspace will be invariant under any transformation that leaves the hamiltonian invariant. For a one dimensional ground state that means you have invariance up to a phase factor.
+- Jaktože Carleo nepoužíval MSR a přesto mu to našlo GS, který nesplňuje symetrie
+
+## schůzka 3.12
+
+- promyslet si jak naimplementovat symmetrie
+- [ ] udělat dimmer pomocí G-CNN - dokáží ho vyřešit?
+- [ ] podívat se, jaké symmetrie v RBM jdou vypnout a zkusit si zadefinovat vlastní symetrie
+    - zkusit udělat pouze **translace o 2**
+- článek od sandvika (kniha ) - rozepsat si to pro dimer a promyslet si jestli/proč $K \neq 0$
+- [ ] zkusit udělat dimmerovou fázi v 1D a 2D
+    - najít základní stav a podívat se, jaké je $K$ ?
+    <!-- - symmetrie pouze translace -->
