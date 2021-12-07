@@ -75,6 +75,8 @@
     <!-- - symmetrie pouze translace -->
 
 ## poznámky
+- vypnul jsem všechny ostatní symetrie a nechal jsem jenom translace o 2 a pořád mi to nekonverguje
+- [ ] udělat si testy na dvou-dimerovém toy modelu
 
 ### one dimer
 
