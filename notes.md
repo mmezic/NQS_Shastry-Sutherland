@@ -66,10 +66,22 @@
 ## schůzka 3.12
 
 - promyslet si jak naimplementovat symmetrie
-- [ ] udělat dimmer pomocí G-CNN - dokáží ho vyřešit?
+- [ ] udělat dimer pomocí G-CNN - dokáží ho vyřešit?
 - [ ] podívat se, jaké symmetrie v RBM jdou vypnout a zkusit si zadefinovat vlastní symetrie
     - zkusit udělat pouze **translace o 2**
 - článek od sandvika (kniha ) - rozepsat si to pro dimer a promyslet si jestli/proč $K \neq 0$
-- [ ] zkusit udělat dimmerovou fázi v 1D a 2D
+- [ ] zkusit udělat dimerovou fázi v 1D a 2D
     - najít základní stav a podívat se, jaké je $K$ ?
     <!-- - symmetrie pouze translace -->
+
+## poznámky
+
+### one dimer
+
+A dimer is described by a hamiltonian
+$$ H_{\text{one}} = \bm{S}_1\cdot\bm{S}_2 = \begin{pmatrix} 
+1 & 0 & 0 & 0\\ 
+0 &-1 & 2 & 0\\
+0 & 2 &-1 & 0\\
+0 & 0 & 0 & 1
+\end{pmatrix}$$
