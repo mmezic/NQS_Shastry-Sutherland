@@ -194,7 +194,7 @@ class Operators:
     
 
 
-    def P(self,i,j,msr): # two particle permutation operator
+    def P(self,i,j,msr=False): # two particle permutation operator
         if msr == False:
             return .5*(self.SS(i,j)+nk.operator.LocalOperator(self.hilbert,operators=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]],acting_on=[i,j]))
         else:

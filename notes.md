@@ -77,6 +77,12 @@
 ## poznámky
 - vypnul jsem všechny ostatní symetrie a nechal jsem jenom translace o 2 a pořád mi to nekonverguje
 - [ ] udělat si testy na dvou-dimerovém toy modelu
+    - MSR konverguje tím lépe, čím více symetrií máme
+    - bez-MSR to **nekonverguje po přidání (jakékoliv) symetrie**
+    - dokonce všechny střední hodnoty permutací pro non-MSR non-Symm, která zkonverguje dobře, vychází správně $\langle \psi | \hat{P}_{01} | \psi \rangle = \langle \psi | \hat{P}_{23} | \psi \rangle = - 1$ a  $\langle \psi | \hat{P}_{02}\hat{P}_{13} | \psi \rangle = 1$
+- zkoušel jsem na to spustit G-CNN, ale zatím mi to vubec nekonverguje :(
+    - myslím, že by to mohlo být to kvůli tomu, že tam nejde nastavit `dtype=complex`
+- zajímavý graf se observable swap
 
 ### one dimer
 
