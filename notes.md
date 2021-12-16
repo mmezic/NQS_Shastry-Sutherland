@@ -84,7 +84,7 @@
     - myslím, že by to mohlo být to kvůli tomu, že tam nejde nastavit `dtype=complex`
 - zajímavý graf se observable swap
 
-### one dimer
+<!-- ### one dimer
 
 A dimer is described by a hamiltonian
 $$ H_{\text{one}} = \bm{S}_1\cdot\bm{S}_2 = \begin{pmatrix} 
@@ -92,4 +92,13 @@ $$ H_{\text{one}} = \bm{S}_1\cdot\bm{S}_2 = \begin{pmatrix}
 0 &-1 & 2 & 0\\
 0 & 2 &-1 & 0\\
 0 & 0 & 0 & 1
-\end{pmatrix}$$
+\end{pmatrix}$$ -->
+
+## Schůzka 10.12.
+
+## poznámky
+- Existuje druhá verze 20 sitového tilu: https://www.slideserve.com/najwa/thermodynamic-properties-of-the-shastry-sutherland-model
+
+## Schůzka 16.12.
+- zkusit napsat dimer pomocí "Lattice" a podívat se, jestli to dává stejné špatné výsledky
+- zkusit si vypnout biasy v obou (RBM i RBMSymm) a pohrát si s 
