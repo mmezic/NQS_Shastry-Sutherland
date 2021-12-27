@@ -52,8 +52,8 @@ full_spin = mszsz+exchange # = S*S = sx*sx + sy*sy + sz*sz
 bond_color = [1, 2, 1, 2]
 
 for JEXCH1 in fq.STEPS:
-    ha = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
-    ha_MSR = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
+    ha = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
+    ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
 
     if g.n_nodes < 20 and fq.VERBOSE == True:
         start = time.time()
@@ -70,54 +70,54 @@ for JEXCH1 in fq.STEPS:
     # and Symmetric RBM Spin fq.MACHINE with MSR
     if fq.MACHINE == "RBM":
         machine = nk.models.RBM(dtype=fq.DTYPE, alpha=fq.ALPHA)
-        machine_MSR = nk.models.RBM(dtype=fq.DTYPE, alpha=fq.ALPHA)
+        machine_2 = nk.models.RBM(dtype=fq.DTYPE, alpha=fq.ALPHA)
     elif fq.MACHINE == "RBMSymm":
         machine = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=fq.ALPHA) 
-        machine_MSR = nk.models.RBMSymm(g.automorphisms(),dtype=fq.DTYPE, alpha=fq.ALPHA)
+        machine_2 = nk.models.RBMSymm(g.automorphisms(),dtype=fq.DTYPE, alpha=fq.ALPHA)
     elif fq.MACHINE == "GCNN":
         machine     = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=fq.characters)
-        machine_MSR = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=fq.characters_msr)
+        machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=fq.characters_2)
     else:
         raise Exception(str("undefined MACHINE: ")+str(fq.MACHINE))
 
     # Meropolis Exchange Sampling
     if fq.SAMPLER == 'local':
         sampler = nk.sampler.MetropolisLocal(hilbert=hilbert)
-        sampler_MSR = nk.sampler.MetropolisLocal(hilbert=hilbert)
+        sampler_2 = nk.sampler.MetropolisLocal(hilbert=hilbert)
     elif fq.SAMPLER == 'exact':
         sampler = nk.sampler.ExactSampler(hilbert=hilbert)
-        sampler_MSR = nk.sampler.ExactSampler(hilbert=hilbert)
+        sampler_2 = nk.sampler.ExactSampler(hilbert=hilbert)
     else:
         sampler = nk.sampler.MetropolisExchange(hilbert=hilbert, graph=g)
-        sampler_MSR = nk.sampler.MetropolisExchange(hilbert=hilbert, graph=g)
+        sampler_2 = nk.sampler.MetropolisExchange(hilbert=hilbert, graph=g)
         if fq.SAMPLER != 'exchange':
             print("Warning! Undefined fq.SAMPLER:", fq.SAMPLER, ", dafaulting to MetropolisExchange fq.SAMPLER")
 
     # Optimzer
     optimizer = nk.optimizer.Sgd(learning_rate=fq.ETA)
-    optimizer_MSR = nk.optimizer.Sgd(learning_rate=fq.ETA)
+    optimizer_2 = nk.optimizer.Sgd(learning_rate=fq.ETA)
 
     # Stochastic Reconfiguration
     sr  = nk.optimizer.SR(diag_shift=0.1)
-    sr_MSR  = nk.optimizer.SR(diag_shift=0.1)
+    sr_2  = nk.optimizer.SR(diag_shift=0.1)
 
     # The variational state (drive to byla nk.variational.MCState)
     vss = nk.vqs.MCState(sampler, machine, n_samples=fq.SAMPLES)
-    vs_MSR  = nk.vqs.MCState(sampler_MSR, machine_MSR, n_samples=fq.SAMPLES)
+    vs_2  = nk.vqs.MCState(sampler_2, machine_2, n_samples=fq.SAMPLES)
     vss.init_parameters(jax.nn.initializers.normal(stddev=0.001))
-    vs_MSR.init_parameters(jax.nn.initializers.normal(stddev=0.001))
+    vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.001))
 
     gs_normal = nk.VMC(hamiltonian=ha ,optimizer=optimizer,preconditioner=sr,variational_state=vss)                       # 0 ... symmetric
-    gs_MSR = nk.VMC(hamiltonian=ha_MSR ,optimizer=optimizer_MSR,preconditioner=sr_MSR,variational_state=vs_MSR)   # 1 ... symmetric+MSR
+    gs_2 = nk.VMC(hamiltonian=ha_2 ,optimizer=optimizer_2,preconditioner=sr_2,variational_state=vs_2)   # 1 ... symmetric+MSR
 
     ops = Operators(lattice,hilbert,mszsz,exchange)
 
     no_of_runs = 2 #2 ... bude se pocitat i druhý způsob (za použití MSR)
-    use_MSR = 0 # in case of one run
+    use_2 = 0 # in case of one run
     #fq.NUM_ITER = 100
     if exact_ground_energy != 0 and fq.VERBOSE == True:
         print("Expected exact energy:", exact_ground_energy)
-    for i,gs in enumerate([gs_normal,gs_MSR][use_MSR:use_MSR+no_of_runs]):
+    for i,gs in enumerate([gs_normal,gs_2][use_2:use_2+no_of_runs]):
         start = time.time()
         gs.run(out=OUT_NAME+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)#,obs={'DS_factor': m_dimer_op})#,'PS_factor':m_plaquette_op,'AF_factor':m_s2_op})
         end = time.time()
@@ -125,13 +125,13 @@ for JEXCH1 in fq.STEPS:
 
 
     if fq.VERBOSE == True:
-        for i,gs in enumerate([gs_normal,gs_MSR][use_MSR:use_MSR+no_of_runs]):
+        for i,gs in enumerate([gs_normal,gs_2][use_2:use_2+no_of_runs]):
             print("Trained RBM with MSR:" if i else "Trained RBM without MSR:")
             print("m_d^2 =", gs.estimate(ops.m_dimer_op))
             print("m_p =", gs.estimate(ops.m_plaquette_op))
             print("m_s^2 =", gs.estimate(ops.m_s2_op_MSR))
             print("m_s^2 =", gs.estimate(ops.m_s2_op), "<--- no MSR!!")
-    print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}".format(JEXCH1, gs_normal.energy.mean.real, gs_MSR.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, gs_MSR.estimate(ops.m_dimer_op).mean.real, gs_MSR.estimate(ops.m_plaquette_op_MSR).mean.real, gs_MSR.estimate(ops.m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
+    print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}".format(JEXCH1, gs_normal.energy.mean.real, gs_2.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, gs_2.estimate(ops.m_dimer_op).mean.real, gs_2.estimate(ops.m_plaquette_op_2).mean.real, gs_2.estimate(ops.m_s2_op_2).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
     file = open("out.txt", "a")
-    file.write("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}\n".format(JEXCH1, gs_normal.energy.mean.real, gs_MSR.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, gs_MSR.estimate(ops.m_dimer_op).mean.real, gs_MSR.estimate(ops.m_plaquette_op_MSR).mean.real, gs_MSR.estimate(ops.m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
+    file.write("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}\n".format(JEXCH1, gs_normal.energy.mean.real, gs_2.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, gs_2.estimate(ops.m_dimer_op).mean.real, gs_2.estimate(ops.m_plaquette_op_2).mean.real, gs_2.estimate(ops.m_s2_op_2).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
     file.close()

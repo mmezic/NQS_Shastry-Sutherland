@@ -14,3 +14,7 @@ SAMPLES = 2500
 NUM_ITER = 5000	
 VERBOSE = False         # should we print more detailed results
 STEPS = np.arange(0,1.21,step=0.1)	
+num_layers = 2
+feature_dims = (8,4)
+characters = None
+characters_msr = None

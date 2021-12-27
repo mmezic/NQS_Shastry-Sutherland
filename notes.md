@@ -102,3 +102,32 @@ $$ H_{\text{one}} = \bm{S}_1\cdot\bm{S}_2 = \begin{pmatrix}
 ## Schůzka 16.12.
 - zkusit napsat dimer pomocí "Lattice" a podívat se, jestli to dává stejné špatné výsledky
 - zkusit si vypnout biasy v obou (RBM i RBMSymm) a pohrát si s 
+
+## poznámky
+$$ \psi(\sigma) = \exp\left(\sum_i a_i \sigma_i\right) \prod_k 2 \cosh\left( b_k + \sum_i W_{ik}\sigma_i\right)$$
+- zkoušel jsem `RBMmodPhase`, ale nikdy se mi s tím nepodařilo zkonvergovat ani na dimeru
+    - zkoušel jsem měnit všechny možná hyperparametry (learning raty pro obě sítě), ale nic...
+    - možná to je tím, že obě takto definované RBMka nemají (ani nemohou mít) žádné visible biasy
+        - šly by naimplementovat
+$$ \psi_{\text{ModPhase}}(\sigma) = \exp\left[ \log\prod_k   2\cosh\left( b_k + \sum_i W_{ik}\sigma_i\right) + {\rm i}\log\prod_k   2\cosh\left( b'_k + \sum_i W'_{ik}\sigma_i\right)\right]$$
+- zkoušel jsem `G-CNN` a dopadl jsem stejně
+    - pak jsem zjistil, že `dtype` charakterů je potřeba nastavit na komplexní
+    - funguje to krásně i na double dimeru
+        - dokonce to ani nepotřebuje konvergovat, protože ze začátku to už je ve správném stavu
+    - charaktery prozatím zadávám pouze ručně
+
+
+
+- zkusit zjistit důvod proč nefunguje `RBMmodPhase`
+- pak se přesunout k `GCNN` a replikovat předchozí výsledky (zatím pro `h=0`)
+    - přes svátky pustit na nějaké větší mřížce
+
+- [ ] spustit GCNN
+- [ ] analyzovat proč selhává RBMmodPhase
+
+## poznámky
+- v AF fázi mi GCNN nefunguje :(
+    - zkoušel jsem to pouštět na PBC řetízku o délce 3 a zvládlo to pouze MSR, což je divné, protože MSR by tam být nemělo
+
+- v DS fázi by mělo být **MSR irelevantní**, protože zde neprobíhá interakce mezi dimery a každý dimer leží v jedné z podmřížek, takže na něj MSR neplatí
+    - hmm, dalo by se implementovat striped MSR, které by platilo dobře na dimery?

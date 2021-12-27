@@ -171,7 +171,6 @@ class Operators:
 
         
 
-
     def SS_old(self,i,j): # S_i * S_j
         return 2*nk.operator.spin.sigmap(self.hilbert,i,DTYPE="float64")@nk.operator.spin.sigmam(self.hilbert,j,DTYPE="float64")+2*nk.operator.spin.sigmam(self.hilbert,i,DTYPE="float64")@nk.operator.spin.sigmap(self.self.hilbert,j,DTYPE="float64")+nk.operator.spin.sigmaz(self.hilbert,i,DTYPE="float64")@nk.operator.spin.sigmaz(self.hilbert,j,DTYPE="float64")
         #return nk.operator.spin.sigmax(self.hilbert, i)@nk.operator.spin.sigmax(self.hilbert, j) + nk.operator.spin.sigmay(self.hilbert, i)@nk.operator.spin.sigmay(self.hilbert, j) + nk.operator.spin.sigmaz(self.hilbert, i)@nk.operator.spin.sigmaz(self.hilbert, j)
@@ -189,10 +188,7 @@ class Operators:
             return nk.operator.LocalOperator(self.hilbert,operators=(self.mszsz+self.exchange),acting_on=[i,j])
         else:                                                                                       # different sublattice 
             return nk.operator.LocalOperator(self.hilbert,operators=(self.mszsz-self.exchange),acting_on=[i,j])
-
-
     
-
 
     def P(self,i,j,msr=False): # two particle permutation operator
         if msr == False:
@@ -208,15 +204,14 @@ class Operators:
 
     def P_r(self,i,msr): # cyclic permutation of 4 fq.SITES located at position i
         return self.P_cykl(i,self.lattice.rt(i),self.lattice.lrt(i),self.lattice.bot(i),msr)
-    # i --> i j  .... we assigne a lrt cell to each index i
-    #       l k
+        # i --> i j  .... we assigne a lrt cell to each index i
+        #       l k
     def P_r_inv(self,i,msr): # inverse of cyclic permutation of 4 fq.SITES located at position i
         return self.P_cykl_inv(i,self.lattice.rt(i),self.lattice.lrt(i),self.lattice.bot(i),msr)
 
     def Q_r(self,i,msr):
         return .5*(self.P_r(i,msr) + self.P_r_inv(i,msr))
 
-    
 
     def m_sSquared_slow(self,state):
         ss_operator = 0
@@ -230,5 +225,36 @@ class Operators:
                 ss_operator = 0
         m_s2 = m_s2/M**2
         return m_s2
+
+"""
+Class containing auxiliary operators which helps with defining a hamiltonian.
+"""
+class HamOps:
+    #Sigma^z*Sigma^z interactions
+    sigmaz = [[1, 0], [0, -1]]
+    mszsz = (np.kron(sigmaz, sigmaz)) #=sz*sz
+    #Exchange interactions
+    exchange = np.asarray([[0, 0, 0, 0], [0, 0, 2, 0], [0, 2, 0, 0], [0, 0, 0, 0]]) #=sx*sx+sy*sy = 1/2*(sp*sm+sm*sp)
+    full_spin = mszsz+exchange # = S*S = sx*sx + sy*sy + sz*sz
+    bond_color = [1, 2, 1, 2]
+    def __init__(self) -> None:
+        pass
+
+    def bond_operator(self, jexch1=1, jexch2=1, use_MSR=False):
+        sign = 1 if use_MSR else -1
+        return [(jexch1 * self.mszsz).tolist(),(jexch2 * self.mszsz).tolist(),(sign*jexch1 * self.exchange).tolist(),(jexch2 * self.exchange).tolist(),]
+
+"""
+Calculates the number of swaps forming the given permutation. Returns 1 or -1.
+"""
+def permutation_sign(permutation):
+    length = len(permutation)
+    count = 0
+    for i in range(length):
+        for j in range(i,length):
+            if permutation[i]>permutation[j]:
+                count +=1
+    return -1 if count%2 else 1
+
 
     
