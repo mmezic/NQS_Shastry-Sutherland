@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -S /bin/bash
 #PBS -N mezera_nk
-#PBS -l walltime=23:45:00
-#PBS -l select=1:ncpus=16:mem=31gb:scratch_local=160gb:os=debian10:cluster=^krux
+#PBS -l walltime=71:45:00
+#PBS -l select=1:ncpus=16:mem=31gb:scratch_local=63gb:os=debian10:cluster=^krux
 #PBS -j oe
 
 #arguments loading
@@ -44,6 +44,6 @@ module add py-pip/py-pip-19.3-intel-19.0.4-hudzomi
 export OMP_NUM_THREADS=16
 FILE=/storage/praha1/home/mezic/diplomka/netket_scripts/main.py
 echo FILE=$FILE
-python3 $FILE -f RBM8
+python3 $FILE -f RBM20
 echo "end"
 cp -r $SCRATCHDIR/* $SOURCE

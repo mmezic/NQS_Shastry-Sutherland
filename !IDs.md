@@ -16,8 +16,15 @@ párty hárder:
 9620393f - 16
 9620394f - 20
 9620395f - 36
-TODO:
 9624437 - 16
 9624439 - 20
 9624442 - 36
 9638418 - 8 - zpřesňování mřížky výpočtem mezihodnot
+
+Grid Searche:
+9641942 - 8 - jen krátká zkouška, jeslti to nespadne
+9641944 - 8
+9641945 - 16
+9641946 - 20
+
+TODO:
