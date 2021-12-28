@@ -154,6 +154,9 @@ class Operators:
             i += 1
         self.m_plaquette_op = self.Q_r(i,False)-self.Q_r(self.lattice.lrt(i),False)
         self.m_plaquette_op_MSR = self.Q_r(i,True)-self.Q_r(self.lattice.lrt(i),True)
+        if lattice.SITES < 5: # plaquette operators cannot be defined for small lattices -> replacing by identity
+            self.m_plaquette_op = nk.operator.LocalOperator(self.hilbert,operators=[[1,0],[0,1]],acting_on=[0])
+            self.m_plaquette_op_MSR = self.m_plaquette_op
 
         # AF operator
         self.m_s2_op_MSR = 0
