@@ -73,35 +73,35 @@ for JEXCH1 in fq.STEPS:
         machine = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=fq.ALPHA) 
         machine_2 = nk.models.RBMSymm(g.automorphisms(),dtype=fq.DTYPE, alpha=fq.ALPHA)
     elif fq.MACHINE == "GCNN":
-        machine     = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters)
+        machine   = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters)
         machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_2)
     else:
         raise Exception(str("undefined MACHINE: ")+str(fq.MACHINE))
 
     # Meropolis Exchange Sampling
     if fq.SAMPLER == 'local':
-        sampler = nk.sampler.MetropolisLocal(hilbert=hilbert)
+        sampler   = nk.sampler.MetropolisLocal(hilbert=hilbert)
         sampler_2 = nk.sampler.MetropolisLocal(hilbert=hilbert)
     elif fq.SAMPLER == 'exact':
-        sampler = nk.sampler.ExactSampler(hilbert=hilbert)
+        sampler   = nk.sampler.ExactSampler(hilbert=hilbert)
         sampler_2 = nk.sampler.ExactSampler(hilbert=hilbert)
     else:
-        sampler = nk.sampler.MetropolisExchange(hilbert=hilbert, graph=g)
+        sampler   = nk.sampler.MetropolisExchange(hilbert=hilbert, graph=g)
         sampler_2 = nk.sampler.MetropolisExchange(hilbert=hilbert, graph=g)
         if fq.SAMPLER != 'exchange':
             print("Warning! Undefined fq.SAMPLER:", fq.SAMPLER, ", dafaulting to MetropolisExchange fq.SAMPLER")
 
     # Optimzer
-    optimizer = nk.optimizer.Sgd(learning_rate=fq.ETA)
+    optimizer   = nk.optimizer.Sgd(learning_rate=fq.ETA)
     optimizer_2 = nk.optimizer.Sgd(learning_rate=fq.ETA)
 
     # Stochastic Reconfiguration
-    sr  = nk.optimizer.SR(diag_shift=0.1)
-    sr_2  = nk.optimizer.SR(diag_shift=0.1)
+    sr   = nk.optimizer.SR(diag_shift=0.1)
+    sr_2 = nk.optimizer.SR(diag_shift=0.1)
 
     # The variational state (drive to byla nk.variational.MCState)
-    vss = nk.vqs.MCState(sampler, machine, n_samples=fq.SAMPLES)
-    vs_2  = nk.vqs.MCState(sampler_2, machine_2, n_samples=fq.SAMPLES)
+    vss  = nk.vqs.MCState(sampler, machine, n_samples=fq.SAMPLES)
+    vs_2 = nk.vqs.MCState(sampler_2, machine_2, n_samples=fq.SAMPLES)
     vss.init_parameters(jax.nn.initializers.normal(stddev=0.001))
     vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.001))
 

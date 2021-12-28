@@ -244,7 +244,7 @@ class HamOps:
         pass
 
     def bond_operator(self, jexch1=1, jexch2=1, use_MSR=False):
-        sign = 1 if use_MSR else -1
+        sign = -1 if use_MSR else 1
         return [(jexch1 * self.mszsz).tolist(),(jexch2 * self.mszsz).tolist(),(sign*jexch1 * self.exchange).tolist(),(jexch2 * self.exchange).tolist(),]
 
 """
