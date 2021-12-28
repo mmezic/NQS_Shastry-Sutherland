@@ -6,7 +6,6 @@ import jax
 import time	
 print("NetKet version: {}".format(nk.__version__))	
 print("NumPy version: {}".format(np.__version__))
-TF_CPP_MIN_LOG_LEVEL=0
 
 file = sys.argv[-1]
 if len(sys.argv) == 1:
@@ -16,9 +15,10 @@ fq = __import__(file)
 from lattice_and_ops import Lattice
 from lattice_and_ops import Operators
 from lattice_and_ops import HamOps
+from lattice_and_ops import permutation_sign
 ho = HamOps()
 
-OUT_NAME = "SS-RBM_ops"+str(fq.SITES) # output file name	
+OUT_NAME = fq.MACHINE+str(fq.SITES) # output file name	
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
 
 lattice = Lattice(fq.SITES)
@@ -35,22 +35,20 @@ for node in range(fq.SITES):
         else:
             edge_colors.append([node,lattice.llft(node),2])
 
-
 # Define the netket graph object
 g = nk.graph.Graph(edges=edge_colors)
-print(g.edges(return_color=True))
 
 hilbert = nk.hilbert.Spin(s=.5, N=g.n_nodes, total_sz=fq.TOTAL_SZ)
 
-
-#Sigma^z*Sigma^z interactions
-sigmaz = [[1, 0], [0, -1]]
-mszsz = (np.kron(sigmaz, sigmaz)) #=sz*sz
-#Exchange interactions
-exchange = np.asarray([[0, 0, 0, 0], [0, 0, 2, 0], [0, 2, 0, 0], [0, 0, 0, 0]]) #=sx*sx+sy*sy = 1/2*(sp*sm+sm*sp)
-full_spin = mszsz+exchange # = S*S = sx*sx + sy*sy + sz*sz
-bond_color = [1, 2, 1, 2]
-
+characters = []
+for perm in g.automorphisms():
+    # print(perm, permutation_sign(np.asarray(perm)))
+    characters.append(permutation_sign(np.asarray(perm)))
+characters = np.asarray(characters,dtype=complex) #np.array([1,-1,1,-1,-1,1,-1,1], dtype=complex) # 2*2 SS model
+characters_2 = np.ones((len(g.automorphisms()),), dtype=complex)
+print(characters)
+print(characters_2)
+    
 for JEXCH1 in fq.STEPS:
     ha = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
     ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
@@ -75,8 +73,8 @@ for JEXCH1 in fq.STEPS:
         machine = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=fq.ALPHA) 
         machine_2 = nk.models.RBMSymm(g.automorphisms(),dtype=fq.DTYPE, alpha=fq.ALPHA)
     elif fq.MACHINE == "GCNN":
-        machine     = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=fq.characters)
-        machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=fq.characters_2)
+        machine     = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters)
+        machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_2)
     else:
         raise Exception(str("undefined MACHINE: ")+str(fq.MACHINE))
 
@@ -110,7 +108,7 @@ for JEXCH1 in fq.STEPS:
     gs_normal = nk.VMC(hamiltonian=ha ,optimizer=optimizer,preconditioner=sr,variational_state=vss)                       # 0 ... symmetric
     gs_2 = nk.VMC(hamiltonian=ha_2 ,optimizer=optimizer_2,preconditioner=sr_2,variational_state=vs_2)   # 1 ... symmetric+MSR
 
-    ops = Operators(lattice,hilbert,mszsz,exchange)
+    ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
     no_of_runs = 2 #2 ... bude se pocitat i druhý způsob (za použití MSR)
     use_2 = 0 # in case of one run
@@ -119,7 +117,7 @@ for JEXCH1 in fq.STEPS:
         print("Expected exact energy:", exact_ground_energy)
     for i,gs in enumerate([gs_normal,gs_2][use_2:use_2+no_of_runs]):
         start = time.time()
-        gs.run(out=OUT_NAME+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)#,obs={'DS_factor': m_dimer_op})#,'PS_factor':m_plaquette_op,'AF_factor':m_s2_op})
+        gs.run(out=OUT_NAME+"_"+str(JEXCH1)+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)#,obs={'DS_factor': m_dimer_op})#,'PS_factor':m_plaquette_op,'AF_factor':m_s2_op})
         end = time.time()
         print("The type {} of RBM calculation took {} min".format(i, (end-start)/60))
 
@@ -128,10 +126,10 @@ for JEXCH1 in fq.STEPS:
         for i,gs in enumerate([gs_normal,gs_2][use_2:use_2+no_of_runs]):
             print("Trained RBM with MSR:" if i else "Trained RBM without MSR:")
             print("m_d^2 =", gs.estimate(ops.m_dimer_op))
-            print("m_p =", gs.estimate(ops.m_plaquette_op))
+            print("m_p =", gs.estimate(ops.m_plaquette_op_MSR))
             print("m_s^2 =", gs.estimate(ops.m_s2_op_MSR))
             print("m_s^2 =", gs.estimate(ops.m_s2_op), "<--- no MSR!!")
-    print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}".format(JEXCH1, gs_normal.energy.mean.real, gs_2.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, gs_2.estimate(ops.m_dimer_op).mean.real, gs_2.estimate(ops.m_plaquette_op_2).mean.real, gs_2.estimate(ops.m_s2_op_2).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
+    print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}".format(JEXCH1, gs_normal.energy.mean.real, gs_2.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, gs_2.estimate(ops.m_dimer_op).mean.real, gs_2.estimate(ops.m_plaquette_op_MSR).mean.real, gs_2.estimate(ops.m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
     file = open("out.txt", "a")
-    file.write("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}\n".format(JEXCH1, gs_normal.energy.mean.real, gs_2.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, gs_2.estimate(ops.m_dimer_op).mean.real, gs_2.estimate(ops.m_plaquette_op_2).mean.real, gs_2.estimate(ops.m_s2_op_2).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
+    file.write("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}\n".format(JEXCH1, gs_normal.energy.mean.real, gs_2.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, gs_2.estimate(ops.m_dimer_op).mean.real, gs_2.estimate(ops.m_plaquette_op_MSR).mean.real, gs_2.estimate(ops.m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
     file.close()
