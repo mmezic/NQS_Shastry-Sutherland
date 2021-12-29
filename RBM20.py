@@ -13,8 +13,8 @@ ETA   = .005            # learning rate (0.01 usually works)
 SAMPLES = 2000	
 NUM_ITER = 1000	
 VERBOSE = False         # should we print more detailed results
-STEPS = np.arange(0,1.21,step=0.3)	
-num_layers = 2
+STEPS = np.arange(0.4,1.21,step=0.5)	
+num_layers = 3
 feature_dims = (8,8,4)
 STEPS_A = [int(SITES/2), SITES, SITES*2]   # grid search across ALPHAs (used only in main-gridSearch.py)
 STEPS_E = [1,0.1,0.01,0.001,0.0001]                 # grid search across ETAs   (used only in main-gridSearch.py)

@@ -27,4 +27,24 @@ Grid Searche:
 9641945 - 16
 9641946 - 20
 
+# GCNN
+9882258 - 4  ... wrong MSR
+9882259 - 8  ... wrong MSR
+9882260 - 16 ... wrong MSR
+9882262 - 20 ... wrong MSR
+9882516 - 4
+9882517 - 8
+
+9882519 - 16
+9882520 - 20 <-- just 2 layers; pouze 2 z (8,8,4), tedy asi (8,8)
+
 TODO:
+9885099 - 16 second part of phase space, because the first run probably does not have enough time
+9885101 - 20 second part of phase space <-- just 2 layers of (8,8,4)
+9894504 - 8 second part of phase space
+9894532 - 16 one missing point (J1=.5)
+9894535 - 20 ... correctly 3 layerss (8,8,4)
+9895166 - 16 ... 2500 iterations instead of 1000 iterations which did not converge in the specific region
+
+
+scp GCNN8_1.1_* mezic@tarkil8:~/diplomka/netket_scripts/convergence_plots
