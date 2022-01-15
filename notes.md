@@ -155,3 +155,8 @@ $$ \psi_{\text{ModPhase}}(\sigma) = \exp\left[ \log\prod_k   2\cosh\left( b_k + 
     -   používat zapamatovanou síť z nějaké fáze
         - podívat se, jestli se dokáže z jedné překlopit do druhé
 - GCNN pro N=20 použít víc SAMPLES, abych zjistil, jestli graf konvergence už bude vypadat rozumně a nebudou tak zuby
+
+# poznámky
+- když je RBM stucklé ve špatné fázi, tak trvá hodně dlouho, než najde tu správnou
+- **IDEA: *Non-Boltzmann* sampling?** ... aby to lépe vyplulo z lokálního minima
+- model s pamětí asi není moc dobrý, protože sice stejnou fázi najde hned, ale změna fáze (to je to, co nás zajímá) mu dělá docela velké problémy
