@@ -9,7 +9,7 @@ SAMPLER = 'local'       # 'local' = MetropolisLocal, 'exchange' = MetropolisExch
 MACHINE = 'RBM'         # 'RBM', 'RBMSymm'
 DTYPE = np.complex128   # type of weights in neural network
 ALPHA = 16              # N_hidden / N_visible	
-ETA   = .01            # learning rate (0.01 usually works)	
+ETA   = .1            # learning rate (0.01 usually works)	
 SAMPLES = 3000	
 NUM_ITER = 3000	
 VERBOSE = False         # should we print more detailed results

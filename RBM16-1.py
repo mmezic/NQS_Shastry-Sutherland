@@ -8,7 +8,7 @@ TOTAL_SZ = None            # 0, None ... restriction of Hilbert space
 SAMPLER = 'local'       # 'local' = MetropolisLocal, 'exchange' = MetropolisExchange, 'exact' = ExactSampler
 MACHINE = 'RBM'         # 'RBM', 'RBMSymm'
 DTYPE = np.complex128   # type of weights in neural network
-ALPHA = 16              # N_hidden / N_visible	
+ALPHA = 8               # N_hidden / N_visible	
 ETA   = .01            # learning rate (0.01 usually works)	
 SAMPLES = 3000	
 NUM_ITER = 3000	
