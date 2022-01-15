@@ -3,7 +3,8 @@ sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages')
 import netket as nk	
 import numpy as np
 import jax
-import time	
+import time
+import json	
 print("NetKet version: {}".format(nk.__version__))	
 print("NumPy version: {}".format(np.__version__))
 
@@ -110,7 +111,7 @@ for JEXCH1 in fq.STEPS:
 
     ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
-    no_of_runs = 2 #2 ... bude se pocitat i druhý způsob (za použití MSR)
+    no_of_runs = 1 #2 ... bude se pocitat i druhý způsob (za použití MSR)
     use_2 = 0 # in case of one run
     #fq.NUM_ITER = 100
     if exact_ground_energy != 0 and fq.VERBOSE == True:
@@ -121,6 +122,15 @@ for JEXCH1 in fq.STEPS:
         end = time.time()
         print("The type {} of RBM calculation took {} min".format(i, (end-start)/60))
 
+    threshold_energy = 0.995*exact_ground_energy
+    data = []
+    for i in range(no_of_runs):
+        data.append(json.load(open(OUT_NAME+"_"+str(round(JEXCH1,1))+"_"+str(i)+".log")))
+    if type(data[0]["Energy"]["Mean"]) == dict: #DTYPE in (np.complex128, np.complex64):#, np.float64):# and False:
+        energy_convergence = [data[i]["Energy"]["Mean"]["real"] for i in range(no_of_runs)]
+    else:
+        energy_convergence = [data[i]["Energy"]["Mean"] for i in range(no_of_runs)]
+    steps_until_convergence = [next((i for i,v in enumerate(energy_convergence[j]) if v < threshold_energy), -1) for j in range(no_of_runs)]
 
     if fq.VERBOSE == True:
         for i,gs in enumerate([gs_normal,gs_2][use_2:use_2+no_of_runs]):
@@ -129,7 +139,12 @@ for JEXCH1 in fq.STEPS:
             print("m_p =", gs.estimate(ops.m_plaquette_op_MSR))
             print("m_s^2 =", gs.estimate(ops.m_s2_op_MSR))
             print("m_s^2 =", gs.estimate(ops.m_s2_op), "<--- no MSR!!")
-    print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}".format(JEXCH1, gs_normal.energy.mean.real, gs_2.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, gs_2.estimate(ops.m_dimer_op).mean.real, gs_2.estimate(ops.m_plaquette_op_MSR).mean.real, gs_2.estimate(ops.m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
+    
     file = open("out.txt", "a")
-    file.write("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}\n".format(JEXCH1, gs_normal.energy.mean.real, gs_2.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, gs_2.estimate(ops.m_dimer_op).mean.real, gs_2.estimate(ops.m_plaquette_op_MSR).mean.real, gs_2.estimate(ops.m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
+    if no_of_runs==2:
+        print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}   {}".format(JEXCH1, gs_normal.energy.mean.real, gs_2.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, gs_2.estimate(ops.m_dimer_op).mean.real, gs_2.estimate(ops.m_plaquette_op_MSR).mean.real, gs_2.estimate(ops.m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, ' '.join(steps_until_convergence), sep='    '))
+        file.write("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}   {}\n".format(JEXCH1, gs_normal.energy.mean.real, gs_2.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, gs_2.estimate(ops.m_dimer_op).mean.real, gs_2.estimate(ops.m_plaquette_op_MSR).mean.real, gs_2.estimate(ops.m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, ' '.join(steps_until_convergence), sep='    '))
+    else:
+        print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}".format(JEXCH1, gs_normal.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, fq.SAMPLES, fq.NUM_ITER, steps_until_convergence[0], sep='    '))
+        file.write("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f} \n".format(JEXCH1, gs_normal.energy.mean.real, gs_normal.estimate(ops.m_dimer_op).mean.real, gs_normal.estimate(ops.m_plaquette_op).mean.real, gs_normal.estimate(ops.m_s2_op).mean.real, fq.SAMPLES, fq.NUM_ITER, steps_until_convergence[0], sep='    '))
     file.close()
