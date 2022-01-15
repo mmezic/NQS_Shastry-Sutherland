@@ -7,7 +7,12 @@ Builds S-S lattice given the number of sites. And implements positional function
 class Lattice:
     def __init__(self,SITES):
         self.SITES = SITES
-        if self.SITES == 64:	
+        if self.SITES == 100:	
+            self.indent = [0,0,0,0,0,0,0,0,0,0]	
+            self.width = [10,10,10,10,10,10,10,10,10,10]	
+            self.right_shift = 0	
+            self.bottom_shift = 0
+        elif self.SITES == 64:	
             self.indent = [0,0,0,0,0,0,0,0]	
             self.width = [8,8,8,8,8,8,8,8]	
             self.right_shift = 0	

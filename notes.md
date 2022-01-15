@@ -131,3 +131,27 @@ $$ \psi_{\text{ModPhase}}(\sigma) = \exp\left[ \log\prod_k   2\cosh\left( b_k + 
 
 - v DS fázi by mělo být **MSR irelevantní**, protože zde neprobíhá interakce mezi dimery a každý dimer leží v jedné z podmřížek, takže na něj MSR neplatí
     - hmm, dalo by se implementovat striped MSR, které by platilo dobře na dimery?
+
+- IDEA: if we don't know irrep of GS, could we treat its characters as a variational parameters in GCNN?
+
+- graf konvergence pro $N=16$ v dimerové fázi vypadá docela zajímavě
+
+![](convergence_plots/N=16,j1=0.3.png)
+
+- **OBSERVATION: pro mřížky o hraně dělitelné 4 se základní stav v dimerové fázi transformuje pod TRIVIÁLNÍ IRREP** (všechny charaktery jsou +1)
+    - bezpečně na to můžeme pustit `RBMSymm`
+    - to protože všechny permutace symetrie mají kladnou paritu
+
+- PROBLEM: GCNN hledá jenom symetrické stavy - funguje jenom pro **nedegenerované** základní stavy
+    - v případě magnetizačních plat jsou ale GS určitě degenerované -> GCNN je nebude moci najít
+
+
+# schůzka
+
+- pohrát si s metaparametry
+- zkusit používat přednatrénovanou neuronku z dané fáze a postupně přibližovat se k fázovému 
+- začít psát note
+- přegenerovat nesymm-RBM pro 4*4 mřížku a pohrát si s hyperparametrami
+    -   používat zapamatovanou síť z nějaké fáze
+        - podívat se, jestli se dokáže z jedné překlopit do druhé
+- GCNN pro N=20 použít víc SAMPLES, abych zjistil, jestli graf konvergence už bude vypadat rozumně a nebudou tak zuby
