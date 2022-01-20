@@ -49,7 +49,8 @@ Grid Searche:
 
 TODO:
 
-10031487 - 20 ... GCNN 3 layers (8,8,4) with MORE iterations (6000 instead of 2000) but less iters (500 instead of 1000)
+10031487 - 20 ... GCNN 3 layers (8,8,4) with MORE samples (6000 instead of 2000) but less iters (500 instead of 1000)
+no_of_runs = 1 (je to bez MSR)
 10031496 - 16 ... RBM higher eta
 10031499 - 16 ... RBM-1 lower alpha
 10031501 - 16 ... RBM-2 TOTAL_SZ = 0
