@@ -47,10 +47,10 @@ Grid Searche:
 9900156 - 16 ... 2500 iterations for points which did not converge with 1000 iterations (0,.5,.6,.666) <--- FAILED
 9924351 - 16 ... 2500 iterations for points which did not converge with 1000 iterations (0,.5,.6,.666) <--- 2ND ATTEMPT => failed
 
-TODO:
-
-10031487 - 20 ... GCNN 3 layers (8,8,4) with MORE samples (6000 instead of 2000) but less iters (500 instead of 1000)
 no_of_runs = 1 (je to bez MSR)
+10031487 - 20 ... GCNN 3 layers (8,8,4) with MORE samples (6000 instead of 2000) but less iters (500 instead of 1000)
+
+TODO:
 10031496 - 16 ... RBM higher eta
 10031499 - 16 ... RBM-1 lower alpha
 10031501 - 16 ... RBM-2 TOTAL_SZ = 0
