@@ -185,6 +185,14 @@ Zde je porovnání konvergence pro J1=0.2.
 - GCNN pro N=20 s více samples dělá stále takové divné zuby při konvergenci a nevím, čím to je
 ![](figures/GCNN,N=20,spikes.png). 
 
-## schůzka
+# schůzka 21.1.2022
 
-- zkusit stejný graf vygenerovat pro N=16
+- [ ] zkusit stejný graf vygenerovat (postupné posouvání $J_1$ s předučeným modelem) pro `N=16`
+    - potvrdí se stejná nesymetrie jako v případe `N=8` ?
+- [ ] exact sampler nikdy nejde pod `exact_energy`
+    - sdf
+- [ ] zkusit jiný optimizer (např. SGD)
+    - celou dobu jsem používal SGD na optimalizaci, `Stochastic Reconfiguration` jsem používal pouze na inicializace (spletl jsem si to)
+- [ ] problematickou GCNN `N=20` zkusit s jinou optimalizační technikou
+    - budou tam stále takové divné zuby?
+- V případě `exact` sampleru uvádět jako výsledek $\min(E)$ namísto $\mathbb{E}[E]$ přičemž minimum by stačilo brát z posledních ~300 kroků

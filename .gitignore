@@ -3,8 +3,9 @@
 .vscode
 *.o*
 __*
-planground/
+playground/
 convergence_plots/
 old_logs/
+archive/
 out.txt
 !IDs.md
