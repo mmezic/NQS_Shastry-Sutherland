@@ -148,15 +148,43 @@ $$ \psi_{\text{ModPhase}}(\sigma) = \exp\left[ \log\prod_k   2\cosh\left( b_k + 
 
 # schůzka
 
-- pohrát si s metaparametry
-- zkusit používat přednatrénovanou neuronku z dané fáze a postupně přibližovat se k fázovému 
-- začít psát note
-- přegenerovat nesymm-RBM pro 4*4 mřížku a pohrát si s hyperparametrami
+- [x] pohrát si s metaparametry
+- [x] zkusit používat přednatrénovanou neuronku z dané fáze a postupně přibližovat se k fázovému 
+- [ ] začít psát note
+- [x] přegenerovat nesymm-RBM pro 4*4 mřížku a pohrát si s hyperparametrami
     -   používat zapamatovanou síť z nějaké fáze
         - podívat se, jestli se dokáže z jedné překlopit do druhé
-- GCNN pro N=20 použít víc SAMPLES, abych zjistil, jestli graf konvergence už bude vypadat rozumně a nebudou tak zuby
+- [x] GCNN pro N=20 použít víc SAMPLES, abych zjistil, jestli graf konvergence už bude vypadat rozumně a nebudou tak zuby
 
 # poznámky
 - když je RBM stucklé ve špatné fázi, tak trvá hodně dlouho, než najde tu správnou
-- **IDEA: *Non-Boltzmann* sampling?** ... aby to lépe vyplulo z lokálního minima
 - model s pamětí asi není moc dobrý, protože sice stejnou fázi najde hned, ale změna fáze (to je to, co nás zajímá) mu dělá docela velké problémy
+- IDEA: *Non-Boltzmann* sampling? ... aby se to lépe dostalo z lokálního minima
+
+## AF phase
+Example of N=8 convergence with exact sampler, η=0.01, α=16 (bez MSR). Porovnání
+1. konvergence na J1 = 0.8 ze stavu, který je optimalizovaný pro J1 = 1.2
+2. samotné konvergence rovnou na J1 = 0.8
+3. konvergence na J1 = 0.8 ze stavu, který je optimalizovaný pro J1 = 0.4
+
+(3.) případ nezkonverguje ani kdybychom byli hlouběji v AF fázi (pro J1 = 1.2 to dá totožný "konstantní" průběh)
+![](figures/AF_convergence_comparison.png)
+
+- fakt, že RBM(non-symm) nekonverguje úplně přesně do správné energie je pravděpodobně způsoben jenom hodně velkou variancí predikované energie
+    - asi by se hodilo přidat errorbary (to nebude těžké)
+
+## DS phase
+Zde je porovnání konvergence pro J1=0.2.
+1. inicializace v AF fázi (J1=1.2)
+2. random inicializace
+3. znovu inicializace v AF fázi (J1=0.8)
+- inicializace v DS fázi vedle (J1=0.4) by vyšla zhruba konstantní na správné energii
+![](figures/DS_convergence_comparison.png)
+
+## GCNN issues 
+- GCNN pro N=20 s více samples dělá stále takové divné zuby při konvergenci a nevím, čím to je
+![](figures/GCNN,N=20,spikes.png). 
+
+## schůzka
+
+- zkusit stejný graf vygenerovat pro N=16

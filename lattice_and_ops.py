@@ -265,4 +265,23 @@ def permutation_sign(permutation):
     return -1 if count%2 else 1
 
 
-    
+import netket.nn as nknn
+import flax.linen as nn
+import jax
+import jax.numpy as jnp
+class Jastrow(nknn.Module):
+    @nknn.compact
+    def __call__(self, x):
+        x = jnp.atleast_2d(x)
+        return jax.vmap(self.single_evaluate, in_axes=(0))(x)
+
+    def single_evaluate(self, x):
+        v_bias = self.param(
+            "visible_bias", nn.initializers.normal(), (x.shape[-1],), complex
+        )
+
+        J = self.param(
+            "kernel", nn.initializers.normal(), (x.shape[-1],x.shape[-1]), complex
+        )
+
+        return x.T@J@x + jnp.dot(x, v_bias)
