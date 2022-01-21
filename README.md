@@ -1,4 +1,4 @@
-# Study of Shastry-Sutherland Model Using Machine Learning
+# Study of Shastry-Sutherland Model using Machine Learning
 
 This reposiroty contains codes for my masters' thesis. I study the properties of various stochastic methods primarly in the [main_notebook.ipynb](main_notebook.ipynb) file.
 
