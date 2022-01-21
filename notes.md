@@ -136,7 +136,7 @@ $$ \psi_{\text{ModPhase}}(\sigma) = \exp\left[ \log\prod_k   2\cosh\left( b_k + 
 
 - graf konvergence pro $N=16$ v dimerové fázi vypadá docela zajímavě
 
-![](convergence_plots/N=16,j1=0.3.png)
+![](figures/N=16,j1=0.3.png)
 
 - **OBSERVATION: pro mřížky o hraně dělitelné 4 se základní stav v dimerové fázi transformuje pod TRIVIÁLNÍ IRREP** (všechny charaktery jsou +1)
     - bezpečně na to můžeme pustit `RBMSymm`
