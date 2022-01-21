@@ -1,6 +1,6 @@
 ## moje poznámky
 
-wtf? zkonverguje mi to na poloviční energii?!
+cože? zkonverguje mi to na poloviční energii?!
 viz. srovnání 2x2 2D heisenberga a 4 1D heisenberga
 
 možná bude problém někde v definici hamiltoniánu
@@ -64,7 +64,7 @@ Pozn: RBM funguje na Isinga POUZE pokud je tam nenulové mag pole `h`, jinak to 
 Problém byl v tom, že v nové vezri netketu používá RBM defaultně **reálné** parametry. Ve starší verzi používal defaultně komplexní hodnoty.
 Takže jsem použil **RBM s komplexními parametry** a zjistil, že to zkonverguje i bez použití MSR.
 
-<img src="complexRBM/energies.png" alt="energ" width="800"/>
+<img src="figures/old/energies_complexRBM.png" alt="energ" width="800"/>
 <!--- ![energies](complexRBM/energies.png) -->
 
 
@@ -113,7 +113,7 @@ Neuronovou síť jako v článku (Szabó, Castelnovo 2020) už mám skoro napsan
     - ! zrovna N=20 mají v článku špatně nakreslený!
     - pro nectvercove mrizky to najde jako symetrie pouze translace (tj. pro `N=20` mám `20` symetrií)
 
-<img src="lattice_tiles/energies.png" alt="energ" width="800"/>
+<img src="figures/old/lattice_tiles_energies.png" alt="energ" width="800"/>
 
 ## schůzka 25.10.2021
 
