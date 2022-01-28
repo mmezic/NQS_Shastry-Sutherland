@@ -12,6 +12,7 @@ ALPHA = 16              # N_hidden / N_visible
 ETA   = .005            # learning rate (0.01 usually works)	
 SAMPLES = 120	
 NUM_ITER = 350	
+N_PRE_ITER = 30        # number of iteration before checking for convergence to speed up the process if the model is already pre-trained
 VERBOSE = True         # should we print more detailed results
 STEPS = np.arange(1,1.21,step=0.1)	
 STEPS_A = [int(SITES/2), SITES, SITES*2, SITES*4]   # grid search across ALPHAs (used only in main-gridSearch.py)
