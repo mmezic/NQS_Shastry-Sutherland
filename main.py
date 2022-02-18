@@ -130,7 +130,7 @@ for JEXCH1 in fq.STEPS:
         start = time.time()
         gs.run(out=OUT_NAME+"_"+str(round(JEXCH1,1))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)#,obs={'DS_factor': m_dimer_op})#,'PS_factor':m_plaquette_op,'AF_factor':m_s2_op})
         end = time.time()
-        print("The type {} of RBM calculation took {} min".format(i, (end-start)/60))
+        print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
 
     threshold_energy = 0.995*exact_ground_energy
     data = []
