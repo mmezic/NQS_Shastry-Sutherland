@@ -232,3 +232,6 @@ where $S$ is *quantum Fisher information matrix*.
 - Rozhodnout se, jestli používat symetrie (a případně to dobře zdůvodnit) 
 - analyticky sepsat, proč je použití `SymmRBM` špatné (protože nemá visible bias - a snad ani nejde z principu přida?)
     - jde napsat `SymmRBM` s visible biasama nad netketem?
+
+## moje poznámky
+- TODO zkusit naimplementovat symmetrizovaný RBM (bude to hard, protože GCNN nepodporuje visible bias)
