@@ -51,17 +51,17 @@ if fq.JEXCH1 < 0.5:
     for perm in g.automorphisms():
         # print(perm, "with sign", permutation_sign(np.asarray(perm)))
         characters.append(permutation_sign(np.asarray(perm)))
-    characters_dimer = np.asarray(characters,dtype=complex)
-    characters_dimer_msr = characters_dimer
+    characters_dimer_1 = np.asarray(characters,dtype=complex)
+    characters_dimer_2 = characters_dimer_1
 else:
     # AF phase if fully symmetric
-    characters_dimer = np.ones((len(g.automorphisms()),), dtype=complex)
-    characters_dimer_msr = characters_dimer
+    characters_dimer_1 = np.ones((len(g.automorphisms()),), dtype=complex)
+    characters_dimer_2 = characters_dimer_1
     
 for JEXCH1 in fq.STEPS:
     # Hamiltonian definition
     ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
-    ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
+    ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
 
     # Exact diagonalization
     if g.n_nodes < 20 and fq.VERBOSE == True:
@@ -82,10 +82,14 @@ for JEXCH1 in fq.STEPS:
         machine_2 = nk.models.RBM(dtype=fq.DTYPE, alpha=fq.ALPHA)
     elif fq.MACHINE == "RBMSymm":
         machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=fq.ALPHA) 
-        machine_2 = nk.models.RBMSymm(g.automorphisms(),dtype=fq.DTYPE, alpha=fq.ALPHA)
+        machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=fq.ALPHA)
     elif fq.MACHINE == "GCNN":
-        machine_1   = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_dimer)
-        machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_dimer_msr)
+        machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_dimer_1)
+        machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_dimer_2)
+    elif fq.MACHINE == "myRBM":
+        from GCNN_Nomura import GCNN_my
+        machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=fq.ALPHA, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+        machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=fq.ALPHA, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
     else:
         raise Exception(str("undefined MACHINE: ")+str(fq.MACHINE))
 
@@ -121,14 +125,13 @@ for JEXCH1 in fq.STEPS:
 
     ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
-    no_of_runs = 1 #2 ... bude se pocitat i druhý způsob (za použití MSR)
+    no_of_runs = 2 #2 ... bude se pocitat i druhý způsob (za použití MSR)
     use_2 = 0 # in case of one run
-    #fq.NUM_ITER = 100
     if exact_ground_energy != 0 and fq.VERBOSE == True:
         print("Expected exact energy:", exact_ground_energy)
     for i,gs in enumerate([gs_1,gs_2][use_2:use_2+no_of_runs]):
         start = time.time()
-        gs.run(out=OUT_NAME+"_"+str(round(JEXCH1,1))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)#,obs={'DS_factor': m_dimer_op})#,'PS_factor':m_plaquette_op,'AF_factor':m_s2_op})
+        gs.run(out=OUT_NAME+"_"+str(round(JEXCH1,1))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
         end = time.time()
         print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
 

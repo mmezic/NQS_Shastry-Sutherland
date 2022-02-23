@@ -228,10 +228,17 @@ where $S$ is *quantum Fisher information matrix*.
   - <img src="figures/NGDvsSGD.png" width="700"/>
 
 ## schůzka 18.2.
-- přečíst si článek Accuracy of RBM for one-dimensional j1-j2 heisenberg model
-- Rozhodnout se, jestli používat symetrie (a případně to dobře zdůvodnit) 
-- analyticky sepsat, proč je použití `SymmRBM` špatné (protože nemá visible bias - a snad ani nejde z principu přida?)
+- [x] přečíst si článek *Accuracy of RBM for one-dimensional j1-j2 heisenberg model*
+- [ ] Rozhodnout se, jestli používat symetrie (a případně to dobře zdůvodnit) 
+- [ ] analyticky sepsat, proč je použití `SymmRBM` špatné (protože nemá visible bias - a snad ani nejde z principu přidat?)
     - jde napsat `SymmRBM` s visible biasama nad netketem?
 
 ## moje poznámky
-- TODO zkusit naimplementovat symmetrizovaný RBM (bude to hard, protože GCNN nepodporuje visible bias)
+- [x] zkusit naimplementovat symmetrizovaný RBM (bude to hard, protože GCNN nepodporuje visible bias)
+- IMO jsou nejlepší dva modely (oba konvergují docela rychle):
+  - RBM 
+    - **hodně parametrů**, ale **rychlý výpočet**
+  - Nomurův symetrický RBM s visible biasy
+    - **málo parametrů**, ale **pomalý výpočer**
+- poznámky k článku
+  - zvolili docela lame metodu na porovnávání (pBCS - **jen 6 variačních parametrů**)

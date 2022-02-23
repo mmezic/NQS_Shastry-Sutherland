@@ -4,6 +4,8 @@
 Volbou konkrétního visible biasu ($a_i$) můžeme specifikovat bázi. Lze zvolit takové $a_i$, které odpovídají MSR. 
 **IDEA:** pokud $a_i$ necháme jako volný parametr, RBM si dokáže najít optimální bázi sám bez prior nastavování (ne)MSR
 
+Na přidání biasu lze vlastně pohlížet jako na phase+modulus split, kde neuronová síť pro fázi je **triviální**, tj. váhy jsou v diagonální matici
+
 :warning: **kontradikce s článkem Nomura (2020)** - https://arxiv.org/pdf/2001.02106.pdf :
 - "*We neglect irrelevant one-body $a_l$ terms and optimize only $\{W_{lk}, b_{k}\}$ parameters.*"
 
