@@ -41,23 +41,6 @@ g = nk.graph.Graph(edges=edge_colors)
 
 hilbert = nk.hilbert.Spin(s=.5, N=g.n_nodes, total_sz=fq.TOTAL_SZ)
 
-# This pars is only relevant for GCNN machine
-print("There are", len(g.automorphisms()), "full symmetries.")
-# deciding point between DS and AF phase is set to 0.5
-if fq.JEXCH1 < 0.5:
-    # DS phase is partly anti-symmetric
-    characters = []
-    from lattice_and_ops import permutation_sign
-    for perm in g.automorphisms():
-        # print(perm, "with sign", permutation_sign(np.asarray(perm)))
-        characters.append(permutation_sign(np.asarray(perm)))
-    characters_dimer = np.asarray(characters,dtype=complex)
-    characters_dimer_msr = characters_dimer
-else:
-    # AF phase if fully symmetric
-    characters_dimer = np.ones((len(g.automorphisms()),), dtype=complex)
-    characters_dimer_msr = characters_dimer
-
 # Symmetric RBM Spin fq.MACHINE
 # and Symmetric RBM Spin fq.MACHINE with MSR
 if fq.MACHINE == "RBM":
@@ -66,9 +49,6 @@ if fq.MACHINE == "RBM":
 elif fq.MACHINE == "RBMSymm":
     machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=fq.ALPHA) 
     machine_2 = nk.models.RBMSymm(g.automorphisms(),dtype=fq.DTYPE, alpha=fq.ALPHA)
-elif fq.MACHINE == "GCNN":
-    machine_1   = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_dimer)
-    machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_dimer_msr)
 else:
     raise Exception(str("undefined MACHINE: ")+str(fq.MACHINE))
 
@@ -103,11 +83,11 @@ ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
 for JEXCH1 in fq.STEPS:
     # Hamiltonian definition
-    ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
+    ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
     ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
 
     # Exact diagonalization
-    if g.n_nodes < 20 and fq.VERBOSE == True:
+    if g.n_nodes < 20:
         start = time.time()
         evals, eigvects = nk.exact.lanczos_ed(ha_1, k=3, compute_eigenvectors=True)
         #evals = nk.exact.lanczos_ed(ha, compute_eigenvectors=False) #.lanczos_ed
@@ -129,7 +109,8 @@ for JEXCH1 in fq.STEPS:
         gs.run(out=OUT_NAME+"_"+str(round(JEXCH1,1))+"_"+str(i), n_iter=int(fq.N_PRE_ITER),show_progress=fq.VERBOSE)
         if gs.energy.mean.real > 0.95*exact_ground_energy:
             gs.run(out=OUT_NAME+"_"+str(round(JEXCH1,1))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
-
-    print("{:9.5f}     {:9.5f}    {:9.5f} \n".format(JEXCH1, exact_ground_energy, gs_1.energy.mean.real))
+        else:
+            print(fq.N_PRE_ITER, "iters were sufficient to converge, skipping next", fq.NUM_ITER, "iters...")
+    print("{:9.5f}     {:9.5f}    {:9.5f}".format(JEXCH1, exact_ground_energy, gs_1.energy.mean.real))
     with open("out.txt", "a") as out_file:
         out_file.write("{:9.5f}     {:9.5f}    {:9.5f} \n".format(JEXCH1, exact_ground_energy, gs_1.energy.mean.real))

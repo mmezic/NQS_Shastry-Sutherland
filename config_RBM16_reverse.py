@@ -14,7 +14,7 @@ SAMPLES = 3000
 NUM_ITER = 4000	
 N_PRE_ITER = 100        # number of iteration before checking for convergence to speed up the process if the model is already pre-trained
 VERBOSE = False         # should we print more detailed results
-STEPS = np.arange(0,1.21,step=0.2)	
+STEPS = np.arange(1.20,-0.09,step=-0.2)	
 num_layers = 2
 feature_dims = (8,4)
 STEPS_A = [int(SITES/2), SITES, SITES*2, SITES*4]   # grid search across ALPHAs (used only in main-gridSearch.py)
