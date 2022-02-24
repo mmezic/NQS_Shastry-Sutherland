@@ -202,14 +202,14 @@ Zde je porovnání konvergence pro J1=0.2.
   - <img src="figures/pre-trained_N=16.png" alt="drawing" width="700"/>
 - **2)** porovnání *Natural gradient descent* a klasickéhu SGD (tj. s vypnutým preconditionerem)
   - *Poznámka: vanilla SGD bal zde cca o 30% rychlejší*
-  - Závěr: spíš to nepomáhá (viz. obrázky)
-  - <img src="figures/preconditioner_J2=.8.png" width="900"/>
+  - Závěr: spíš to nepomáhá (viz. obrázky) :warning: **OBRÁZKY ZAKOMENTOVÁNY** :warning:
+  <!-- - <img src="figures/preconditioner_J2=.8.png" width="900"/>
   - <img src="figures/preconditioner_J2=.3.png" width="900"/>
   MSR:
   - <img src="figures/preconditioner_J2=.8_MSR.png" width="900"/>
   - <img src="figures/preconditioner_J2=.8_MSR2.png" width="900"/>
   - <img src="figures/preconditioner_J2=.1_MSR.png" width="900"/>
-  - <img src="figures/preconditioner_J2=.3_MSR.png" width="900"/>
+  - <img src="figures/preconditioner_J2=.3_MSR.png" width="900"/> -->
   - další důvod proč vanilla SGD není dobrý nápad viz. článek (Park and Kastoryano, 2020):
 ```
 The standard approach would be to use gradient descent, but this performs very poorly for spin Hamiltonians, as the updates tend to get stuck oscillating back and forth along steep wells of the energy landscape rather than falling down the more shallow directions. 
@@ -228,17 +228,24 @@ where $S$ is *quantum Fisher information matrix*.
   - <img src="figures/NGDvsSGD.png" width="700"/>
 
 ## schůzka 18.2.
-- [x] přečíst si článek *Accuracy of RBM for one-dimensional j1-j2 heisenberg model*
-- [ ] Rozhodnout se, jestli používat symetrie (a případně to dobře zdůvodnit) 
-- [ ] analyticky sepsat, proč je použití `SymmRBM` špatné (protože nemá visible bias - a snad ani nejde z principu přidat?)
-    - jde napsat `SymmRBM` s visible biasama nad netketem?
+- [x] **1)** přečíst si článek *Accuracy of RBM for one-dimensional j1-j2 heisenberg model*
+- [ ] **2)** Rozhodnout se, jestli používat symetrie (a případně to dobře zdůvodnit) 
+- [x] **3)** analyticky sepsat, proč je použití `SymmRBM` špatné (protože nemá visible bias - a snad ani nejde z principu přidat?)
+    - jde napsat `SymmRBM` s visible biasama nad netketem? 
 
 ## moje poznámky
 - [x] zkusit naimplementovat symmetrizovaný RBM (bude to hard, protože GCNN nepodporuje visible bias)
-- IMO jsou nejlepší dva modely (oba konvergují docela rychle):
+- **1)** poznámky k článku
+  - zvolili docela lame metodu na porovnávání (pBCS - **jen 6 variačních parametrů**)
+  - proč nezvětšovali model - podle grafu by se zrejmě dostali na lepší accuracy
+
+- **2)** IMO jsou nejlepší dva modely (oba konvergují docela rychle):
   - RBM 
     - **hodně parametrů**, ale **rychlý výpočet**
   - Nomurův symetrický RBM s visible biasy
     - **málo parametrů**, ale **pomalý výpočer**
-- poznámky k článku
-  - zvolili docela lame metodu na porovnávání (pBCS - **jen 6 variačních parametrů**)
+
+- **3)** viz DP
+
+- malá poznámka: další porovnání optimizerů 
+![](figures/optimizer_comparison.png)
