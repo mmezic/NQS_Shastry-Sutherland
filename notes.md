@@ -247,5 +247,8 @@ where $S$ is *quantum Fisher information matrix*.
 
 - **3)** viz DP
 
+
+- poznámka: já zkoumám jak rychle to zkonverguje, oni zkoumají accuracy zkonvergovaného stavu
 - malá poznámka: další porovnání optimizerů 
 ![](figures/optimizer_comparison.png)
+![](figures/optimizer_comparison_2.png)
