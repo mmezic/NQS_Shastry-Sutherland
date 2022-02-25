@@ -17,6 +17,7 @@ from lattice_and_ops import Lattice
 from lattice_and_ops import Operators
 from lattice_and_ops import HamOps
 from lattice_and_ops import permutation_sign
+from lattice_and_ops import log_results
 ho = HamOps()
 
 OUT_NAME = fq.MACHINE+str(fq.SITES) # output file name	
@@ -60,8 +61,8 @@ else:
     
 for JEXCH1 in fq.STEPS:
     # Hamiltonian definition
-    ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
-    ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
+    ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
+    ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
 
     # Exact diagonalization
     if g.n_nodes < 20 and fq.VERBOSE == True:
@@ -120,7 +121,7 @@ for JEXCH1 in fq.STEPS:
     vs_1.init_parameters(jax.nn.initializers.normal(stddev=0.001))
     vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.001))
 
-    gs_1 = nk.VMC(hamiltonian=ha_1 ,optimizer=optimizer_1,preconditioner=sr_1,variational_state=vs_1)                       # 0 ... symmetric
+    gs_1 = nk.VMC(hamiltonian=ha_1 ,optimizer=optimizer_1,preconditioner=sr_1,variational_state=vs_1)   # 0 ... symmetric
     gs_2 = nk.VMC(hamiltonian=ha_2 ,optimizer=optimizer_2,preconditioner=sr_2,variational_state=vs_2)   # 1 ... symmetric+MSR
 
     ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
@@ -153,11 +154,7 @@ for JEXCH1 in fq.STEPS:
             print("m_s^2 =", gs.estimate(ops.m_s2_op_MSR))
             print("m_s^2 =", gs.estimate(ops.m_s2_op), "<--- no MSR!!")
     
-    file = open("out.txt", "a")
     if no_of_runs==2:
-        print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}".format(JEXCH1, gs_1.energy.mean.real, gs_2.energy.mean.real, gs_1.estimate(ops.m_dimer_op).mean.real, gs_1.estimate(ops.m_plaquette_op).mean.real, gs_1.estimate(ops.m_s2_op).mean.real, gs_2.estimate(ops.m_dimer_op).mean.real, gs_2.estimate(ops.m_plaquette_op_MSR).mean.real, gs_2.estimate(ops.m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, str(steps_until_convergence)[1:-1], sep='    '))
-        file.write("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}\n".format(JEXCH1, gs_1.energy.mean.real, gs_2.energy.mean.real, gs_1.estimate(ops.m_dimer_op).mean.real, gs_1.estimate(ops.m_plaquette_op).mean.real, gs_1.estimate(ops.m_s2_op).mean.real, gs_2.estimate(ops.m_dimer_op).mean.real, gs_2.estimate(ops.m_plaquette_op_MSR).mean.real, gs_2.estimate(ops.m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, str(steps_until_convergence)[1:-1], sep='    '))
+        log_results(JEXCH1,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,steps_until_convergence,filename="out.txt")
     else:
-        print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}".format(JEXCH1, gs_1.energy.mean.real, gs_1.estimate(ops.m_dimer_op).mean.real, gs_1.estimate(ops.m_plaquette_op).mean.real, gs_1.estimate(ops.m_s2_op).mean.real, fq.SAMPLES, fq.NUM_ITER, steps_until_convergence[0], sep='    '))
-        file.write("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f} \n".format(JEXCH1, gs_1.energy.mean.real, gs_1.estimate(ops.m_dimer_op).mean.real, gs_1.estimate(ops.m_plaquette_op).mean.real, gs_1.estimate(ops.m_s2_op).mean.real, fq.SAMPLES, fq.NUM_ITER, steps_until_convergence[0], sep='    '))
-    file.close()
+        log_results(JEXCH1,gs_1,gs_1,ops,fq.SAMPLES,fq.NUM_ITER,steps_until_convergence,filename="out.txt")

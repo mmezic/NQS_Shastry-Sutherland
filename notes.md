@@ -252,3 +252,10 @@ where $S$ is *quantum Fisher information matrix*.
 - malá poznámka: další porovnání optimizerů 
 ![](figures/optimizer_comparison.png)
 ![](figures/optimizer_comparison_2.png)
+
+
+##
+
+- postit RBM a myRBM s více body na metacentru, abych měl obrázek do DP
+- spustit na N=20 s MC
+- zkusit použít POUZE translace
