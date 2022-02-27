@@ -5,6 +5,7 @@ import numpy as np
 import jax
 import time
 import json	
+print("Python version: {}".format(sys.version))
 print("NetKet version: {}".format(nk.__version__))	
 print("NumPy version: {}".format(np.__version__))
 
@@ -41,8 +42,6 @@ for node in range(fq.SITES):
 g = nk.graph.Graph(edges=edge_colors)
 
 hilbert = nk.hilbert.Spin(s=.5, N=g.n_nodes, total_sz=fq.TOTAL_SZ)
-
-m_z = sum(nk.operator.spin.sigmaz(hilbert, i) for i in range(hilbert.size)) # total magnetization operator
 
 # This pars is only relevant for GCNN machine
 print("There are", len(g.automorphisms()), "full symmetries.")

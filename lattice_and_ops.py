@@ -141,6 +141,9 @@ class Operators:
         self.mszsz = mszsz_interaction
         self.exchange = exchange_interaction
 
+        ## Total magnetization
+        self.m_z = sum(nk.operator.spin.sigmaz(hilbert, i) for i in range(hilbert.size))
+
         ## DS operator
         ss_operator = 0
         M = self.hilbert.size
@@ -153,7 +156,7 @@ class Operators:
                     ss_operator += self.SS(node,self.lattice.llft(node))
         self.m_dimer_op = -1/3 * ss_operator/M*2
 
-        # PS operator
+        ## PS operator
         i = 0
         while sum(self.lattice.position(i))%2 == 0: # ensure that the plaquette is 'empty' (without J_2 bond inside)
             i += 1
@@ -163,7 +166,7 @@ class Operators:
             self.m_plaquette_op = nk.operator.LocalOperator(self.hilbert,operators=[[1,0],[0,1]],acting_on=[0])
             self.m_plaquette_op_MSR = self.m_plaquette_op
 
-        # AF operator
+        ## AF operator
         self.m_s2_op_MSR = 0
         M = self.hilbert.size
         for i in range(M):
@@ -273,12 +276,14 @@ def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,steps_until_convergence,filen
         JEXCH1, 
         gs_1.energy.mean.real,                          gs_1.energy.variance, 
         gs_2.energy.mean.real,                          gs_2.energy.variance, 
+        gs_1.estimate(ops.m_z).mean.real,               gs_1.estimate(ops.m_z).variance, 
         gs_1.estimate(ops.m_dimer_op).mean.real,        gs_1.estimate(ops.m_dimer_op).variance, 
-        gs_1.estimate(ops.m_plaquette_op).mean.real,    gs_1.estimate(ops.m_plaquette_op).variance, 
         gs_1.estimate(ops.m_s2_op).mean.real,           gs_1.estimate(ops.m_s2_op).variance, 
+        # gs_1.estimate(ops.m_plaquette_op).mean.real,    gs_1.estimate(ops.m_plaquette_op).variance, 
+        gs_2.estimate(ops.m_z).mean.real,               gs_2.estimate(ops.m_z).variance, 
         gs_2.estimate(ops.m_dimer_op).mean.real,        gs_2.estimate(ops.m_dimer_op).variance, 
-        gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).variance, 
         gs_2.estimate(ops.m_s2_op_MSR).mean.real,       gs_2.estimate(ops.m_s2_op_MSR).variance, 
+        # gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).variance, 
         samples, iters, str(steps_until_convergence)[1:-1]))
     if filename is not None:
         file = open(filename, "a")
@@ -286,12 +291,14 @@ def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,steps_until_convergence,filen
             JEXCH1, 
             gs_1.energy.mean.real,                          gs_1.energy.variance, 
             gs_2.energy.mean.real,                          gs_2.energy.variance, 
+            gs_1.estimate(ops.m_z).mean.real,               gs_1.estimate(ops.m_z).variance, 
             gs_1.estimate(ops.m_dimer_op).mean.real,        gs_1.estimate(ops.m_dimer_op).variance, 
-            gs_1.estimate(ops.m_plaquette_op).mean.real,    gs_1.estimate(ops.m_plaquette_op).variance, 
             gs_1.estimate(ops.m_s2_op).mean.real,           gs_1.estimate(ops.m_s2_op).variance, 
+            # gs_1.estimate(ops.m_plaquette_op).mean.real,    gs_1.estimate(ops.m_plaquette_op).variance, 
+            gs_2.estimate(ops.m_z).mean.real,               gs_2.estimate(ops.m_z).variance, 
             gs_2.estimate(ops.m_dimer_op).mean.real,        gs_2.estimate(ops.m_dimer_op).variance, 
-            gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).variance, 
             gs_2.estimate(ops.m_s2_op_MSR).mean.real,       gs_2.estimate(ops.m_s2_op_MSR).variance, 
+            # gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).variance, 
             samples, iters, str(steps_until_convergence)[1:-1]),file=file)
         file.close()
 
