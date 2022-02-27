@@ -134,9 +134,10 @@ for JEXCH1 in fq.STEPS:
         print("Expected exact energy:", exact_ground_energy)
     for i,gs in enumerate([gs_1,gs_2][use_2:use_2+no_of_runs]):
         start = time.time()
-        gs.run(out=OUT_NAME+"_"+str(round(JEXCH1,1))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
+        gs.run(out=OUT_NAME+"_"+str(round(JEXCH1,2))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
         end = time.time()
-        print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
+        if JEXCH1 == fq.STEPS[0]:
+            print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
 
     threshold_energy = 0.995*exact_ground_energy
     data = []
