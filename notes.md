@@ -254,7 +254,7 @@ where $S$ is *quantum Fisher information matrix*.
 ![](figures/optimizer_comparison_2.png)
 
 
-##
+## schůzka 26.2.
 
 - postit RBM a myRBM s více body na metacentru, abych měl obrázek do DP
 - spustit na N=20 s MC

@@ -42,8 +42,6 @@ g = nk.graph.Graph(edges=edge_colors)
 
 hilbert = nk.hilbert.Spin(s=.5, N=g.n_nodes, total_sz=fq.TOTAL_SZ)
 
-m_z = sum(nk.operator.spin.sigmaz(hilbert, i) for i in range(hilbert.size)) # total magnetization operator
-
 # This pars is only relevant for GCNN machine
 print("There are", len(g.automorphisms()), "full symmetries.")
 # deciding point between DS and AF phase is set to 0.5
@@ -61,10 +59,10 @@ else:
     characters_dimer_1 = np.ones((len(g.automorphisms()),), dtype=complex)
     characters_dimer_2 = characters_dimer_1
     
-for JEXCH1 in fq.STEPS:
+for H_Z in fq.STEPS:
     # Hamiltonian definition
-    ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
-    ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
+    ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.JEXCH1,fq.JEXCH2, h_z = H_Z, use_MSR=False), bond_ops_colors=ho.bond_color)
+    ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.JEXCH1,fq.JEXCH2, h_z = H_Z, use_MSR=True ), bond_ops_colors=ho.bond_color)
 
     # Exact diagonalization
     if g.n_nodes < 20 and fq.VERBOSE == True:
@@ -134,7 +132,7 @@ for JEXCH1 in fq.STEPS:
         print("Expected exact energy:", exact_ground_energy)
     for i,gs in enumerate([gs_1,gs_2][use_2:use_2+no_of_runs]):
         start = time.time()
-        gs.run(out=OUT_NAME+"_"+str(round(JEXCH1,1))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
+        gs.run(out=OUT_NAME+"_"+str(round(fq.JEXCH1,1))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
         end = time.time()
         print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
 
@@ -157,6 +155,6 @@ for JEXCH1 in fq.STEPS:
             print("m_s^2 =", gs.estimate(ops.m_s2_op), "<--- no MSR!!")
     
     if no_of_runs==2:
-        log_results(JEXCH1,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,steps_until_convergence,filename="out.txt")
+        log_results(H_Z,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,steps_until_convergence,filename="out.txt")
     else:
-        log_results(JEXCH1,gs_1,gs_1,ops,fq.SAMPLES,fq.NUM_ITER,steps_until_convergence,filename="out.txt")
+        log_results(H_Z,gs_1,gs_1,ops,fq.SAMPLES,fq.NUM_ITER,steps_until_convergence,filename="out.txt")
