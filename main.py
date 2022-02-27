@@ -141,7 +141,7 @@ for JEXCH1 in fq.STEPS:
     threshold_energy = 0.995*exact_ground_energy
     data = []
     for i in range(no_of_runs):
-        data.append(json.load(open(OUT_NAME+"_"+str(round(JEXCH1,1))+"_"+str(i)+".log")))
+        data.append(json.load(open(OUT_NAME+"_"+str(round(JEXCH1,2))+"_"+str(i)+".log")))
     if type(data[0]["Energy"]["Mean"]) == dict: #DTYPE in (np.complex128, np.complex64):#, np.float64):# and False:
         energy_convergence = [data[i]["Energy"]["Mean"]["real"] for i in range(no_of_runs)]
     else:
