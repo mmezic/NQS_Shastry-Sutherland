@@ -259,3 +259,14 @@ where $S$ is *quantum Fisher information matrix*.
 - postit RBM a myRBM s více body na metacentru, abych měl obrázek do DP
 - spustit na N=20 s MC
 - zkusit použít POUZE translace
+
+## moje poznámky
+- Dopsat do diplomky poznámku, že NEPOUŽÍVÁM Adam, který je vpodstatě default (kromě nějakých specifických případů CNN), ale SGD (a SGD je používá ve všech článcích - proč?)
+- proč vlastně při tréningu nepoužíváme žádnou regularizaci?
+- techniky:
+    - (ensambling - ?, data augmentation - NE, L2 regularization - ?, early stopping - NE, dropout (50% defaultně funguje dobře), label smoothing - NE, gradient clipping - ANO)
+
+- výsledky mag pole:
+    - RBM α=2 na laptopu dopadl docela dobře, ale
+    - RBM α=16 na metacentru s hodně samply i iteracemi dopadl hodně hůř
+    - myRBM α=16 dopadl také katastrofálně (možná kvůli symetriím)
