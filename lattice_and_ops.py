@@ -272,7 +272,7 @@ def permutation_sign(permutation):
 
 
 def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,steps_until_convergence,filename=None):
-    print("{:6.3f} {:10.5f} {:8.5f}  {:10.5f} {:8.5f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:5.0f} {:5.0f} {}".format(
+    print("{:6.3f} {:10.5f} {:8.5f}  {:10.5f} {:8.5f}  {:8.4f} {:8.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:8.4f} {:8.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:5.0f} {:5.0f} {}".format(
         JEXCH1, 
         gs_1.energy.mean.real,                          gs_1.energy.variance, 
         gs_2.energy.mean.real,                          gs_2.energy.variance, 
@@ -287,7 +287,7 @@ def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,steps_until_convergence,filen
         samples, iters, str(steps_until_convergence)[1:-1]))
     if filename is not None:
         file = open(filename, "a")
-        print("{:6.3f} {:10.5f} {:8.5f}  {:10.5f} {:8.5f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:5.0f} {:5.0f} {}".format(
+        print("{:6.3f} {:10.5f} {:8.5f}  {:10.5f} {:8.5f}  {:8.4f} {:8.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:8.4f} {:8.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:5.0f} {:5.0f} {}".format(
             JEXCH1, 
             gs_1.energy.mean.real,                          gs_1.energy.variance, 
             gs_2.energy.mean.real,                          gs_2.energy.variance, 

@@ -130,7 +130,7 @@ for JEXCH1 in fq.STEPS:
     no_of_runs = 2 #2 ... bude se pocitat i druhý způsob (za použití MSR)
     use_2 = 0 # in case of one run
     if exact_ground_energy != 0 and fq.VERBOSE == True:
-        print("Expected exact energy:", exact_ground_energy)
+        print("J1 =",JEXCH1,"; Expected exact energy:", exact_ground_energy)
     for i,gs in enumerate([gs_1,gs_2][use_2:use_2+no_of_runs]):
         start = time.time()
         gs.run(out=OUT_NAME+"_"+str(round(JEXCH1,2))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
