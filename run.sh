@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -S /bin/bash
 #PBS -N mezera_nk
-#PBS -l walltime=73:55:00
+#PBS -l walltime=22:55:00
 #PBS -l select=1:ncpus=32:mem=6gb:scratch_local=15gb:os=debian10:cluster=^krux
 #PBS -j oe
 
