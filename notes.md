@@ -270,3 +270,7 @@ where $S$ is *quantum Fisher information matrix*.
     - RBM α=2 na laptopu dopadl docela dobře, ale
     - RBM α=16 na metacentru s hodně samply i iteracemi dopadl hodně hůř
     - myRBM α=16 dopadl také katastrofálně (možná kvůli symetriím)
+    - RVM α=2 na metacentru zpřesnil původní výpočet, ale stejně to není moc accurate
+
+- potřeboval bych zjistit, jaké jsou symetrie GS v magnetických plaquettách - není to někde explicitně spočítané?
+- jsou výsledky ED v AF fázi vubec rozumné? Proč tam jsou plaquetty, které jsou po 1 spin flip (od 0 do 16)?

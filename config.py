@@ -10,8 +10,8 @@ MACHINE = 'RBM'         # 'RBM', 'RBMSymm'
 DTYPE = np.complex128   # type of weights in neural network
 ALPHA = 8              # N_hidden / N_visible	
 ETA   = .01            # learning rate (0.01 usually works)	
-SAMPLES = 1000	
-NUM_ITER = 1000	
+SAMPLES = 10	
+NUM_ITER = 1
 N_PRE_ITER = 30        # number of iteration before checking for convergence to speed up the process if the model is already pre-trained
 VERBOSE = True         # should we print more detailed results
 STEPS = np.arange(1.2,1.95,step=1.2)	
