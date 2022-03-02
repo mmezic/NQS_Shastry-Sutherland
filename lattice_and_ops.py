@@ -271,7 +271,7 @@ def permutation_sign(permutation):
     return -1 if count%2 else 1
 
 
-def log_results(JEXCH1,gs_1,gs_2,ops,samples,exact_energy,iters,steps_until_convergence,filename=None):
+def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,exact_energy,steps_until_convergence,filename=None):
     print("{:6.3f} {:10.5f} {:8.5f}  {:10.5f} {:8.5f}  {:8.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:8.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:10.5f} {:5.0f} {:5.0f} {}".format(
         JEXCH1, 
         gs_1.energy.mean.real,                          gs_1.energy.variance, 

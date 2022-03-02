@@ -159,6 +159,6 @@ for H_Z in fq.STEPS:
             print("m_s^2 =", gs.estimate(ops.m_s2_op), "<--- no MSR!!")
     
     if no_of_runs==2:
-        log_results(H_Z,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,steps_until_convergence,exact_ground_energy,filename="out.txt")
+        log_results(H_Z,gs_1,gs_2,ops, samples = fq.SAMPLES, iters = fq.NUM_ITER, exact_energy = exact_ground_energy, steps_until_convergence = steps_until_convergence,filename="out.txt")
     else:
-        log_results(H_Z,gs_1,gs_1,ops,fq.SAMPLES,fq.NUM_ITER,steps_until_convergence,exact_ground_energy,filename="out.txt")
+        log_results(H_Z,gs_1,gs_1,ops, samples = fq.SAMPLES, iters = fq.NUM_ITER, exact_energy = exact_ground_energy, steps_until_convergence = steps_until_convergence,filename="out.txt")
