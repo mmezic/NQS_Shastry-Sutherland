@@ -274,3 +274,7 @@ where $S$ is *quantum Fisher information matrix*.
 
 - potřeboval bych zjistit, jaké jsou symetrie GS v magnetických plaquettách - není to někde explicitně spočítané?
 - jsou výsledky ED v AF fázi vubec rozumné? Proč tam jsou plaquetty, které jsou po 1 spin flip (od 0 do 16)?
+
+
+
+- VYZKOUŠET PRE-TRAINED METODU S POSTUPNÝM NAVYŠOVÁNÍM MAG POLE
