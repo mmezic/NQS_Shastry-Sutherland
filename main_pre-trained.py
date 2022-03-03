@@ -5,6 +5,7 @@ import numpy as np
 import jax
 import time
 import json	
+print("Python version: {}".format(sys.version))
 print("NetKet version: {}".format(nk.__version__))	
 print("NumPy version: {}".format(np.__version__))
 
@@ -17,6 +18,7 @@ from lattice_and_ops import Lattice
 from lattice_and_ops import Operators
 from lattice_and_ops import HamOps
 from lattice_and_ops import permutation_sign
+from lattice_and_ops import log_results
 ho = HamOps()
 
 OUT_NAME = fq.MACHINE+str(fq.SITES) # output file name	

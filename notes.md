@@ -270,7 +270,14 @@ where $S$ is *quantum Fisher information matrix*.
     - RBM α=2 na laptopu dopadl docela dobře, ale
     - RBM α=16 na metacentru s hodně samply i iteracemi dopadl hodně hůř
     - myRBM α=16 dopadl také katastrofálně (možná kvůli symetriím)
-    - RVM α=2 na metacentru zpřesnil původní výpočet, ale stejně to není moc accurate
+    - RBM α=2 na metacentru zpřesnil původní výpočet, ale stejně to není moc accurate
 
 - potřeboval bych zjistit, jaké jsou symetrie GS v magnetických plaquettách - není to někde explicitně spočítané?
 - jsou výsledky ED v AF fázi vubec rozumné? Proč tam jsou plaquetty, které jsou po 1 spin flip (od 0 do 16)?
+
+- je mnohem lepsí používat RBM α=2, než RBM α=16 (viz. grafy)
+- v AF fázi se vyplatí udělat extrémně moc kroků pro zpřesnění výsledku (hodně pomalinku se to blíží k ED energy)
+
+- možná ještě zkusit ty GCNN lépe optimalizovat (viz. appendix E. od Roth 2021)
+
+- `Translational symmetry of the lattice is spontaneously broken at the plateaus except for the 1/2 plateau.` -- jak je tedy možné, že mi to tyto stavy našlo?

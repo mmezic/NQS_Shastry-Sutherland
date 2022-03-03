@@ -43,7 +43,7 @@ g = nk.graph.Graph(edges=edge_colors)
 
 hilbert = nk.hilbert.Spin(s=.5, N=g.n_nodes, total_sz=fq.TOTAL_SZ)
 
-# This pars is only relevant for GCNN machine
+# This part is only relevant for GCNN machine
 print("There are", len(g.automorphisms()), "full symmetries.")
 # deciding point between DS and AF phase is set to 0.5
 if fq.JEXCH1 < 0.5:
