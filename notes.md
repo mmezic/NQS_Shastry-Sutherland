@@ -281,3 +281,5 @@ where $S$ is *quantum Fisher information matrix*.
 - možná ještě zkusit ty GCNN lépe optimalizovat (viz. appendix E. od Roth 2021)
 
 - `Translational symmetry of the lattice is spontaneously broken at the plateaus except for the 1/2 plateau.` -- jak je tedy možné, že mi to tyto stavy našlo?
+
+- VYZKOUŠET PRE-TRAINED METODU S POSTUPNÝM NAVYŠOVÁNÍM MAG POLE
