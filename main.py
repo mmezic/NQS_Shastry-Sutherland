@@ -43,7 +43,7 @@ g = nk.graph.Graph(edges=edge_colors)
 
 hilbert = nk.hilbert.Spin(s=.5, N=g.n_nodes, total_sz=fq.TOTAL_SZ)
 
-# This part is only relevant for GCNN machine
+# This part is only relevant for GCNN or myRBM machine
 print("There are", len(g.automorphisms()), "full symmetries.")
 # deciding point between DS and AF phase is set to 0.5
 if fq.JEXCH1 < 0.5:
@@ -66,7 +66,7 @@ for JEXCH1 in fq.STEPS:
     ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
 
     # Exact diagonalization
-    if g.n_nodes < 20: # and fq.VERBOSE == True:
+    if g.n_nodes < 20:
         start = time.time()
         evals, eigvects = nk.exact.lanczos_ed(ha_1, k=3, compute_eigenvectors=True)
         end = time.time()
@@ -112,8 +112,8 @@ for JEXCH1 in fq.STEPS:
     optimizer_2 = nk.optimizer.Sgd(learning_rate=fq.ETA)
 
     # Stochastic Reconfiguration
-    sr_1 = nk.optimizer.SR(diag_shift=0.1)
-    sr_2 = nk.optimizer.SR(diag_shift=0.1)
+    sr_1 = nk.optimizer.SR(diag_shift=0.01)
+    sr_2 = nk.optimizer.SR(diag_shift=0.01)
 
     # The variational state (drive to byla nk.variational.MCState)
     vs_1 = nk.vqs.MCState(sampler_1, machine_1, n_samples=fq.SAMPLES)
@@ -137,6 +137,7 @@ for JEXCH1 in fq.STEPS:
         if JEXCH1 == fq.STEPS[0]:
             print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
 
+    # finding the number of steps needed to converge
     threshold_energy = 0.995*exact_ground_energy
     data = []
     for i in range(no_of_runs):

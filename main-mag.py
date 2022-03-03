@@ -43,9 +43,7 @@ g = nk.graph.Graph(edges=edge_colors)
 
 hilbert = nk.hilbert.Spin(s=.5, N=g.n_nodes, total_sz=fq.TOTAL_SZ)
 
-m_z = sum(nk.operator.spin.sigmaz(hilbert, i) for i in range(hilbert.size)) # total magnetization operator
-
-# This pars is only relevant for GCNN machine
+# This part is only relevant for GCNN or myRBM machine
 print("There are", len(g.automorphisms()), "full symmetries.")
 # deciding point between DS and AF phase is set to 0.5
 if fq.JEXCH1 < 0.5:
@@ -114,8 +112,8 @@ for H_Z in fq.STEPS:
     optimizer_2 = nk.optimizer.Sgd(learning_rate=fq.ETA)
 
     # Stochastic Reconfiguration
-    sr_1 = nk.optimizer.SR(diag_shift=0.1)
-    sr_2 = nk.optimizer.SR(diag_shift=0.1)
+    sr_1 = nk.optimizer.SR(diag_shift=0.01)
+    sr_2 = nk.optimizer.SR(diag_shift=0.01)
 
     # The variational state (drive to byla nk.variational.MCState)
     vs_1 = nk.vqs.MCState(sampler_1, machine_1, n_samples=fq.SAMPLES)
@@ -152,7 +150,7 @@ for H_Z in fq.STEPS:
     if fq.VERBOSE == True:
         for i,gs in enumerate([gs_1,gs_2][use_2:use_2+no_of_runs]):
             print("Trained RBM with MSR:" if i else "Trained RBM without MSR:")
-            print("m_z =", gs.estimate(m_z))
+            print("m_z =", gs.estimate(ops.m_z))
             print("m_d^2 =", gs.estimate(ops.m_dimer_op))
             print("m_p =", gs.estimate(ops.m_plaquette_op_MSR))
             print("m_s^2 =", gs.estimate(ops.m_s2_op_MSR))

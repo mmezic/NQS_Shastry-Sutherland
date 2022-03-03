@@ -4,7 +4,6 @@ import netket as nk
 import numpy as np
 import jax
 import time	
-from itertools import product
 print("NetKet version: {}".format(nk.__version__))	
 print("NumPy version: {}".format(np.__version__))	
 
@@ -13,8 +12,6 @@ if len(sys.argv) == 1:
     file = "config"
 print(file)
 fq = __import__(file)
-
-JEXCH1 = fq.JEXCH1
 
 OUT_NAME = "SS-RBM_ops"+str(fq.SITES) # output file name	
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
@@ -52,23 +49,7 @@ elif fq.SITES == 4:
 else:
     raise Exception("Invalid number of fq.SITES given.")
 N = sum(width) #number of nodes
-
-deg45 = True # special case when angle of tiling is 45 deg
-i = 0
-while deg45 and i < len(width)-1:
-    deg45 = (width[i] == width[i+1] + 2 or width[i] == width[i+1] - 2)
-    i += 1
-vertical_gap = False # is there a 1-site-sized gap between bottom (left) tile and left (top) tile ? 
-horizontal_gap = False # is there a 1-site-sized gap between bottom (left) tile and bottom right tile ?
-if deg45:
-    if width[i]%2 == 0:
-        vertical_gap = True
-    else:
-        horizontal_gap = True
-        Exception("Not implemented ERROR during lattice definition. Please rotate given lattice by 90 degrees. This special case happens only when dealing with 45 deg tilings.")
-
-left_shift = len(width) - right_shift + vertical_gap #vertical shift of the center of (top) left tile (in the upward direction)
-
+left_shift = len(width) - right_shift #vertical shift of the center of left cell (in the upward direction)
 
 # i j-->
 # | .   .   .   0  
@@ -107,17 +88,13 @@ def is_lowest(node):
             return True
 def rt(node): #returns index n of right neighbour
     if is_last(node):
-        new_row = (position(node)[0] + right_shift)%(len(width)+vertical_gap)
-        if new_row == len(width): # special case of gap
-            new_row -= right_shift
+        new_row = (position(node)[0] + right_shift)%len(width)
         return sum(width[0:new_row])
     else:
         return (node+1)%N
 def lft(node): #returns index n of left neighbour
     if is_first(node):
-        new_row = (position(node)[0] + left_shift)%(len(width)+vertical_gap)
-        if new_row == len(width):
-            new_row -= left_shift
+        new_row = (position(node)[0] + left_shift)%len(width)
         return sum(width[0:new_row])+width[new_row]-1
     else:
         return (node-1)%N
@@ -164,37 +141,33 @@ exchange = np.asarray([[0, 0, 0, 0], [0, 0, 2, 0], [0, 2, 0, 0], [0, 0, 0, 0]]) 
 full_spin = mszsz+exchange # = S*S = sx*sx + sy*sy + sz*sz
 bond_color = [1, 2, 1, 2]
 
-print("alpha =",fq.ALPHA,"eta =", fq.ETA)
-bond_operator = [
-    (JEXCH1 * mszsz).tolist(),
-    (fq.JEXCH2 * mszsz).tolist(),
-    (JEXCH1 * exchange).tolist(), # minus in case of MSR
-    (fq.JEXCH2 * exchange).tolist(),
-]
-bond_operatorMSR = [
-    (JEXCH1 * mszsz).tolist(),
-    (fq.JEXCH2 * mszsz).tolist(),
-    (-JEXCH1 * exchange).tolist(), # minus in case of MSR
-    (fq.JEXCH2 * exchange).tolist(),
-]
-ha = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=bond_operator, bond_ops_colors=bond_color)
-ha_MSR = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=bond_operatorMSR, bond_ops_colors=bond_color)
+for JEXCH1 in fq.STEPS:
+    bond_operator = [
+        (JEXCH1 * mszsz).tolist(),
+        (fq.JEXCH2 * mszsz).tolist(),
+        (JEXCH1 * exchange).tolist(), # minus in case of MSR
+        (fq.JEXCH2 * exchange).tolist(),
+    ]
+    bond_operatorMSR = [
+        (JEXCH1 * mszsz).tolist(),
+        (fq.JEXCH2 * mszsz).tolist(),
+        (-JEXCH1 * exchange).tolist(), # minus in case of MSR
+        (fq.JEXCH2 * exchange).tolist(),
+    ]
+    ha = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=bond_operator, bond_ops_colors=bond_color)
+    ha_MSR = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=bond_operator, bond_ops_colors=bond_color)
 
-if g.n_nodes < 20:
-    start = time.time()
-    evals, eigvects = nk.exact.lanczos_ed(ha, k=3, compute_eigenvectors=True)
-    #evals = nk.exact.lanczos_ed(ha, compute_eigenvectors=False) #.lanczos_ed
-    end = time.time()
-    diag_time = end - start
-    exact_ground_energy = evals[0]
-    file = open("out.txt", "a")
-    file.write("Exact energies:"+str(evals)+"\n")
-    file.close()
-else:
-    exact_ground_energy = 0
-    eigvects = None
+    if g.n_nodes < 20:
+        start = time.time()
+        evals, eigvects = nk.exact.lanczos_ed(ha, k=3, compute_eigenvectors=True)
+        #evals = nk.exact.lanczos_ed(ha, compute_eigenvectors=False) #.lanczos_ed
+        end = time.time()
+        diag_time = end - start
+        exact_ground_energy = evals[0]
+    else:
+        exact_ground_energy = [0,0,0]
+        eigvects = None
 
-for fq.ALPHA, fq.ETA in product(fq.STEPS_A,fq.STEPS_E):
     # Symmetric RBM Spin fq.MACHINE
     # and Symmetric RBM Spin fq.MACHINE with MSR
     if fq.MACHINE == "RBMSymm":
@@ -208,8 +181,8 @@ for fq.ALPHA, fq.ETA in product(fq.STEPS_A,fq.STEPS_E):
 
     # Meropolis Exchange Sampling
     if fq.SAMPLER == 'local':
-        sampler = nk.sampler.MetropolisLocal(hilbert=hilbert)
-        sampler_MSR = nk.sampler.MetropolisLocal(hilbert=hilbert)
+        sampler = nk.sampler.MetropolisLocal(hilbert=hilbert, n_chains = 6)
+        sampler_MSR = nk.sampler.MetropolisLocal(hilbert=hilbert,  n_chains = 1)
     elif fq.SAMPLER == 'exact':
         sampler = nk.sampler.ExactSampler(hilbert=hilbert)
         sampler_MSR = nk.sampler.ExactSampler(hilbert=hilbert)
@@ -224,8 +197,8 @@ for fq.ALPHA, fq.ETA in product(fq.STEPS_A,fq.STEPS_E):
     optimizer_MSR = nk.optimizer.Sgd(learning_rate=fq.ETA)
 
     # Stochastic Reconfiguration
-    sr  = nk.optimizer.SR(diag_shift=0.1)
-    sr_MSR  = nk.optimizer.SR(diag_shift=0.1)
+    sr  = nk.optimizer.SR(diag_shift=0.01)
+    sr_MSR  = nk.optimizer.SR(diag_shift=0.01)
 
     # The variational state (drive to byla nk.variational.MCState)
     vss = nk.vqs.MCState(sampler, machine, n_samples=fq.SAMPLES)
@@ -344,7 +317,4 @@ for fq.ALPHA, fq.ETA in product(fq.STEPS_A,fq.STEPS_E):
             print("m_p =", gs.estimate(m_plaquette_op))
             print("m_s^2 =", gs.estimate(m_s2_op_MSR))
             print("m_s^2 =", gs.estimate(m_s2_op), "<--- no MSR!!")
-    print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}    {:9.5f}  {:9.5f}".format(JEXCH1, gs_normal.energy.mean.real, gs_MSR.energy.mean.real, gs_normal.estimate(m_dimer_op).mean.real, gs_normal.estimate(m_plaquette_op).mean.real, gs_normal.estimate(m_s2_op).mean.real, gs_MSR.estimate(m_dimer_op).mean.real, gs_MSR.estimate(m_plaquette_op_MSR).mean.real, gs_MSR.estimate(m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, fq.ALPHA, fq.ETA, sep='    '))
-    file = open("out.txt", "a")
-    file.write("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}    {:9.5f}  {:9.5f}\n".format(JEXCH1, gs_normal.energy.mean.real, gs_MSR.energy.mean.real, gs_normal.estimate(m_dimer_op).mean.real, gs_normal.estimate(m_plaquette_op).mean.real, gs_normal.estimate(m_s2_op).mean.real, gs_MSR.estimate(m_dimer_op).mean.real, gs_MSR.estimate(m_plaquette_op_MSR).mean.real, gs_MSR.estimate(m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, fq.ALPHA, fq.ETA, sep='    '))
-    file.close()
+    print("{:9.5f}     {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}    {:9.5f}  {:9.5f}".format(JEXCH1, gs_normal.energy.mean.real, gs_MSR.energy.mean.real, gs_normal.estimate(m_dimer_op).mean.real, gs_normal.estimate(m_plaquette_op).mean.real, gs_normal.estimate(m_s2_op).mean.real, gs_MSR.estimate(m_dimer_op).mean.real, gs_MSR.estimate(m_plaquette_op_MSR).mean.real, gs_MSR.estimate(m_s2_op_MSR).mean.real, fq.SAMPLES, fq.NUM_ITER, sep='    '))
