@@ -328,3 +328,7 @@ where $S$ is *quantum Fisher information matrix*.
 - jenom zmínit DQCP a SL
 - zkusit dosáhnout stejnou přesnost na J1-J2 modelu jako v článku ze sci-post
     - zopakovat výsledky pro porovnání
+
+
+## moje poznámky
+Zkusit inicializovat váhy na *správnou* hodnotu. Rovnoměrně rozdělené s rozptylem $U\left[-\sqrt{6 \over m+n}, \sqrt{6\over m+n}\right]$, viz. cviko 3.
