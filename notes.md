@@ -256,14 +256,23 @@ where $S$ is *quantum Fisher information matrix*.
 
 ## schůzka 26.2.
 
-- postit RBM a myRBM s více body na metacentru, abych měl obrázek do DP
-- spustit na N=20 s MC
-- zkusit použít POUZE translace
+- [ ] postit RBM a myRBM s více body na metacentru, abych měl obrázek do DP
+- [ ] spustit na N=20 s MC
+- [ ] zkusit použít POUZE translace
+- [ ] zkusit prozkoumat grupové věci pro $N=20$
+- [ ] zanalyzovat $\chi$
 
-## moje poznámky
+- [ ] přidat mag pole
+    - udělat 3 případy a proskenovat po hodnotách pole $h$
+        - [x] hluboko v DS fázi
+        - [ ] někde mezi $\sim 0.7$
+        - [ ] hluboko v AF fázi
+        - [x] pomocí ED najít, kde by se měla magnetizace překlopit do 1
+
+## moje poznámky pro mě
 - Dopsat do diplomky poznámku, že NEPOUŽÍVÁM Adam, který je vpodstatě default (kromě nějakých specifických případů CNN), ale SGD (a SGD je používá ve všech článcích - proč?)
-- proč vlastně při tréningu nepoužíváme žádnou regularizaci?
-- techniky:
+
+- proč vlastně při tréningu nepoužíváme žádnou regularizaci? Potenciální regularizační techniky:
     - (ensambling - ?, data augmentation - NE, L2 regularization - ?, early stopping - NE, dropout (50% defaultně funguje dobře), label smoothing - NE, gradient clipping - ANO)
 
 - výsledky mag pole:
@@ -272,14 +281,50 @@ where $S$ is *quantum Fisher information matrix*.
     - myRBM α=16 dopadl také katastrofálně (možná kvůli symetriím)
     - RBM α=2 na metacentru zpřesnil původní výpočet, ale stejně to není moc accurate
 
-- potřeboval bych zjistit, jaké jsou symetrie GS v magnetických plaquettách - není to někde explicitně spočítané?
-- jsou výsledky ED v AF fázi vubec rozumné? Proč tam jsou plaquetty, které jsou po 1 spin flip (od 0 do 16)?
+- [x] ZKUSIT BLOCHŮV TEOREM
+    - funguje jen na spojiné $\mathcal{H}$
 
-- je mnohem lepsí používat RBM α=2, než RBM α=16 (viz. grafy)
+
+## moje poznámky na další schůzku
+
+
 - v AF fázi se vyplatí udělat extrémně moc kroků pro zpřesnění výsledku (hodně pomalinku se to blíží k ED energy)
-
 - možná ještě zkusit ty GCNN lépe optimalizovat (viz. appendix E. od Roth 2021)
 
-- `Translational symmetry of the lattice is spontaneously broken at the plateaus except for the 1/2 plateau.` -- jak je tedy možné, že mi to tyto stavy našlo?
+**mag pole**
+- je mnohem lepsí používat RBM α=2, než RBM α=16 (viz. grafy)
 
-- VYZKOUŠET PRE-TRAINED METODU S POSTUPNÝM NAVYŠOVÁNÍM MAG POLE
+- Výsledky ED pro mag pole v AF fázi. Jsou plaquetty, které jsou postupně po 1 spin flip (od 0 do 16). To je asi důsledkem konečnosti mřížky.
+
+- [x] VYZKOUŠET PRE-TRAINED METODU S POSTUPNÝM NAVYŠOVÁNÍM MAG POLE
+    - spíš to není dobré, protože to správně najde pouze plně magnetizovaný stav $m_z = 1$
+
+**teorie grup**
+- degenerace podprostorz základních stavů $\mathcal{H}_{E_0}$ odpovídá dimenzi irrep $G$
+- základní stav se typicky transformuje podle triviální reprezentace -> za má dim 1 -> proto je základní stav typicky nedegenerovaný
+- proto mají smysl pouze $|\chi_g| = 1$
+    - jinak by se jednalo o **degenerovaný základní stav**
+- pro dim > 1 bych musel $\chi_g$ nagradit $D^\mu(g)$, což jsou matice, které bych musel násobit napříč všemi vektory irrep báze základního stavu
+- zobecnění toho, co používa Nomura a GCNN pro irreps s dimenzí > 1, by byl *neúplný symetrizační operátor*
+
+- `Translational symmetry of the lattice is spontaneously broken at the plateaus except for the 1/2 plateau.` -- jak je tedy možné, že mi to tyto stavy našlo?
+- jsou GS v SS modelu s mag polem vůbec symetrické?
+    - zřejmě nemají symetrii vůči translaci o 2, 
+    - proto budou charaktery translací o 2 určitě 0 (a tedy dimenze irrep > 1)
+
+- **Pokud vytvoříme ensamble modelů se všemi kombinacemi charakterů a optimalizujeme je zvlášt. Má vůbec smysl v první řadě symetrizovat ansatz?!? Nebude lepší optimalizovat jenom jednou a prohledat přitom celý prostor?**
+
+- potřeboval bych zjistit, podle jaké irrep se transformují GS v magnetických plaquettách - není to někde explicitně spočítané?
+
+
+## schůzka 4.3.2022
+
+- spustit RBM & myRBM na 8*8 mřížce a nechat to běžet hodně dlouho (potřeba MC)
+- zkusit na 4*4 vypnout PBC v mag poli
+    - mělo by to zhladšit funkci
+    - chceme zjistit, zda je problém v expresivitě RBM nebo v konvergenci?
+- už ne RBMmodPhase
+- zkusit použít měnící se learning-rate (nejdřív pustit velký a pak zmenšit)
+- jenom zmínit DQCP a SL
+- zkusit dosáhnout stejnou přesnost na J1-J2 modelu jako v článku ze sci-post
+    - zopakovat výsledky pro porovnání

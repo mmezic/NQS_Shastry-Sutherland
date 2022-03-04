@@ -122,7 +122,7 @@ for H_Z in fq.STEPS:
         exact_ground_energy = 0
         eigvects = None
 
-    gs_1 = nk.VMC(hamiltonian=ha_1 ,optimizer=optimizer_1,preconditioner=sr_1,variational_state=vs_1)                       # 0 ... symmetric
+    gs_1 = nk.VMC(hamiltonian=ha_1 ,optimizer=optimizer_1,preconditioner=sr_1,variational_state=vs_1)   # 0 ... symmetric
     gs_2 = nk.VMC(hamiltonian=ha_2 ,optimizer=optimizer_2,preconditioner=sr_2,variational_state=vs_2)   # 1 ... symmetric+MSR
 
     no_of_runs = 2 #2 ... bude se pocitat i druhý způsob (za použití MSR)
