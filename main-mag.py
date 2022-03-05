@@ -43,9 +43,7 @@ g = nk.graph.Graph(edges=edge_colors)
 
 hilbert = nk.hilbert.Spin(s=.5, N=g.n_nodes, total_sz=fq.TOTAL_SZ)
 
-m_z = sum(nk.operator.spin.sigmaz(hilbert, i) for i in range(hilbert.size)) # total magnetization operator
-
-# This pars is only relevant for GCNN machine
+# This part is only relevant for GCNN or myRBM machine
 print("There are", len(g.automorphisms()), "full symmetries.")
 # deciding point between DS and AF phase is set to 0.5
 if fq.JEXCH1 < 0.5:
@@ -68,10 +66,9 @@ for H_Z in fq.STEPS:
     ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.JEXCH1,fq.JEXCH2, h_z = H_Z, use_MSR=True ), bond_ops_colors=ho.bond_color)
 
     # Exact diagonalization
-    if g.n_nodes < 20 and fq.VERBOSE == True:
+    if g.n_nodes < 20:
         start = time.time()
         evals, eigvects = nk.exact.lanczos_ed(ha_1, k=3, compute_eigenvectors=True)
-        #evals = nk.exact.lanczos_ed(ha, compute_eigenvectors=False) #.lanczos_ed
         end = time.time()
         diag_time = end - start
         exact_ground_energy = evals[0]
@@ -115,8 +112,8 @@ for H_Z in fq.STEPS:
     optimizer_2 = nk.optimizer.Sgd(learning_rate=fq.ETA)
 
     # Stochastic Reconfiguration
-    sr_1 = nk.optimizer.SR(diag_shift=0.1)
-    sr_2 = nk.optimizer.SR(diag_shift=0.1)
+    sr_1 = nk.optimizer.SR(diag_shift=0.01)
+    sr_2 = nk.optimizer.SR(diag_shift=0.01)
 
     # The variational state (drive to byla nk.variational.MCState)
     vs_1 = nk.vqs.MCState(sampler_1, machine_1, n_samples=fq.SAMPLES)
@@ -132,7 +129,7 @@ for H_Z in fq.STEPS:
     no_of_runs = 2 #2 ... bude se pocitat i druhý způsob (za použití MSR)
     use_2 = 0 # in case of one run
     if exact_ground_energy != 0 and fq.VERBOSE == True:
-        print("Expected exact energy:", exact_ground_energy)
+        print("H_Z =",H_Z,"; Expected exact energy:", exact_ground_energy)
     for i,gs in enumerate([gs_1,gs_2][use_2:use_2+no_of_runs]):
         start = time.time()
         gs.run(out=OUT_NAME+"_"+str(round(H_Z,2))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
@@ -153,13 +150,13 @@ for H_Z in fq.STEPS:
     if fq.VERBOSE == True:
         for i,gs in enumerate([gs_1,gs_2][use_2:use_2+no_of_runs]):
             print("Trained RBM with MSR:" if i else "Trained RBM without MSR:")
-            print("m_z =", gs.estimate(m_z))
+            print("m_z =", gs.estimate(ops.m_z))
             print("m_d^2 =", gs.estimate(ops.m_dimer_op))
             print("m_p =", gs.estimate(ops.m_plaquette_op_MSR))
             print("m_s^2 =", gs.estimate(ops.m_s2_op_MSR))
             print("m_s^2 =", gs.estimate(ops.m_s2_op), "<--- no MSR!!")
     
     if no_of_runs==2:
-        log_results(H_Z,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,steps_until_convergence,filename="out.txt")
+        log_results(H_Z,gs_1,gs_2,ops, samples = fq.SAMPLES, iters = fq.NUM_ITER, exact_energy = exact_ground_energy, steps_until_convergence = steps_until_convergence,filename="out.txt")
     else:
-        log_results(H_Z,gs_1,gs_1,ops,fq.SAMPLES,fq.NUM_ITER,steps_until_convergence,filename="out.txt")
+        log_results(H_Z,gs_1,gs_1,ops, samples = fq.SAMPLES, iters = fq.NUM_ITER, exact_energy = exact_ground_energy, steps_until_convergence = steps_until_convergence,filename="out.txt")

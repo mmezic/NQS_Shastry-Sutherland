@@ -107,8 +107,8 @@ for JEXCH1 in fq.STEPS:
     optimizer_2 = nk.optimizer.Sgd(learning_rate=fq.ETA)
 
     # Stochastic Reconfiguration
-    sr_1 = nk.optimizer.SR(diag_shift=0.1)
-    sr_2 = nk.optimizer.SR(diag_shift=0.1)
+    sr_1 = nk.optimizer.SR(diag_shift=0.01)
+    sr_2 = nk.optimizer.SR(diag_shift=0.01)
 
     # The variational state (drive to byla nk.variational.MCState)
     vs_1 = nk.vqs.MCState(sampler_1, machine_1, n_samples=fq.SAMPLES)

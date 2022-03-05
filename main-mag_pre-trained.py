@@ -105,10 +105,10 @@ vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.001))
 
 ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
-for JEXCH1 in fq.STEPS:
+for H_Z in fq.STEPS:
     # Hamiltonian definition
-    ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
-    ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
+    ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.JEXCH1,fq.JEXCH2, h_z = H_Z, use_MSR=False), bond_ops_colors=ho.bond_color)
+    ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.JEXCH1,fq.JEXCH2, h_z = H_Z, use_MSR=True), bond_ops_colors=ho.bond_color)
 
     # Exact diagonalization
     if g.n_nodes < 20:
@@ -122,17 +122,17 @@ for JEXCH1 in fq.STEPS:
         exact_ground_energy = 0
         eigvects = None
 
-    gs_1 = nk.VMC(hamiltonian=ha_1 ,optimizer=optimizer_1,preconditioner=sr_1,variational_state=vs_1)                       # 0 ... symmetric
+    gs_1 = nk.VMC(hamiltonian=ha_1 ,optimizer=optimizer_1,preconditioner=sr_1,variational_state=vs_1)   # 0 ... symmetric
     gs_2 = nk.VMC(hamiltonian=ha_2 ,optimizer=optimizer_2,preconditioner=sr_2,variational_state=vs_2)   # 1 ... symmetric+MSR
 
     no_of_runs = 2 #2 ... bude se pocitat i druhý způsob (za použití MSR)
     use_2 = 0 # in case of one run
     if exact_ground_energy != 0 and fq.VERBOSE == True:
-        print("J1 =",JEXCH1,"; Expected exact energy:", exact_ground_energy)
+        print("h_z =",H_Z,"; Expected exact energy:", exact_ground_energy)
     for i,gs in enumerate([gs_1,gs_2][use_2:use_2+no_of_runs]):
-        gs.run(out=OUT_NAME+"_"+str(round(JEXCH1,2))+"_"+str(i), n_iter=int(fq.N_PRE_ITER),show_progress=fq.VERBOSE)
-        if gs.energy.mean.real > 0.95*exact_ground_energy:
-            gs.run(out=OUT_NAME+"_"+str(round(JEXCH1,2))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
+        gs.run(out=OUT_NAME+"_"+str(round(H_Z,2))+"_"+str(i), n_iter=int(fq.N_PRE_ITER),show_progress=fq.VERBOSE)
+        if gs.energy.mean.real > 0.995*exact_ground_energy:
+            gs.run(out=OUT_NAME+"_"+str(round(H_Z,2))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
         else:
             print(fq.N_PRE_ITER, "iters were sufficient to converge, skipping next", fq.NUM_ITER, "iters...")
     
@@ -140,7 +140,7 @@ for JEXCH1 in fq.STEPS:
     threshold_energy = 0.995*exact_ground_energy
     data = []
     for i in range(no_of_runs):
-        data.append(json.load(open(OUT_NAME+"_"+str(round(JEXCH1,2))+"_"+str(i)+".log")))
+        data.append(json.load(open(OUT_NAME+"_"+str(round(H_Z,2))+"_"+str(i)+".log")))
     if type(data[0]["Energy"]["Mean"]) == dict: #DTYPE in (np.complex128, np.complex64):#, np.float64):# and False:
         energy_convergence = [data[i]["Energy"]["Mean"]["real"] for i in range(no_of_runs)]
     else:
@@ -148,6 +148,6 @@ for JEXCH1 in fq.STEPS:
     steps_until_convergence = [next((i for i,v in enumerate(energy_convergence[j]) if v < threshold_energy), -1) for j in range(no_of_runs)]
 
     if no_of_runs==2:
-        log_results(JEXCH1,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename="out.txt")
+        log_results(H_Z,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename="out.txt")
     else:
-        log_results(JEXCH1,gs_1,gs_1,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename="out.txt")
+        log_results(H_Z,gs_1,gs_1,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename="out.txt")

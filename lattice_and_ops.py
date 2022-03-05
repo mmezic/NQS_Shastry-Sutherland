@@ -271,8 +271,8 @@ def permutation_sign(permutation):
     return -1 if count%2 else 1
 
 
-def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,steps_until_convergence,filename=None):
-    print("{:6.3f} {:10.5f} {:8.5f}  {:10.5f} {:8.5f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:5.0f} {:5.0f} {}".format(
+def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,exact_energy,steps_until_convergence,filename=None):
+    print("{:6.3f} {:10.5f} {:8.5f}  {:10.5f} {:8.5f}  {:8.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:8.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:10.5f} {:5.0f} {:5.0f} {}".format(
         JEXCH1, 
         gs_1.energy.mean.real,                          gs_1.energy.variance, 
         gs_2.energy.mean.real,                          gs_2.energy.variance, 
@@ -284,10 +284,10 @@ def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,steps_until_convergence,filen
         gs_2.estimate(ops.m_dimer_op).mean.real,        gs_2.estimate(ops.m_dimer_op).variance, 
         gs_2.estimate(ops.m_s2_op_MSR).mean.real,       gs_2.estimate(ops.m_s2_op_MSR).variance, 
         # gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).variance, 
-        samples, iters, str(steps_until_convergence)[1:-1]))
+        exact_energy, samples, iters, str(steps_until_convergence)[1:-1]))
     if filename is not None:
         file = open(filename, "a")
-        print("{:6.3f} {:10.5f} {:8.5f}  {:10.5f} {:8.5f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:5.0f} {:5.0f} {}".format(
+        print("{:6.3f} {:10.5f} {:8.5f}  {:10.5f} {:8.5f}  {:8.4f} {:6.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:10.5f} {:5.0f} {:5.0f} {}".format(
             JEXCH1, 
             gs_1.energy.mean.real,                          gs_1.energy.variance, 
             gs_2.energy.mean.real,                          gs_2.energy.variance, 
@@ -299,7 +299,7 @@ def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,steps_until_convergence,filen
             gs_2.estimate(ops.m_dimer_op).mean.real,        gs_2.estimate(ops.m_dimer_op).variance, 
             gs_2.estimate(ops.m_s2_op_MSR).mean.real,       gs_2.estimate(ops.m_s2_op_MSR).variance, 
             # gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).variance, 
-            samples, iters, str(steps_until_convergence)[1:-1]),file=file)
+            exact_energy, samples, iters, str(steps_until_convergence)[1:-1]),file=file)
         file.close()
 
 
