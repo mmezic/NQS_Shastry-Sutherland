@@ -273,7 +273,8 @@ where $S$ is *quantum Fisher information matrix*.
 - Dopsat do diplomky poznámku, že NEPOUŽÍVÁM Adam, který je vpodstatě default (kromě nějakých specifických případů CNN), ale SGD (a SGD je používá ve všech článcích - proč?)
 
 - proč vlastně při tréningu nepoužíváme žádnou regularizaci? Potenciální regularizační techniky:
-    - (ensambling - ?, data augmentation - NE, L2 regularization - ?, early stopping - NE, dropout (50% defaultně funguje dobře), label smoothing - NE, gradient clipping - ANO)
+    - (ensambling - ?, data augmentation - NE, L2 regularization - ?, early stopping - NE, dropout (50% defaultně funguje dobře), label smoothing - NE, gradient clipping - ANO, batch normalization - mozna)
+    - 3x3 filtry většinou stačí
 
 - výsledky mag pole:
     - RBM α=2 na laptopu dopadl docela dobře, ale
@@ -319,16 +320,21 @@ where $S$ is *quantum Fisher information matrix*.
 
 ## schůzka 4.3.2022
 
-- spustit RBM & myRBM na 8*8 mřížce a nechat to běžet hodně dlouho (potřeba MC)
-- zkusit na 4*4 vypnout PBC v mag poli
+- [ ] **1)** spustit RBM & myRBM na 8*8 mřížce a nechat to běžet hodně dlouho (potřeba MC)
+- [ ] **2)** zkusit na 4*4 vypnout PBC v mag poli
     - mělo by to zhladšit funkci
     - chceme zjistit, zda je problém v expresivitě RBM nebo v konvergenci?
-- už ne RBMmodPhase
-- zkusit použít měnící se learning-rate (nejdřív pustit velký a pak zmenšit)
-- jenom zmínit DQCP a SL
-- zkusit dosáhnout stejnou přesnost na J1-J2 modelu jako v článku ze sci-post
+- [ ] **3)** zkusit použít měnící se learning-rate (nejdřív pustit velký a pak zmenšit)
+- [ ] **4)** zkusit dosáhnout stejnou přesnost na J1-J2 modelu jako v článku ze sci-post
     - zopakovat výsledky pro porovnání
+- už nepoužívat RBMmodPhase
+- jenom zmínit DQCP a SL
 
 
 ## moje poznámky
 Zkusit inicializovat váhy na *správnou* hodnotu. Rovnoměrně rozdělené s rozptylem $U\left[-\sqrt{6 \over m+n}, \sqrt{6\over m+n}\right]$, viz. cviko 3.
+
+- **1)** už to běží
+
+## moje poznámky k DL
+- lol, CNNs mají fakt hodně parametrů (~100 milionů)
