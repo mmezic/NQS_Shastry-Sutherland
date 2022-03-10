@@ -1,6 +1,6 @@
 import numpy as np
 """lattice"""	
-SITES    = 16            # 4, 8, 16, 20 ... number of vertices in a tile determines the tile shape 	
+SITES    = 4            # 4, 8, 16, 20 ... number of vertices in a tile determines the tile shape 	
 JEXCH1   = 0.2            # nn interaction	
 JEXCH2   = 1            # nnn interaction	
 H_Z      = 0
