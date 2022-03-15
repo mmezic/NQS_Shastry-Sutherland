@@ -247,7 +247,7 @@ class HamOps:
     #Exchange interactions
     exchange = np.asarray([[0, 0, 0, 0], [0, 0, 2, 0], [0, 2, 0, 0], [0, 0, 0, 0]]) # = sx*sx+sy*sy = 1/2*(sp*sm+sm*sp)
     full_spin = mszsz+exchange # = S*S = sx*sx + sy*sy + sz*sz
-    bond_color = [1, 2, 1, 2, 2] # J1 mszsz; J2 mszsz; J1 exchange; J2 exchange; h_z applied to all vertices <=> adding h_z to all SS-bonds
+    bond_color = [1, 2, 1, 2, 2, 3] # J1 mszsz; J2 mszsz; J1 exchange; J2 exchange; h_z applied to all vertices <=> adding h_z to all SS-bonds
     def __init__(self) -> None:
         pass
     
@@ -256,7 +256,7 @@ class HamOps:
 
     def bond_operator(self, jexch1=1, jexch2=1, use_MSR=False, h_z = 0):
         sign = -1 if use_MSR else 1
-        return [(jexch1 * self.mszsz).tolist(),(jexch2 * self.mszsz).tolist(),(sign*jexch1 * self.exchange).tolist(),(jexch2 * self.exchange).tolist(), (h_z * self.mag_field_z).tolist(),]
+        return [(jexch1 * self.mszsz).tolist(),(jexch2 * self.mszsz).tolist(),(sign*jexch1 * self.exchange).tolist(),(jexch2 * self.exchange).tolist(), (h_z * self.mag_field_z).tolist(), (h_z * self.mag_field_z).tolist(),]
 
 """
 Calculates the number of swaps forming the given permutation. Returns 1 or -1.
