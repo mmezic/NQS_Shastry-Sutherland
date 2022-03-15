@@ -1,12 +1,12 @@
 import numpy as np
 """lattice"""	
-SITES    = 16            # 4, 8, 16, 20 ... number of vertices in a tile determines the tile shape 	
+SITES    = 36            # 4, 8, 16, 20 ... number of vertices in a tile determines the tile shape 	
 JEXCH1   = 0.2            # nn interaction	
 JEXCH2   = 1            # nnn interaction	
 H_Z      = 0
 """machine learning"""	
 TOTAL_SZ = None            # 0, None ... restriction of Hilbert space	
-SAMPLER = 'exact'       # 'local' = MetropolisLocal, 'exchange' = MetropolisExchange, 'exact' = ExactSampler
+SAMPLER = 'local'       # 'local' = MetropolisLocal, 'exchange' = MetropolisExchange, 'exact' = ExactSampler
 MACHINE = 'RBM'         # 'RBM', 'RBMSymm'
 DTYPE = np.complex128   # type of weights in neural network
 ALPHA = 2              # N_hidden / N_visible	
