@@ -26,17 +26,24 @@ print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sa
 
 lattice = Lattice(fq.SITES)
 
-# Define custom graph
+if not fq.USE_PBC and fq.SITES != 16:
+    raise Exception("Non-PBC are implemented only for 4x4 lattice!!!")
+
+# Construction of custom graph according to tiled lattice structure defined in the Lattice class.
 edge_colors = []
 for node in range(fq.SITES):
-    edge_colors.append([node,lattice.rt(node), 1]) #horizontal connections
-    edge_colors.append([node,lattice.bot(node), 1]) #vertical connections
+    if fq.USE_PBC or not node in [3,7,11,15]:
+        edge_colors.append([node,lattice.rt(node), 1])  # horizontal connections
+    if fq.USE_PBC or not node in [12,13,14,15]:
+        edge_colors.append([node,lattice.bot(node), 1]) # vertical connections
     row, column = lattice.position(node)
+    
+    SS_color = 3 if not fq.USE_PBC and node in [3,7,4,12,13,14,15] else 2
     if column%2 == 0:
         if row%2 == 0:
-            edge_colors.append([node,lattice.lrt(node),2])
+            edge_colors.append([node,lattice.lrt(node),SS_color]) # diagonal bond
         else:
-            edge_colors.append([node,lattice.llft(node),2])
+            edge_colors.append([node,lattice.llft(node),SS_color]) # diagonal bond
 
 # Define the netket graph object
 g = nk.graph.Graph(edges=edge_colors)

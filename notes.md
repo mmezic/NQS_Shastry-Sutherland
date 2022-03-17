@@ -335,13 +335,13 @@ where $S$ is *quantum Fisher information matrix*.
 Zkusit inicializovat váhy na *správnou* hodnotu. Rovnoměrně rozdělené s rozptylem $U\left[-\sqrt{6 \over m+n}, \sqrt{6\over m+n}\right]$, viz. cviko 3.
 
 - **1)** už to běží
+    - z neznámého důvodu mi oba běhy spadly v uprostřed běhu (pokaždé v jiném místě)
+    - opravné běhy už (asi 4 dny) čekají ve frontě
 
 - **4)** ta jejich $\sim 10^{-6}$ acurracy může být trošku fake, protože brali "pěkný" poslední bod
     - ale pokud řekneme, že bereme min energii, tak je to asi ok
     - rozdíl u mě je v tom, že můj model dost fluktuje nad exaktní energií; a proto v průměru nedává takovou accuracy jako ten jejich
+    - na J1-J2 jsem dokázal použe o řád menší accuracy, ale nevím, jaké techniky oni použili
+    - použít nejnižší energii asi není legit, protože může být i menší, než exaktní energie
 
 - **!!!** potřebuju grafiky
-
-## moje poznámky k DL
-- lol, CNNs mají fakt hodně parametrů (~100 milionů)
-- resudial connections (DN with stichastic depth (layer dropout))

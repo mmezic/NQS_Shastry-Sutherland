@@ -17,3 +17,9 @@ $$\text{~~~netket:}\quad \log \sum\limits_{g\in G} \chi_g {\color{red}\sum\limit
 - Zkusil jsem naimplementovat Nomuru
 
 <img src="figures/NOMURAvsNETKET_N=8.png" width="700"/>
+
+
+
+## moje poznámky k DL
+- lol, CNNs mají fakt hodně parametrů (~100 milionů)
+- resudial connections (DN with stichastic depth (layer dropout))
