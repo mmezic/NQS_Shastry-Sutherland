@@ -21,8 +21,12 @@ from lattice_and_ops import permutation_sign
 from lattice_and_ops import log_results
 ho = HamOps()
 
-OUT_NAME = fq.MACHINE+str(fq.SITES) # output file name	
+OUT_NAME = fq.MACHINE+str(fq.SITES) # output file name
+OUT_LOG_NAME = "out.txt"            # filename for output logging
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
+with open(OUT_LOG_NAME,"a") as out_log_file:
+    out_log_file.write("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
+
 
 lattice = Lattice(fq.SITES)
 
@@ -157,6 +161,6 @@ for JEXCH1 in fq.STEPS:
             print("m_s^2 =", gs.estimate(ops.m_s2_op), "<--- no MSR!!")
     
     if no_of_runs==2:
-        log_results(JEXCH1,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename="out.txt")
+        log_results(JEXCH1,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename=OUT_LOG_NAME)
     else:
-        log_results(JEXCH1,gs_1,gs_1,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename="out.txt")
+        log_results(JEXCH1,gs_1,gs_1,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename=OUT_LOG_NAME)
