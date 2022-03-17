@@ -344,4 +344,4 @@ Zkusit inicializovat váhy na *správnou* hodnotu. Rovnoměrně rozdělené s ro
     - na J1-J2 jsem dokázal použe o řád menší accuracy, ale nevím, jaké techniky oni použili
     - použít nejnižší energii asi není legit, protože může být i menší, než exaktní energie
 
-- **!!!** potřebuju grafiky
+- ? potřebuju grafiky ?
