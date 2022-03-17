@@ -336,5 +336,12 @@ Zkusit inicializovat váhy na *správnou* hodnotu. Rovnoměrně rozdělené s ro
 
 - **1)** už to běží
 
+- **4)** ta jejich $\sim 10^{-6}$ acurracy může být trošku fake, protože brali "pěkný" poslední bod
+    - ale pokud řekneme, že bereme min energii, tak je to asi ok
+    - rozdíl u mě je v tom, že můj model dost fluktuje nad exaktní energií; a proto v průměru nedává takovou accuracy jako ten jejich
+
+- **!!!** potřebuju grafiky
+
 ## moje poznámky k DL
 - lol, CNNs mají fakt hodně parametrů (~100 milionů)
+- resudial connections (DN with stichastic depth (layer dropout))
