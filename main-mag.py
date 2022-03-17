@@ -21,8 +21,11 @@ from lattice_and_ops import permutation_sign
 from lattice_and_ops import log_results
 ho = HamOps()
 
-OUT_NAME = fq.MACHINE+str(fq.SITES) # output file name	
+OUT_NAME = fq.MACHINE+str(fq.SITES) # output file name
+OUT_LOG_NAME = "out.txt"            # filename for output logging
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
+with open(OUT_LOG_NAME,"a") as out_log_file:
+    out_log_file.write("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
 
 lattice = Lattice(fq.SITES)
 
@@ -164,6 +167,6 @@ for H_Z in fq.STEPS:
             print("m_s^2 =", gs.estimate(ops.m_s2_op), "<--- no MSR!!")
     
     if no_of_runs==2:
-        log_results(H_Z,gs_1,gs_2,ops, samples = fq.SAMPLES, iters = fq.NUM_ITER, exact_energy = exact_ground_energy, steps_until_convergence = steps_until_convergence,filename="out.txt")
+        log_results(H_Z,gs_1,gs_2,ops, samples = fq.SAMPLES, iters = fq.NUM_ITER, exact_energy = exact_ground_energy,steps_until_convergence = steps_until_convergence,filename=OUT_LOG_NAME)
     else:
-        log_results(H_Z,gs_1,gs_1,ops, samples = fq.SAMPLES, iters = fq.NUM_ITER, exact_energy = exact_ground_energy, steps_until_convergence = steps_until_convergence,filename="out.txt")
+        log_results(H_Z,gs_1,gs_1,ops, samples = fq.SAMPLES, iters = fq.NUM_ITER, exact_energy = exact_ground_energy,steps_until_convergence = steps_until_convergence,filename=OUT_LOG_NAME)
