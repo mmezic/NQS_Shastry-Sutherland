@@ -23,7 +23,7 @@ print("NumPy version: {}".format(np.__version__))
 SITES    = 20            # 4, 8, 16, 20 ... number of vertices in a tile determines the tile shape 
 JEXCH1   = 1            # nn interaction
 JEXCH2   = 1             # nnn interaction
-TOTAL_SZ = None          # 0, None ... restriction of Hilbert space
+TOTAL_SZ = 0          # 0, None ... restriction of Hilbert space
 #USE_MSR = True          # Should we use a Marshall sign rule? In this notebook, we use both.
 
 """machine learning"""
@@ -31,15 +31,15 @@ MACHINE  = "myRBM_trans"        # RBM, RBMSymm, RBMSymm_transl, RBMModPhase, GCN
 USE_VISIBLE_BIAS = False        # in case of myRBM or myRBM_trans
 DTYPE    = np.complex128 # data-type of weights in neural network
 ALPHA    = 1            # N_hidden / N_visible
-ETA      = .005          # learning rate (0.01 usually works)
+ETA      = .01          # learning rate (0.01 usually works)
 SAMPLER  = 'exact'       # 'local' = MetropolisLocal, 'exchange' = MetropolisExchange
 SAMPLES  = 2000          # number of Monte Carlo samples
-NUM_ITER = 1000           # number of convergence iterations
+NUM_ITER = 2500           # number of convergence iterations
 N_LAYERS = 2             # number of layers (in case of G-CNN)
 FEATURES = (8,4)         # dimensions of layers (in case of G-CNN)
 
 OUT_NAME = "SS_"+str(SITES)+"j1="+str(JEXCH1) # output file name
-
+print("N = ",SITES, ", samples = ",SAMPLES,", iters = ",NUM_ITER, ", sampler = ",SAMPLER, ", TOTAL_SZ = ", TOTAL_SZ, ", machine = ", MACHINE, ", dtype = ", DTYPE, ", alpha = ", ALPHA, ", eta = ",ETA, sep="")
 # %% [markdown]
 # ### Lattice definition
 # Basic structure of tiled lattices is implemented in `lattice_and_ops.py` file. Class `Lattice` implements relative positional functions, 
@@ -239,15 +239,17 @@ if False:
 runs = [0,1]
 no_of_runs = np.sum(runs) # 1 - one run for variables with ..._1;  2 - both runs for variables ..._1 and ..._2
 run_only_2 = (runs[1]==1 and runs[0]==0) # in case of no_of_runs=1
-NUM_ITER = 50
+# NUM_ITER = 50
 print("J_1 =", JEXCH1, end="; ")
 if exact_ground_energy != 0:
     print("Expected exact energy:", exact_ground_energy)
 for i,gs in enumerate([gs_1,gs_2][run_only_2:run_only_2+no_of_runs]):
     start = time.time()
-    gs.run(out=OUT_NAME+str(i), n_iter=int(NUM_ITER))#, obs={'symmetry':P(0,1)})
+    gs.run(out=OUT_NAME+str(i), n_iter=int(NUM_ITER),show_progress=True)#, obs={'symmetry':P(0,1)})
     end = time.time()
     print(gs.energy,flush=True,end='')
-    print("ε_",i," = ",error:=abs((gs.energy.mean.real.tolist() - exact_ground_energy)/exact_ground_energy)," = 10^", np.log10(error),sep='')
+    print("Final energy:", gs.energy)
+    error=abs((gs.energy.mean.real.tolist() - exact_ground_energy)/exact_ground_energy)
+    print("ε_",i," = ",error," = 10^", np.log10(error),sep='')
     print("The calculation for {} of type {} took {} min".format(MACHINE, i+1, (end-start)/60))
 
