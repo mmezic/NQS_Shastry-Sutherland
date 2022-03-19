@@ -338,10 +338,19 @@ Zkusit inicializovat váhy na *správnou* hodnotu. Rovnoměrně rozdělené s ro
     - z neznámého důvodu mi oba běhy spadly v uprostřed běhu (pokaždé v jiném místě)
     - opravné běhy už (asi 4 dny) čekají ve frontě
 
+- **2)** vypadá to, že noPBC tam moc nepomáhá (i když pár mezistavů to našlo)
+- **3)** <span style="color:red;"> zatím jsem nezkoušel </span>
 - **4)** ta jejich $\sim 10^{-6}$ acurracy může být trošku fake, protože brali "pěkný" poslední bod
     - ale pokud řekneme, že bereme min energii, tak je to asi ok
     - rozdíl u mě je v tom, že můj model dost fluktuje nad exaktní energií; a proto v průměru nedává takovou accuracy jako ten jejich
     - na J1-J2 jsem dokázal použe o řád menší accuracy, ale nevím, jaké techniky oni použili
     - použít nejnižší energii asi není legit, protože může být i menší, než exaktní energie
+    - myslím, že kdybych chytře použil learning rate schedule **3)**, dostal bych se na jejich accuracy
 
-- ? potřebuju grafiky ?
+
+## schůzka 18.3.2022
+TODO:
+- vypnutí PBC moc nepomůže (viz graf)
+- probrat strukturu práce
+- ¿ potřebuju vůbec grafiky & cluster ?
+- nedokázal jsem přesně replikovat výsledky J1-J2 o cca 1 řád
