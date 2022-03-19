@@ -79,8 +79,6 @@ for JEXCH1 in fq.STEPS:
         exact_ground_energy = 0
         eigvects = None
 
-    # Symmetric RBM Spin fq.MACHINE
-    # and Symmetric RBM Spin fq.MACHINE with MSR
     if fq.MACHINE == "RBM":
         machine_1 = nk.models.RBM(dtype=fq.DTYPE, alpha=fq.ALPHA)
         machine_2 = nk.models.RBM(dtype=fq.DTYPE, alpha=fq.ALPHA)
