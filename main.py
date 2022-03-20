@@ -64,7 +64,7 @@ else:
     characters_dimer_2 = characters_dimer_1
 
 # extract translations from the full symmetry group
-if not (fq.SITES in [4,16]):
+if False and not (fq.SITES in [4,16]):
     raise NotImplementedError("Extraction of translations from the group of automorphisms is not implemented yet.")
 translations = []
 for perm in g.automorphisms():
