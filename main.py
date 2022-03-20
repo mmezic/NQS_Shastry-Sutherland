@@ -149,7 +149,7 @@ for JEXCH1 in fq.STEPS:
         if JEXCH1 == fq.STEPS[0]:
             print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
         
-        print("m_s^2 =", gs.estimate(ops.m_dimer_op))
+        print("m_d^2 =", gs.estimate(ops.m_dimer_op))
         print("m_s^2 =", ops.m_sSquared_slow(gs))
         print("m_s^2 =", ops.m_sSquared_slow_MSR(gs))
 

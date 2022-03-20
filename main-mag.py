@@ -77,10 +77,7 @@ for H_Z in fq.STEPS:
 
     # Exact diagonalization
     if g.n_nodes < 20:
-        start = time.time()
         evals, eigvects = nk.exact.lanczos_ed(ha_1, k=3, compute_eigenvectors=True)
-        end = time.time()
-        diag_time = end - start
         exact_ground_energy = evals[0]
     else:
         exact_ground_energy = 0
