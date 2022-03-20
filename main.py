@@ -62,7 +62,21 @@ else:
     # AF phase if fully symmetric
     characters_dimer_1 = np.ones((len(g.automorphisms()),), dtype=complex)
     characters_dimer_2 = characters_dimer_1
-    
+
+# extract translations from the full symmetry group
+if False and not (fq.SITES in [4,16]):
+    raise NotImplementedError("Extraction of translations from the group of automorphisms is not implemented yet.")
+translations = []
+for perm in g.automorphisms():
+    aperm = np.asarray(perm)
+    if fq.SITES == 4:
+        if (aperm[0],aperm[1]) in ((0,1),(1,0),(2,3),(3,2)):
+            translations.append(nk.utils.group._permutation_group.Permutation(aperm))
+    elif fq.SITES == 16:
+        if (aperm[0],aperm[1],aperm[3]) in ((0,1,3),(2,3,1),(8,9,11),(10,11,9)):
+            translations.append(nk.utils.group._permutation_group.Permutation(aperm))
+translation_group = nk.utils.group._permutation_group.PermutationGroup(translations,degree=fq.SITES)
+
 for JEXCH1 in fq.STEPS:
     # Hamiltonian definition
     ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
@@ -70,10 +84,7 @@ for JEXCH1 in fq.STEPS:
 
     # Exact diagonalization
     if g.n_nodes < 20:
-        start = time.time()
         evals, eigvects = nk.exact.lanczos_ed(ha_1, k=3, compute_eigenvectors=True)
-        end = time.time()
-        diag_time = end - start
         exact_ground_energy = evals[0]
     else:
         exact_ground_energy = 0
@@ -119,8 +130,8 @@ for JEXCH1 in fq.STEPS:
     # The variational state (drive to byla nk.variational.MCState)
     vs_1 = nk.vqs.MCState(sampler_1, machine_1, n_samples=fq.SAMPLES)
     vs_2 = nk.vqs.MCState(sampler_2, machine_2, n_samples=fq.SAMPLES)
-    vs_1.init_parameters(jax.nn.initializers.normal(stddev=0.001))
-    vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.001))
+    vs_1.init_parameters(jax.nn.initializers.normal(stddev=0.01))
+    vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.01))
 
     gs_1 = nk.VMC(hamiltonian=ha_1 ,optimizer=optimizer_1,preconditioner=sr_1,variational_state=vs_1)   # 0 ... symmetric
     gs_2 = nk.VMC(hamiltonian=ha_2 ,optimizer=optimizer_2,preconditioner=sr_2,variational_state=vs_2)   # 1 ... symmetric+MSR
@@ -138,6 +149,8 @@ for JEXCH1 in fq.STEPS:
         if JEXCH1 == fq.STEPS[0]:
             print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
 
+        
+
     # finding the number of steps needed to converge
     threshold_energy = 0.995*exact_ground_energy
     data = []
@@ -154,8 +167,8 @@ for JEXCH1 in fq.STEPS:
             print("Trained RBM with MSR:" if i else "Trained RBM without MSR:")
             print("m_d^2 =", gs.estimate(ops.m_dimer_op))
             print("m_p =", gs.estimate(ops.m_plaquette_op_MSR))
-            print("m_s^2 =", gs.estimate(ops.m_s2_op_MSR))
-            print("m_s^2 =", gs.estimate(ops.m_s2_op), "<--- no MSR!!")
+            print("m_s^2 =", float(ops.m_sSquared_slow(gs)[0].real))
+            print("m_s^2 =", float(ops.m_sSquared_slow_MSR(gs)[0].real), "<--- no MSR!!")
     
     if no_of_runs==2:
         log_results(JEXCH1,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename=OUT_LOG_NAME)

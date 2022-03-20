@@ -100,8 +100,8 @@ sr_2 = nk.optimizer.SR(diag_shift=0.01)
 # The variational state (drive to byla nk.variational.MCState)
 vs_1 = nk.vqs.MCState(sampler_1, machine_1, n_samples=fq.SAMPLES)
 vs_2 = nk.vqs.MCState(sampler_2, machine_2, n_samples=fq.SAMPLES)
-vs_1.init_parameters(jax.nn.initializers.normal(stddev=0.001))
-vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.001))
+vs_1.init_parameters(jax.nn.initializers.normal(stddev=0.01))
+vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.01))
 
 ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
@@ -112,11 +112,8 @@ for H_Z in fq.STEPS:
 
     # Exact diagonalization
     if g.n_nodes < 20:
-        start = time.time()
         evals, eigvects = nk.exact.lanczos_ed(ha_1, k=3, compute_eigenvectors=True)
         #evals = nk.exact.lanczos_ed(ha, compute_eigenvectors=False) #.lanczos_ed
-        end = time.time()
-        diag_time = end - start
         exact_ground_energy = evals[0]
     else:
         exact_ground_energy = 0

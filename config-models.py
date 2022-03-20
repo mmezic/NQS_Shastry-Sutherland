@@ -1,8 +1,8 @@
 import numpy as np
 """lattice"""	
 SITES    = 4            # 4, 8, 16, 20 ... number of vertices in a tile determines the tile shape 	
-JEXCH1D   = 0.9            # nn interaction	
-JEXCH1A   = 0.2            # nn interaction	
+JEXCH1D   = 0.2            # nn interaction	
+JEXCH1A   = 0.9            # nn interaction	
 JEXCH2   = 1            # nnn interaction	
 H_Z      = 0
 """machine learning"""	
