@@ -8,5 +8,6 @@ convergence_plots/
 old_logs/
 archive/
 out.txt
+out-models_table.txt
 IDs.md
 stroj.txt

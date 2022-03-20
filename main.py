@@ -63,20 +63,6 @@ else:
     characters_dimer_1 = np.ones((len(g.automorphisms()),), dtype=complex)
     characters_dimer_2 = characters_dimer_1
 
-# extract translations from the full symmetry group
-if not (fq.SITES in [4,16]):
-    raise NotImplementedError("Extraction of translations from the group of automorphisms is not implemented yet.")
-translations = []
-for perm in g.automorphisms():
-    aperm = np.asarray(perm)
-    if fq.SITES == 4:
-        if (aperm[0],aperm[1]) in ((0,1),(1,0),(2,3),(3,2)):
-            translations.append(nk.utils.group._permutation_group.Permutation(aperm))
-    elif fq.SITES == 16:
-        if (aperm[0],aperm[1],aperm[3]) in ((0,1,3),(2,3,1),(8,9,11),(10,11,9)):
-            translations.append(nk.utils.group._permutation_group.Permutation(aperm))
-translation_group = nk.utils.group._permutation_group.PermutationGroup(translations,degree=fq.SITES)
-
 for JEXCH1 in fq.STEPS:
     # Hamiltonian definition
     ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,fq.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
@@ -149,7 +135,7 @@ for JEXCH1 in fq.STEPS:
         if JEXCH1 == fq.STEPS[0]:
             print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
         
-        print("m_s^2 =", gs.estimate(ops.m_dimer_op))
+        print("m_d^2 =", gs.estimate(ops.m_dimer_op))
         print("m_s^2 =", ops.m_sSquared_slow(gs))
         print("m_s^2 =", ops.m_sSquared_slow_MSR(gs))
 

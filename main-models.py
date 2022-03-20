@@ -64,52 +64,78 @@ else:
     characters_dimer_2 = characters_dimer_1
     
 # Hamiltonian definition
-ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.JEXCH1,fq.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
-ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.JEXCH1,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
+hd_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.JEXCH1D,fq.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
+hd_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.JEXCH1D,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
+ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.JEXCH1A,fq.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
+ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.JEXCH1A,fq.JEXCH2, use_MSR=True), bond_ops_colors=ho.bond_color)
 
 # Exact diagonalization
 if g.n_nodes < 20:
-    start = time.time()
     evals, eigvects = nk.exact.lanczos_ed(ha_1, k=3, compute_eigenvectors=True)
-    end = time.time()
-    diag_time = end - start
     exact_ground_energy = evals[0]
 else:
     exact_ground_energy = 0
     eigvects = None
 
-ETAS = [0.05,0.01,0.002]
+
+# extract translations from the full symmetry group
+if not (fq.SITES in [4,16]):
+    raise NotImplementedError("Extraction of translations from the group of automorphisms is not implemented yet.")
+translations = []
+for perm in g.automorphisms():
+    aperm = np.asarray(perm)
+    if fq.SITES == 4:
+        if (aperm[0],aperm[1]) in ((0,1),(1,0),(2,3),(3,2)):
+            translations.append(nk.utils.group._permutation_group.Permutation(aperm))
+    elif fq.SITES == 16:
+        if (aperm[0],aperm[1],aperm[3]) in ((0,1,3),(2,3,1),(8,9,11),(10,11,9)):
+            translations.append(nk.utils.group._permutation_group.Permutation(aperm))
+translation_group = nk.utils.group._permutation_group.PermutationGroup(translations,degree=fq.SITES)
+
+# some parameters of the benchmarking of the models
+ETAS = [0.2,0.05,0.01]
 no_etas = len(ETAS)
 no_repeats = 4
+name = "none"
 conv = np.zeros((no_repeats,2))
 for m in range(0,30):
+    start = time.time()
     for j in range(no_repeats):
         # model definition
         if m//no_etas == 0:
-            machine_1 = nk.models.RBM(dtype=fq.DTYPE, alpha=16)
-            machine_2 = nk.models.RBM(dtype=fq.DTYPE, alpha=16)
-        elif m//no_etas == 1:
+            name = "RBM_2"
             machine_1 = nk.models.RBM(dtype=fq.DTYPE, alpha=2)
             machine_2 = nk.models.RBM(dtype=fq.DTYPE, alpha=2)
+        elif m//no_etas == 1:
+            name = "RBM_16"
+            machine_1 = nk.models.RBM(dtype=fq.DTYPE, alpha=16)
+            machine_2 = nk.models.RBM(dtype=fq.DTYPE, alpha=16)
         elif m//no_etas == 2:
-            machine_1 = nk.models.RBM(dtype=fq.DTYPE, alpha=16,use_visible_bias=False)
-            machine_2 = nk.models.RBM(dtype=fq.DTYPE, alpha=16,use_visible_bias=False)
-        elif m//no_etas == 3:
+            name = "RBM_2notVisible"
             machine_1 = nk.models.RBM(dtype=fq.DTYPE, alpha=2,use_visible_bias=False)
             machine_2 = nk.models.RBM(dtype=fq.DTYPE, alpha=2,use_visible_bias=False)
+        elif m//no_etas == 3:
+            name = "RBM_16notVisible"
+            machine_1 = nk.models.RBM(dtype=fq.DTYPE, alpha=16,use_visible_bias=False)
+            machine_2 = nk.models.RBM(dtype=fq.DTYPE, alpha=16,use_visible_bias=False)
         elif m//no_etas == 4:
+            name = "RBMSymm_4aut"
             machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=4) 
             machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=4)
         elif m//no_etas == 5:
+            name = "RBMSymm_16aut"
             machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=16) 
             machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=16)
         elif m//no_etas == 6:
+            name = "RBMSymm_64aut"
             machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=64) 
             machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=64)
         elif m//no_etas == 7:
-            machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=128) 
-            machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=128)
+            name = "RBMSymm_128aut"
+            machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=256) 
+            machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=256)
         elif m//no_etas == 8:
+            name = "GCNN_aut[8,4]"
             machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_dimer_1)
             machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_dimer_2)
         elif m//no_etas == 3:
@@ -178,11 +204,12 @@ for m in range(0,30):
             log_results(fq.JEXCH1,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,exact_energy = m,steps_until_convergence=steps_until_convergence,filename=OUT_LOG_NAME)
         else:
             log_results(fq.JEXCH1,gs_1,gs_1,ops,fq.SAMPLES,fq.NUM_ITER,exact_energy = m,steps_until_convergence=steps_until_convergence,filename=OUT_LOG_NAME)
-
+    end = time.time()
+    
     min_steps = np.min(conv,axis=0)
     average_steps = np.average(conv,axis=0)
     pm_steps = np.std(conv,axis=0) 
     with open('out-models_table.txt','a') as table_file:
-                        # i          eta      min       avg       pm       MSR: min      avg       pm
-        table_file.write("{:2.2f}   {:6.5f}   {:6.3f}   {:6.3f}   {:6.3f}      {:6.3f}   {:6.3f}   {:6.3f}\n".format(m,ETAS[m%no_etas],min_steps[0],average_steps[0],pm_steps[0],min_steps[1],average_steps[1],pm_steps[1]))
+                        # i        name     params    time        eta      min       avg       pm       MSR: min      avg       pm
+        table_file.write("{:2.0f}   {:<15}  {:5.0f}   {:5.1f}    {:6.5f}   {:6.0f}   {:6.1f}   {:6.3}      {:6.0f}   {:6.1f}   {:6.3f}\n".format(m,name,vs_1.n_parameters,(end-start)/60,ETAS[m%no_etas],min_steps[0],average_steps[0],pm_steps[0],min_steps[1],average_steps[1],pm_steps[1]))
     conv = np.zeros((no_repeats,2))
