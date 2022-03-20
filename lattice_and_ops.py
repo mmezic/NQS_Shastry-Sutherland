@@ -224,7 +224,26 @@ class Operators:
         return .5*(self.P_r(i,msr) + self.P_r_inv(i,msr))
 
 
+    """
+    Calculates the value of AF order parameter from either a vector (ndarray) representation of state or NN representation. This method is slower but probably (why?) uses less memory.
+    """
     def m_sSquared_slow(self,state):
+        ss_operator = 0
+        M = self.hilbert.size
+        m_s2 = 0
+        for i in range(M):
+            for j in range(M):
+                m_s2_partial_operator += self.SS(i,j) * (-1)**np.sum(self.lattice.position(i)+self.lattice.position(j))
+            if i%3==2 or i==(M-1):
+                if type(state) == np.ndarray:
+                    m_s2 += (state.transpose()@(ss_operator@state))[0,0]
+                else:
+                    m_s2 += state.estimate(m_s2_partial_operator)
+                m_s2_partial_operator = 0
+        m_s2 = m_s2/M**2
+        return m_s2
+    
+    def m_sSquared_slow_MSR(self,state):
         ss_operator = 0
         M = self.hilbert.size
         m_s2 = 0
@@ -232,8 +251,11 @@ class Operators:
             for j in range(M):
                 ss_operator += self.SS(i,j) * (-1)**np.sum(self.lattice.position(i)+self.lattice.position(j))
             if i%3==2 or i==(M-1):
-                m_s2 += (state.transpose()@(ss_operator@state))[0,0]
-                ss_operator = 0
+                if type(state) == np.ndarray:
+                    m_s2 += (state.transpose()@(ss_operator@state))[0,0]
+                else:
+                    m_s2 += state.estimate(m_s2_partial_operator)
+                m_s2_partial_operator = 0
         m_s2 = m_s2/M**2
         return m_s2
 
