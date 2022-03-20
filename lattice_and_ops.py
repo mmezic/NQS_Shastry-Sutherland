@@ -226,8 +226,10 @@ class Operators:
 
     """
     Calculates the value of AF order parameter from either a vector (ndarray) representation of state or NN representation. This method is slower but probably (why?) uses less memory.
+    The value of partial sum is saved in batches of MEMORY_SIZE 
     """
     def m_sSquared_slow(self,state):
+        MEMORY_SIZE = 8
         m_s2_partial_operator = 0
         M = self.hilbert.size
         m_s2 = 0
@@ -235,17 +237,18 @@ class Operators:
         for i in range(M):
             for j in range(M):
                 m_s2_partial_operator += self.SS(i,j) * (-1)**np.sum(self.lattice.position(i)+self.lattice.position(j))
-            if i%3==2 or i==(M-1):
-                if type(state) == np.ndarray:
-                    m_s2 += (state.transpose()@(m_s2_partial_operator@state))[0,0]
-                else:
-                    m_s2 += state.estimate(m_s2_partial_operator).mean
-                    variance = state.estimate(m_s2_partial_operator).variance
-                m_s2_partial_operator = 0
+                if (j+1)%MEMORY_SIZE == 0 or j == M-1:
+                    if type(state) == np.ndarray:
+                        m_s2 += (state.transpose()@(m_s2_partial_operator@state))[0,0]
+                    else:
+                        m_s2 += state.estimate(m_s2_partial_operator).mean
+                        variance = state.estimate(m_s2_partial_operator).variance
+                    m_s2_partial_operator = 0
         m_s2 = m_s2/M**2
         return m_s2, variance
     
     def m_sSquared_slow_MSR(self,state):
+        MEMORY_SIZE = 8
         m_s2_partial_operator = 0
         M = self.hilbert.size
         m_s2 = 0
@@ -253,13 +256,13 @@ class Operators:
         for i in range(M):
             for j in range(M):
                 m_s2_partial_operator += self.SS(i,j) * (-1)**np.sum(self.lattice.position(i)+self.lattice.position(j))
-            if i%3==2 or i==(M-1):
-                if type(state) == np.ndarray:
-                    m_s2 += (state.transpose()@(m_s2_partial_operator@state))[0,0]
-                else:
-                    m_s2 += state.estimate(m_s2_partial_operator).mean
-                    variance = state.estimate(m_s2_partial_operator).variance
-                m_s2_partial_operator = 0
+                if (j+1)%MEMORY_SIZE == 0 or j == M-1:
+                    if type(state) == np.ndarray:
+                        m_s2 += (state.transpose()@(m_s2_partial_operator@state))[0,0]
+                    else:
+                        m_s2 += state.estimate(m_s2_partial_operator).mean
+                        variance = state.estimate(m_s2_partial_operator).variance
+                    m_s2_partial_operator = 0
         m_s2 = m_s2/M**2
         return m_s2, variance
 
@@ -300,7 +303,10 @@ def permutation_sign(permutation):
 def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,exact_energy,steps_until_convergence,filename=None):
     if ops.hilbert.size > 30: # osetreni podminky pomaleho vyhodnocovani AF parametru usporadani kvuli pretekani pameti
         m_s2_1, m_s2v_1 = ops.m_sSquared_slow(gs_1)
+        m_s2_1, m_s2v_1 = float(m_s2_1.real), float(m_s2v_1)
         m_s2_2, m_s2v_2 = ops.m_sSquared_slow_MSR(gs_2)
+        m_s2_2, m_s2v_2 = float(m_s2_2.real), float(m_s2v_2)
+
     else:
         m_s2_1, m_s2v_1 = gs_1.estimate(ops.m_s2_op).mean.real, gs_1.estimate(ops.m_s2_op).variance
         m_s2_2, m_s2v_2 = gs_2.estimate(ops.m_s2_op_MSR).mean.real, gs_2.estimate(ops.m_s2_op_MSR).variance

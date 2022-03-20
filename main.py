@@ -148,10 +148,6 @@ for JEXCH1 in fq.STEPS:
         end = time.time()
         if JEXCH1 == fq.STEPS[0]:
             print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
-        
-        print("m_d^2 =", gs.estimate(ops.m_dimer_op))
-        print("m_s^2 =", float(ops.m_sSquared_slow(gs).real))
-        print("m_s^2 =", float(ops.m_sSquared_slow_MSR(gs).real))
 
         
 
@@ -171,8 +167,8 @@ for JEXCH1 in fq.STEPS:
             print("Trained RBM with MSR:" if i else "Trained RBM without MSR:")
             print("m_d^2 =", gs.estimate(ops.m_dimer_op))
             print("m_p =", gs.estimate(ops.m_plaquette_op_MSR))
-            print("m_s^2 =", gs.estimate(ops.m_s2_op_MSR))
-            print("m_s^2 =", gs.estimate(ops.m_s2_op), "<--- no MSR!!")
+            print("m_s^2 =", float(ops.m_sSquared_slow(gs)[0].real))
+            print("m_s^2 =", float(ops.m_sSquared_slow_MSR(gs)[0].real), "<--- no MSR!!")
     
     if no_of_runs==2:
         log_results(JEXCH1,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename=OUT_LOG_NAME)
