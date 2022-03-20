@@ -100,8 +100,8 @@ sr_2 = nk.optimizer.SR(diag_shift=0.01)
 # The variational state (drive to byla nk.variational.MCState)
 vs_1 = nk.vqs.MCState(sampler_1, machine_1, n_samples=fq.SAMPLES)
 vs_2 = nk.vqs.MCState(sampler_2, machine_2, n_samples=fq.SAMPLES)
-vs_1.init_parameters(jax.nn.initializers.normal(stddev=0.001))
-vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.001))
+vs_1.init_parameters(jax.nn.initializers.normal(stddev=0.01))
+vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.01))
 
 ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
