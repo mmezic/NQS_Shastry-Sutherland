@@ -213,8 +213,8 @@ sr_2  = nk.optimizer.SR(diag_shift=0.01)
 # The variational state (former name: nk.variational.MCState)
 vs_1 = nk.vqs.MCState(sampler_1 , machine_1 , n_samples=SAMPLES)
 vs_2  = nk.vqs.MCState(sampler_2 , machine_2 , n_samples=SAMPLES)
-vs_1.init_parameters(jax.nn.initializers.normal(stddev=0.001))
-vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.001))
+vs_1.init_parameters(jax.nn.initializers.normal(stddev=0.01))
+vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.01))
 
 
 gs_1 = nk.VMC(hamiltonian=ha_1 ,optimizer=optimizer_1 ,preconditioner=sr_1 ,variational_state=vs_1)

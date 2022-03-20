@@ -354,3 +354,6 @@ TODO:
 - probrat strukturu práce
 - ¿ potřebuju vůbec grafiky & cluster ?
 - nedokázal jsem přesně replikovat výsledky J1-J2 o cca 1 řád
+
+## moje poznámky
+- 20.3.2022 jsem všude nahradil stdev 0.001 -> 0.01

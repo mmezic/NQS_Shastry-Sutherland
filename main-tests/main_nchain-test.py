@@ -203,8 +203,8 @@ for JEXCH1 in fq.STEPS:
     # The variational state (drive to byla nk.variational.MCState)
     vss = nk.vqs.MCState(sampler, machine, n_samples=fq.SAMPLES)
     vs_MSR  = nk.vqs.MCState(sampler_MSR, machine_MSR, n_samples=fq.SAMPLES)
-    vss.init_parameters(jax.nn.initializers.normal(stddev=0.001))
-    vs_MSR.init_parameters(jax.nn.initializers.normal(stddev=0.001))
+    vss.init_parameters(jax.nn.initializers.normal(stddev=0.01))
+    vs_MSR.init_parameters(jax.nn.initializers.normal(stddev=0.01))
 
     gs_normal = nk.VMC(hamiltonian=ha ,optimizer=optimizer,preconditioner=sr,variational_state=vss)                       # 0 ... symmetric
     gs_MSR = nk.VMC(hamiltonian=ha_MSR ,optimizer=optimizer_MSR,preconditioner=sr_MSR,variational_state=vs_MSR)   # 1 ... symmetric+MSR
