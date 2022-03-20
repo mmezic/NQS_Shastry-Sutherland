@@ -228,7 +228,7 @@ class Operators:
     Calculates the value of AF order parameter from either a vector (ndarray) representation of state or NN representation. This method is slower but probably (why?) uses less memory.
     """
     def m_sSquared_slow(self,state):
-        ss_operator = 0
+        m_s2_partial_operator = 0
         M = self.hilbert.size
         m_s2 = 0
         for i in range(M):
@@ -244,7 +244,7 @@ class Operators:
         return m_s2
     
     def m_sSquared_slow_MSR(self,state):
-        ss_operator = 0
+        m_s2_partial_operator = 0
         M = self.hilbert.size
         m_s2 = 0
         for i in range(M):
