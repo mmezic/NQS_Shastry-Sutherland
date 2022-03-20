@@ -10,11 +10,11 @@ MACHINE = 'RBM'         # 'RBM', 'RBMSymm'
 DTYPE = np.complex128   # type of weights in neural network
 ALPHA = 8              # N_hidden / N_visible	
 ETA   = .01            # learning rate (0.01 usually works)	
-SAMPLES = 3000	
+SAMPLES = 4000	
 NUM_ITER = 1000
 N_PRE_ITER = 100        # number of iteration before checking for convergence to speed up the process if the model is already pre-trained
-VERBOSE = False         # should we print more detailed results
-STEPS = np.arange(0.4,1.21,step=0.2)	
+VERBOSE = True         # should we print more detailed results
+STEPS = np.arange(0.4,1.21,step=0.1)	
 num_layers = 2
 feature_dims = (8,4)
 STEPS_A = [int(SITES/2), SITES, SITES*2, SITES*4]   # grid search across ALPHAs (used only in main-gridSearch.py)
