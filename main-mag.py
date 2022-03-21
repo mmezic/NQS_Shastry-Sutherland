@@ -21,22 +21,32 @@ from lattice_and_ops import permutation_sign
 from lattice_and_ops import log_results
 ho = HamOps()
 
-OUT_NAME = fq.MACHINE+str(fq.SITES) # output file name	
+OUT_NAME = fq.MACHINE+str(fq.SITES) # output file name
+OUT_LOG_NAME = "out.txt"            # filename for output logging
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
+with open(OUT_LOG_NAME,"a") as out_log_file:
+    out_log_file.write("N = {}, samples = {}, iters = {}, sampler = {}, TOTAL_SZ = {}, machine = {}, dtype = {}, alpha = {}, eta = {}\n".format(fq.SITES,fq.SAMPLES,fq.NUM_ITER,fq.SAMPLER, fq.TOTAL_SZ,fq.MACHINE, fq.DTYPE, fq.ALPHA, fq.ETA))
 
 lattice = Lattice(fq.SITES)
 
-# Define custom graph
+if not fq.USE_PBC and fq.SITES != 16:
+    raise Exception("Non-PBC are implemented only for 4x4 lattice!!!")
+
+# Construction of custom graph according to tiled lattice structure defined in the Lattice class.
 edge_colors = []
 for node in range(fq.SITES):
-    edge_colors.append([node,lattice.rt(node), 1]) #horizontal connections
-    edge_colors.append([node,lattice.bot(node), 1]) #vertical connections
+    if fq.USE_PBC or not node in [3,7,11,15]:
+        edge_colors.append([node,lattice.rt(node), 1])  # horizontal connections
+    if fq.USE_PBC or not node in [12,13,14,15]:
+        edge_colors.append([node,lattice.bot(node), 1]) # vertical connections
     row, column = lattice.position(node)
+    
+    SS_color = 3 if not fq.USE_PBC and node in [3,7,4,12,13,14,15] else 2
     if column%2 == 0:
         if row%2 == 0:
-            edge_colors.append([node,lattice.lrt(node),2])
+            edge_colors.append([node,lattice.lrt(node),SS_color]) # diagonal bond
         else:
-            edge_colors.append([node,lattice.llft(node),2])
+            edge_colors.append([node,lattice.llft(node),SS_color]) # diagonal bond
 
 # Define the netket graph object
 g = nk.graph.Graph(edges=edge_colors)
@@ -67,17 +77,12 @@ for H_Z in fq.STEPS:
 
     # Exact diagonalization
     if g.n_nodes < 20:
-        start = time.time()
         evals, eigvects = nk.exact.lanczos_ed(ha_1, k=3, compute_eigenvectors=True)
-        end = time.time()
-        diag_time = end - start
         exact_ground_energy = evals[0]
     else:
         exact_ground_energy = 0
         eigvects = None
 
-    # Symmetric RBM Spin fq.MACHINE
-    # and Symmetric RBM Spin fq.MACHINE with MSR
     if fq.MACHINE == "RBM":
         machine_1 = nk.models.RBM(dtype=fq.DTYPE, alpha=fq.ALPHA)
         machine_2 = nk.models.RBM(dtype=fq.DTYPE, alpha=fq.ALPHA)
@@ -118,8 +123,8 @@ for H_Z in fq.STEPS:
     # The variational state (drive to byla nk.variational.MCState)
     vs_1 = nk.vqs.MCState(sampler_1, machine_1, n_samples=fq.SAMPLES)
     vs_2 = nk.vqs.MCState(sampler_2, machine_2, n_samples=fq.SAMPLES)
-    vs_1.init_parameters(jax.nn.initializers.normal(stddev=0.001))
-    vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.001))
+    vs_1.init_parameters(jax.nn.initializers.normal(stddev=0.01))
+    vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.01))
 
     gs_1 = nk.VMC(hamiltonian=ha_1 ,optimizer=optimizer_1,preconditioner=sr_1,variational_state=vs_1)   # 0 ... symmetric
     gs_2 = nk.VMC(hamiltonian=ha_2 ,optimizer=optimizer_2,preconditioner=sr_2,variational_state=vs_2)   # 1 ... symmetric+MSR
@@ -157,6 +162,6 @@ for H_Z in fq.STEPS:
             print("m_s^2 =", gs.estimate(ops.m_s2_op), "<--- no MSR!!")
     
     if no_of_runs==2:
-        log_results(H_Z,gs_1,gs_2,ops, samples = fq.SAMPLES, iters = fq.NUM_ITER, exact_energy = exact_ground_energy, steps_until_convergence = steps_until_convergence,filename="out.txt")
+        log_results(H_Z,gs_1,gs_2,ops, samples = fq.SAMPLES, iters = fq.NUM_ITER, exact_energy = exact_ground_energy,steps_until_convergence = steps_until_convergence,filename=OUT_LOG_NAME)
     else:
-        log_results(H_Z,gs_1,gs_1,ops, samples = fq.SAMPLES, iters = fq.NUM_ITER, exact_energy = exact_ground_energy, steps_until_convergence = steps_until_convergence,filename="out.txt")
+        log_results(H_Z,gs_1,gs_1,ops, samples = fq.SAMPLES, iters = fq.NUM_ITER, exact_energy = exact_ground_energy,steps_until_convergence = steps_until_convergence,filename=OUT_LOG_NAME)

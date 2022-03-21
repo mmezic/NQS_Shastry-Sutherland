@@ -273,7 +273,8 @@ where $S$ is *quantum Fisher information matrix*.
 - Dopsat do diplomky poznámku, že NEPOUŽÍVÁM Adam, který je vpodstatě default (kromě nějakých specifických případů CNN), ale SGD (a SGD je používá ve všech článcích - proč?)
 
 - proč vlastně při tréningu nepoužíváme žádnou regularizaci? Potenciální regularizační techniky:
-    - (ensambling - ?, data augmentation - NE, L2 regularization - ?, early stopping - NE, dropout (50% defaultně funguje dobře), label smoothing - NE, gradient clipping - ANO)
+    - (ensambling - ?, data augmentation - NE, L2 regularization - ?, early stopping - NE, dropout (50% defaultně funguje dobře), label smoothing - NE, gradient clipping - ANO, batch normalization - mozna)
+    - 3x3 filtry většinou stačí
 
 - výsledky mag pole:
     - RBM α=2 na laptopu dopadl docela dobře, ale
@@ -319,16 +320,40 @@ where $S$ is *quantum Fisher information matrix*.
 
 ## schůzka 4.3.2022
 
-- spustit RBM & myRBM na 8*8 mřížce a nechat to běžet hodně dlouho (potřeba MC)
-- zkusit na 4*4 vypnout PBC v mag poli
+- [ ] **1)** spustit RBM & myRBM na 8*8 mřížce a nechat to běžet hodně dlouho (potřeba MC)
+- [ ] **2)** zkusit na 4*4 vypnout PBC v mag poli
     - mělo by to zhladšit funkci
     - chceme zjistit, zda je problém v expresivitě RBM nebo v konvergenci?
-- už ne RBMmodPhase
-- zkusit použít měnící se learning-rate (nejdřív pustit velký a pak zmenšit)
-- jenom zmínit DQCP a SL
-- zkusit dosáhnout stejnou přesnost na J1-J2 modelu jako v článku ze sci-post
+- [ ] **3)** zkusit použít měnící se learning-rate (nejdřív pustit velký a pak zmenšit)
+- [ ] **4)** zkusit dosáhnout stejnou přesnost na J1-J2 modelu jako v článku ze sci-post
     - zopakovat výsledky pro porovnání
+- už nepoužívat RBMmodPhase
+- jenom zmínit DQCP a SL
 
 
 ## moje poznámky
 Zkusit inicializovat váhy na *správnou* hodnotu. Rovnoměrně rozdělené s rozptylem $U\left[-\sqrt{6 \over m+n}, \sqrt{6\over m+n}\right]$, viz. cviko 3.
+
+- **1)** už to běží
+    - z neznámého důvodu mi oba běhy spadly v uprostřed běhu (pokaždé v jiném místě)
+    - opravné běhy už (asi 4 dny) čekají ve frontě
+
+- **2)** vypadá to, že noPBC tam moc nepomáhá (i když pár mezistavů to našlo)
+- **3)** <span style="color:red;"> zatím jsem nezkoušel </span>
+- **4)** ta jejich $\sim 10^{-6}$ acurracy může být trošku fake, protože brali "pěkný" poslední bod
+    - ale pokud řekneme, že bereme min energii, tak je to asi ok
+    - rozdíl u mě je v tom, že můj model dost fluktuje nad exaktní energií; a proto v průměru nedává takovou accuracy jako ten jejich
+    - na J1-J2 jsem dokázal použe o řád menší accuracy, ale nevím, jaké techniky oni použili
+    - použít nejnižší energii asi není legit, protože může být i menší, než exaktní energie
+    - myslím, že kdybych chytře použil learning rate schedule **3)**, dostal bych se na jejich accuracy
+
+
+## schůzka 18.3.2022
+TODO:
+- vypnutí PBC moc nepomůže (viz graf)
+- probrat strukturu práce
+- ¿ potřebuju vůbec grafiky & cluster ?
+- nedokázal jsem přesně replikovat výsledky J1-J2 o cca 1 řád
+
+## moje poznámky
+- 20.3.2022 jsem všude nahradil stdev 0.001 -> 0.01
