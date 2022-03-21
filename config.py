@@ -1,6 +1,6 @@
 import numpy as np
 """lattice"""	
-SITES    = 4            # 4, 8, 16, 20 ... number of vertices in a tile determines the tile shape 	
+SITES    = 16            # 4, 8, 16, 20 ... number of vertices in a tile determines the tile shape 	
 JEXCH1   = 0.2            # nn interaction	
 JEXCH2   = 1            # nnn interaction	
 H_Z      = 0
@@ -15,7 +15,7 @@ SAMPLES = 1500
 NUM_ITER = 950
 N_PRE_ITER = 50        # number of iteration before checking for convergence to speed up the process if the model is already pre-trained
 VERBOSE = True         # should we print more detailed results
-STEPS = np.arange(0,1.95,step=0.1)	
+STEPS = np.arange(0.2,1.95,step=2.1)	
 STEPS_A = [int(SITES/2), SITES, SITES*2, SITES*4]   # grid search across ALPHAs (used only in main-gridSearch.py)
 STEPS_E = [1,0.1,0.01,0.001,0.0001]                 # grid search across ETAs   (used only in main-gridSearch.py)
 num_layers = 2
