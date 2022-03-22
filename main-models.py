@@ -21,6 +21,7 @@ from lattice_and_ops import Operators
 from lattice_and_ops import HamOps
 from lattice_and_ops import permutation_sign
 from lattice_and_ops import log_results
+from GCNN_Nomura import GCNN_my
 ho = HamOps()
 
 OUT_NAME = fq.MACHINE+str(fq.SITES) # output file name
@@ -119,41 +120,70 @@ for m in range(0,30):
             machine_3 = nk.models.RBM(dtype=fq.DTYPE, alpha=16,use_visible_bias=False)
             machine_4 = nk.models.RBM(dtype=fq.DTYPE, alpha=16,use_visible_bias=False)
         elif m//no_etas == 4:
-            name = "RBMSymm_4aut"
-            machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=4) 
-            machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=4)
-            machine_3 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=4) 
-            machine_4 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=4)
-        elif m//no_etas == 5:
             name = "RBMSymm_16aut"
-            machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=16) 
-            machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=16)
-            machine_3 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=16) 
-            machine_4 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=16)
-        elif m//no_etas == 6:
-            name = "RBMSymm_64aut"
-            machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=64) 
-            machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=64)
-            machine_3 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=64) 
-            machine_4 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=64)
-        elif m//no_etas == 7:
+            alpha= 16
+            machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha) 
+            machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha)
+            machine_3 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha) 
+            machine_4 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha)
+        elif m//no_etas == 5:
             name = "RBMSymm_128aut"
-            machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=256) 
-            machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=256)
-            machine_3 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=256) 
-            machine_4 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=256)
+            alpha = 128
+            machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha) 
+            machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha)
+            machine_3 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha) 
+            machine_4 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha)
+        elif m//no_etas == 6:
+            name = "RBMSymm_16trans"
+            alpha = 16
+            machine_1 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
+            machine_2 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)
+            machine_3 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
+            machine_4 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)
+        elif m//no_etas == 7:
+            name = "RBMSymm_128trans"
+            alpha = 128
+            machine_1 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
+            machine_2 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)
+            machine_3 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
+            machine_4 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)
         elif m//no_etas == 8:
+            name = "GCNN_my_32"
+            alpha=32
+            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+        elif m//no_etas == 9:
+            name = "GCNN_my_8"
+            alpha=8
+            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+        elif m//no_etas == 10:
+            name = "GCNN_my_32notVisible"
+            alpha=32
+            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+        elif m//no_etas == 11:
             name = "GCNN_aut[8,4]"
-            machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_dimer_1)
-            machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_dimer_2)
-            machine_3 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_dimer_1)
-            machine_4 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=fq.num_layers, features=fq.feature_dims, characters=characters_dimer_2)
-        elif m//no_etas == 3:
-            from GCNN_Nomura import GCNN_my
-            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=fq.ALPHA, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=fq.ALPHA, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=fq.ALPHA, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=fq.ALPHA, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            num_layers = 2
+            feature_dims = [8,4]
+            machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_1)
+            machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_2)
+            machine_3 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_1)
+            machine_4 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_2)
+        elif m//no_etas == 12:
+            name = "GCNN_aut[16,16]"
+            num_layers = 2
+            feature_dims = [16,16]
+            machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_1)
+            machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_2)
+            machine_3 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_1)
+            machine_4 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_2)
         else:
             raise Exception(str("undefined MACHINE: ")+str(fq.MACHINE))
 
