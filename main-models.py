@@ -278,6 +278,6 @@ for m in range(0,30):
     average_steps = np.average(conv,axis=0)
     pm_steps = np.std(conv,axis=0) 
     with open('out-models_table.txt','a') as table_file:
-                        # i       name     params   time      eta     min     avg     pm    MSR: min    avg     pm        min      avg     pm   MSR: min   avg    pm
+                        # i       name     params   time      eta     min     avg     pm    MSR: min    avg     pm    AF: min      avg     pm   MSR: min   avg    pm
         table_file.write("{:2.0f}  {:<15}  {:5.0f}  {:5.1f}  {:6.5f}  {:6.0f} {:6.1f} {:6.3}   {:6.0f} {:6.1f} {:6.3f}   {:6.0f} {:6.1f} {:6.3}  {:6.0f} {:6.1f} {:6.3f}\n".format(m,name,vs_1.n_parameters,(end-start)/60,ETAS[m%no_etas],min_steps[0],average_steps[0],pm_steps[0],min_steps[1],average_steps[1],pm_steps[1],min_steps[2],average_steps[2],pm_steps[2],min_steps[3],average_steps[3],pm_steps[3]))
     conv = np.zeros((no_repeats,4))
