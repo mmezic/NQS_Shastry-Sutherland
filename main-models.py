@@ -33,12 +33,15 @@ from GCNN_Nomura import GCNN_my
 ho = HamOps()
 
 PREFIX = "" #"test/"
-OUT_NAME = PREFIX+fq.MACHINE+str(fq.SITES) # output file name
+OUT_NAME = PREFIX+"models"+str(fq.SITES) # output file name
 OUT_LOG_NAME = PREFIX+"out.txt"            # filename for output logging
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
 with open(OUT_LOG_NAME,"a") as out_log_file:
     out_log_file.write("Jax devices: {}".format(jax.devices()))
     out_log_file.write("N = {}, samples = {}, iters = {}, sampler = {}, TOTAL_SZ = {}, machine = {}, dtype = {}, alpha = {}, eta = {}\n".format(fq.SITES,fq.SAMPLES,fq.NUM_ITER,fq.SAMPLER, fq.TOTAL_SZ,fq.MACHINE, fq.DTYPE, fq.ALPHA, fq.ETA))
+with open('out-models_table.txt','a') as table_file:
+    table_file.write("# N = {}, samples = {}, iters = {}, sampler = {}, TOTAL_SZ = {}, machine = {}, dtype = {}, alpha = {}, eta = {}\n".format(fq.SITES,fq.SAMPLES,fq.NUM_ITER,fq.SAMPLER, fq.TOTAL_SZ,fq.MACHINE, fq.DTYPE, fq.ALPHA, fq.ETA))
+    table_file.write("# i      name     params   time     eta  DS: min_s  avg  min_err   MSR: min_s  avg  min_err   AF: min_s  avg  min_err  MSR: min_s  avg  min_err\n")
 
 lattice = Lattice(fq.SITES)
 
@@ -74,11 +77,15 @@ ha_2 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.
 
 # Exact diagonalization
 if g.n_nodes < 20:
-    evals, eigvects = nk.exact.lanczos_ed(ha_1, k=3, compute_eigenvectors=True)
-    exact_ground_energy = evals[0]
+    evals = nk.exact.lanczos_ed(ha_1, k=2, compute_eigenvectors=False)
+    exact_ground_energy_AF = evals[0]
+    evals = nk.exact.lanczos_ed(hd_1, k=2, compute_eigenvectors=False)
+    exact_ground_energy_DS = evals[0]
 else:
-    exact_ground_energy = 0
-    eigvects = None
+    raise Exception("System too large for ED :-(.")
+if fq.VERBOSE:
+    print("Exact DS energy:",exact_ground_energy_DS)
+    print("Exact AF energy:",exact_ground_energy_AF)
 
 
 # extract translations from the full symmetry group
@@ -96,11 +103,13 @@ for perm in g.automorphisms():
 translation_group = nk.utils.group._permutation_group.PermutationGroup(translations,degree=fq.SITES)
 
 # some parameters of the benchmarking of the models
-ETAS = [0.2,0.05,0.01]
+ETAS = [0.01,0.05,0.2]
 no_etas = len(ETAS)
 no_repeats = 4
 name = "none"
-conv = np.zeros((no_repeats,4))
+steps_until_conv = np.zeros((no_repeats,4))
+min_energy_error = np.zeros((no_repeats,4))
+
 for m in range(0,30):
     start = time.time()
     for j in range(no_repeats):
@@ -245,25 +254,30 @@ for m in range(0,30):
         
         ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
+        MODEL_LOG_NAME = OUT_NAME+"_"+name+"_"+str(ETAS[m%no_etas])+"_"
         no_of_runs = 4
         for i,gs in enumerate([gs_1d,gs_2d,gs_1a,gs_2a]):
             start = time.time()
-            gs.run(out=OUT_NAME+"_"+str(m)+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
+            if fq.VERBOSE:
+                print("Running",name,"in the", "DS" if i <= 2 else "AF", "phase", "without" if i%2==0 else "with", "MSR, learning rate =",ETAS[m%no_etas])
+            gs.run(out=MODEL_LOG_NAME+["DS_normal","DS_MSR","AF_normal","AF_MSR"][i], n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
             end = time.time()
             if m == 0:
                 print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
 
         # finding the number of steps needed to converge
-        threshold_energy = 0.995*exact_ground_energy
+        exact_ground_energies = np.array([exact_ground_energy_DS,exact_ground_energy_DS,exact_ground_energy_AF,exact_ground_energy_AF])
+        threshold_energies = 0.995*exact_ground_energies
         data = []
         for i in range(no_of_runs):
-            data.append(json.load(open(OUT_NAME+"_"+str(m)+"_"+str(i)+".log")))
+            data.append(json.load(open(MODEL_LOG_NAME+["DS_normal","DS_MSR","AF_normal","AF_MSR"][i]+".log")))
         if type(data[0]["Energy"]["Mean"]) == dict: #DTYPE in (np.complex128, np.complex64):#, np.float64):# and False:
-            energy_convergence = [data[i]["Energy"]["Mean"]["real"] for i in range(no_of_runs)]
+            energy_convergence = np.asarray([data[i]["Energy"]["Mean"]["real"] for i in range(no_of_runs)])
         else:
-            energy_convergence = [data[i]["Energy"]["Mean"] for i in range(no_of_runs)]
-        steps_until_convergence = [next((i for i,v in enumerate(energy_convergence[j]) if v < threshold_energy), np.inf) for j in range(no_of_runs)]
-        conv[j] = np.asarray(steps_until_convergence)
+            energy_convergence = np.asarray([data[i]["Energy"]["Mean"] for i in range(no_of_runs)])
+        steps_until_convergence = [next((i for i,v in enumerate(energy_convergence[j]) if v < threshold_energies[j]), np.inf) for j in range(no_of_runs)]
+        min_energy_error[j] = [np.min(np.abs(energy_convergence[j] - exact_ground_energies[j])) for j in range(no_of_runs)]
+        steps_until_conv[j] = np.asarray(steps_until_convergence)
         
         if no_of_runs==2:
             log_results(m,gs_1d,gs_2d,ops,fq.SAMPLES,fq.NUM_ITER,exact_energy = m,steps_until_convergence=steps_until_convergence,filename=OUT_LOG_NAME)
@@ -274,10 +288,12 @@ for m in range(0,30):
             log_results(m,gs_1d,gs_1d,ops,fq.SAMPLES,fq.NUM_ITER,exact_energy = m,steps_until_convergence=steps_until_convergence,filename=OUT_LOG_NAME)
     end = time.time()
     
-    min_steps = np.min(conv,axis=0)
-    average_steps = np.average(conv,axis=0)
-    pm_steps = np.std(conv,axis=0) 
+    min_steps = np.min(steps_until_conv,axis=0)
+    average_steps = np.average(steps_until_conv,axis=0)
+    pm_steps = np.std(steps_until_conv,axis=0)
+    min_min_energy_error = np.min(min_energy_error,axis=0)
     with open('out-models_table.txt','a') as table_file:
-                        # i       name     params   time      eta     min     avg     pm    MSR: min    avg     pm        min      avg     pm   MSR: min   avg    pm
-        table_file.write("{:2.0f}  {:<15}  {:5.0f}  {:5.1f}  {:6.5f}  {:6.0f} {:6.1f} {:6.3}   {:6.0f} {:6.1f} {:6.3f}   {:6.0f} {:6.1f} {:6.3}  {:6.0f} {:6.1f} {:6.3f}\n".format(m,name,vs_1.n_parameters,(end-start)/60,ETAS[m%no_etas],min_steps[0],average_steps[0],pm_steps[0],min_steps[1],average_steps[1],pm_steps[1],min_steps[2],average_steps[2],pm_steps[2],min_steps[3],average_steps[3],pm_steps[3]))
-    conv = np.zeros((no_repeats,4))
+                        # i       name     params   time     eta  DS: min_s  avg  min_err   MSR: min_s  avg  min_err   AF: min_s  avg  min_err  MSR: min_s  avg  min_err
+        table_file.write("{:2.0f}  {:<15}  {:5.0f}  {:5.1f}  {:6.5f}  {:6.0f} {:6.1f} {:6.3}   {:6.0f} {:6.1f} {:6.3f}   {:6.0f} {:6.1f} {:6.3}  {:6.0f} {:6.1f} {:6.3f}\n".format(m,name,vs_1.n_parameters,(end-start)/60,ETAS[m%no_etas],min_steps[0],average_steps[0],min_min_energy_error[0],min_steps[1],average_steps[1],min_min_energy_error[1],min_steps[2],average_steps[2],min_min_energy_error[2],min_steps[3],average_steps[3],min_min_energy_error[3]))
+    steps_until_conv = np.zeros((no_repeats,4))
+    min_energy_error = np.zeros((no_repeats,4))
