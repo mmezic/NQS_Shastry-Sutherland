@@ -57,3 +57,8 @@
  3   RBM_2               44    0.01    0.20000       15      inf      nan          20     27.0    7.246
  4   RBM_2               44    0.01    0.05000       41     43.0     1.87          87      inf      nan
  5   RBM_2               44    0.01    0.01000      inf      inf      nan         inf      inf      nan
+ 0  RBM_2               44    0.0  0.20000      12    inf    nan       18    inf    nan       13    inf    nan      12    inf    nan
+ 0  RBM_2               44    0.0  0.20000      12    inf    nan       14    inf    nan       11    inf    nan      14    inf    nan
+ 1  RBM_2               44    0.0  0.05000      34    inf    nan       60    inf    nan       37    inf    nan      65   80.0  9.513
+ 2  RBM_2               44    0.0  0.01000     inf    inf    nan      inf    inf    nan      inf    inf    nan     inf    inf    nan
+ 3  RBM_16             324    0.0  0.20000      12    inf    nan       12    inf    nan       14    inf    nan      15    inf    nan
