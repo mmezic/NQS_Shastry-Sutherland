@@ -1,5 +1,6 @@
 import os, sys
 # detect MPI rank
+# os.environ["MPI4JAX_USE_CUDA_MPI"] = f"{1}" # our MPI4JAX installation does not have CUDA support, see https://mpi4jax.readthedocs.io/en/latest/sharp-bits.html#using-cuda-mpi
 from mpi4py import MPI
 rank = MPI.COMM_WORLD.Get_rank()
 # set only one visible device
