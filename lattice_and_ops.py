@@ -242,7 +242,7 @@ class Operators:
                         m_s2 += (state.transpose()@(m_s2_partial_operator@state))[0,0]
                     else:
                         m_s2 += state.estimate(m_s2_partial_operator).mean
-                        variance = state.estimate(m_s2_partial_operator).variance
+                        variance += state.estimate(m_s2_partial_operator).variance
                     m_s2_partial_operator = 0
         m_s2 = m_s2/M**2
         return m_s2, variance
@@ -255,13 +255,16 @@ class Operators:
         variance = 0
         for i in range(M):
             for j in range(M):
-                m_s2_partial_operator += self.SS(i,j) * (-1)**np.sum(self.lattice.position(i)+self.lattice.position(j))
+                m_s2_partial_operator += self.SS_MSR(i,j) * (-1)**np.sum(self.lattice.position(i)+self.lattice.position(j))
                 if (j+1)%MEMORY_SIZE == 0 or j == M-1:
                     if type(state) == np.ndarray:
                         m_s2 += (state.transpose()@(m_s2_partial_operator@state))[0,0]
+                    elif type(state) == nk.vqs.MCState:
+                        m_s2 += state.expect(m_s2_partial_operator).mean
+                        variance += state.expect(m_s2_partial_operator).variance
                     else:
                         m_s2 += state.estimate(m_s2_partial_operator).mean
-                        variance = state.estimate(m_s2_partial_operator).variance
+                        variance += state.estimate(m_s2_partial_operator).variance
                     m_s2_partial_operator = 0
         m_s2 = m_s2/M**2
         return m_s2, variance
