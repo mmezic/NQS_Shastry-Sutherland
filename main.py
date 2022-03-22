@@ -1,5 +1,6 @@
-import sys, getopt	
-sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages')	
+import sys, getopt, os
+sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages')
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "0") # Report only TF errors by default
 import netket as nk	
 import numpy as np
 import jax
@@ -8,6 +9,8 @@ import json
 print("Python version: {}".format(sys.version))
 print("NetKet version: {}".format(nk.__version__))	
 print("NumPy version: {}".format(np.__version__))
+print("MPI:", nk.utils.mpi.available)
+print("Devices:", jax.devices())
 
 file = sys.argv[-1]
 if len(sys.argv) == 1:
