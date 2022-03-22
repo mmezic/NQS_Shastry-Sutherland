@@ -357,3 +357,5 @@ TODO:
 
 ## moje poznámky
 - 20.3.2022 jsem všude nahradil stdev 0.001 -> 0.01
+- 22.3.2022 všechny energie jsem vydělil 4, aby to bylo konzistentní s definicí v DP
+TODO: nacist modely a dostat z nich hodnoty PS parametru
