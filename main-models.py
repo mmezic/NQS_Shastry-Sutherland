@@ -1,5 +1,13 @@
 from re import M
-import sys, getopt	
+import sys, getopt
+# trying to set up parallel CPUs apparently does not work well
+# import os
+# from mpi4py import MPI
+# size = MPI.COMM_WORLD.Get_size()
+# rank = MPI.COMM_WORLD.Get_rank()
+# name = MPI.Get_processor_name()
+# os.environ['XLA_FLAGS'] = '--xla_force_host_platform_device_count={size}'
+# sys.stdout.write("Hello, World! I am process %d of %d on %s.\n"%(rank, size, name))
 sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages')	
 import netket as nk	
 import numpy as np
@@ -24,10 +32,12 @@ from lattice_and_ops import log_results
 from GCNN_Nomura import GCNN_my
 ho = HamOps()
 
-OUT_NAME = fq.MACHINE+str(fq.SITES) # output file name
-OUT_LOG_NAME = "out.txt"            # filename for output logging
+PREFIX = "" #"test/"
+OUT_NAME = PREFIX+fq.MACHINE+str(fq.SITES) # output file name
+OUT_LOG_NAME = PREFIX+"out.txt"            # filename for output logging
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
 with open(OUT_LOG_NAME,"a") as out_log_file:
+    out_log_file.write("Jax devices: {}".format(jax.devices()))
     out_log_file.write("N = {}, samples = {}, iters = {}, sampler = {}, TOTAL_SZ = {}, machine = {}, dtype = {}, alpha = {}, eta = {}\n".format(fq.SITES,fq.SAMPLES,fq.NUM_ITER,fq.SAMPLER, fq.TOTAL_SZ,fq.MACHINE, fq.DTYPE, fq.ALPHA, fq.ETA))
 
 lattice = Lattice(fq.SITES)
