@@ -8,16 +8,16 @@ import sys, getopt, os
 # name = MPI.Get_processor_name()
 # os.environ['XLA_FLAGS'] = '--xla_force_host_platform_device_count={size}'
 # sys.stdout.write("Hello, World! I am process %d of %d on %s.\n"%(rank, size, name))
-from mpi4py import MPI
-rank = MPI.COMM_WORLD.Get_rank()
-# set only one visible device
-os.environ["CUDA_VISIBLE_DEVICES"] = f"{rank}"
-os.environ["JAX_PLATFORM_NAME"] = "cpu"
-# sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages')	
+# from mpi4py import MPI
+# rank = MPI.COMM_WORLD.Get_rank()
+# # set only one visible device
+# os.environ["CUDA_VISIBLE_DEVICES"] = f"{rank}"
+# os.environ["JAX_PLATFORM_NAME"] = "cpu"
+sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages')	
 import netket as nk	
 import numpy as np
 import jax
-import mpi4jax
+# import mpi4jax
 import time
 import json	
 import copy
