@@ -360,3 +360,15 @@ TODO:
 - 22.3.2022 všechny energie jsem vydělil 4, aby to bylo konzistentní s definicí v DP
 TODO: nacist modely a dostat z nich hodnoty PS parametru plus AF parametru pro MSR (pro MSR byla pouzita non-MSR verze)
 - variance AF_slow byla zle naimplementovana, ale teď už je ok
+
+- **Jak submitovyt joby na miltiCPU?**
+```module load NetKet/3.3.2.post1-OpenMPI-4.1.1-CUDA-11.6.0
+python $script -f config-models16
+```
+ je asi o 50% rychlejší než 
+```module load Python/3.9.6-GCCcore-11.2.0-NetKet
+module load intel/2020a
+mpirun -np 36 python $script -f config-models16
+```
+
+- udělat obrázek popisující průměrování energií z posledních 100 iterací a záporné hodnoty zpsůobené asi numerickou přesnotsí
