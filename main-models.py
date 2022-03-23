@@ -119,7 +119,7 @@ name = "none"
 steps_until_conv = np.zeros((no_repeats,4))
 min_energy_error = np.zeros((no_repeats,4))
 
-for m in range(0,51):
+for m in range(38):
     start = time.time()
     for j in range(no_repeats):
         # model definition
