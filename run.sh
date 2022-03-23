@@ -42,7 +42,7 @@ cd $SCRATCHDIR
 module add python/python-3.7.7-intel-19.0.4-mgiwa7z
 module add py-pip/py-pip-19.3-intel-19.0.4-hudzomi
 export OMP_NUM_THREADS=16
-FILE=/storage/praha1/home/mezic/diplomka/netket_scripts/main-models.py
+FILE=/storage/praha1/home/mezic/diplomka/netket_scripts/main-models.1.py
 echo FILE=$FILE
 python3 $FILE -f config-models16
 echo "end"
