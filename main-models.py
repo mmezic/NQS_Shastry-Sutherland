@@ -41,7 +41,8 @@ from GCNN_Nomura import GCNN_my
 ho = HamOps()
 
 PREFIX = "logs/" #"test/"
-os.mkdir(PREFIX)
+if not os.path.exists(PREFIX):
+    os.mkdir(PREFIX)
 OUT_NAME = PREFIX+"models"+str(fq.SITES) # output file name
 OUT_LOG_NAME = PREFIX+"out.txt"            # filename for output logging
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
