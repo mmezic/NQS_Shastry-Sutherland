@@ -41,6 +41,7 @@ from GCNN_Nomura import GCNN_my
 ho = HamOps()
 
 PREFIX = "logs/" #"test/"
+os.mkdir(PREFIX)
 OUT_NAME = PREFIX+"models"+str(fq.SITES) # output file name
 OUT_LOG_NAME = PREFIX+"out.txt"            # filename for output logging
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
@@ -120,7 +121,7 @@ steps_until_conv = np.zeros((no_repeats,4))
 min_energy_error = np.zeros((no_repeats,4))
 average_final_energy = np.zeros((no_repeats,4))
 
-for m in range(38):
+for m in fq.INDICES:
     start = time.time()
     for j in range(no_repeats):
         # model definition
