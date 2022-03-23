@@ -120,7 +120,7 @@ steps_until_conv = np.zeros((no_repeats,4))
 min_energy_error = np.zeros((no_repeats,4))
 average_final_energy = np.zeros((no_repeats,4))
 
-for m in range(38):
+for m in range(35):
     start = time.time()
     for j in range(no_repeats):
         # model definition
