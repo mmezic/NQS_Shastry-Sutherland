@@ -1,5 +1,5 @@
 from re import M
-import sys, getopt, os
+import sys, getopt
 # trying to set up parallel CPUs apparently does not work well
 # import os
 # from mpi4py import MPI
@@ -8,24 +8,16 @@ import sys, getopt, os
 # name = MPI.Get_processor_name()
 # os.environ['XLA_FLAGS'] = '--xla_force_host_platform_device_count={size}'
 # sys.stdout.write("Hello, World! I am process %d of %d on %s.\n"%(rank, size, name))
-# from mpi4py import MPI
-# rank = MPI.COMM_WORLD.Get_rank()
-# # set only one visible device
-# os.environ["CUDA_VISIBLE_DEVICES"] = f"{rank}"
-# os.environ["JAX_PLATFORM_NAME"] = "cpu"
 sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages')	
 import netket as nk	
 import numpy as np
 import jax
-# import mpi4jax
 import time
 import json	
 import copy
 print("Python version: {}".format(sys.version))
 print("NetKet version: {}".format(nk.__version__))	
 print("NumPy version: {}".format(np.__version__))
-print("Jax devices: {}".format(jax.devices()))
-print("MPI utils available: {}".format(nk.utils.mpi.available))
 
 file = sys.argv[-1]
 if len(sys.argv) == 1:
@@ -46,7 +38,6 @@ OUT_LOG_NAME = PREFIX+"out.txt"            # filename for output logging
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
 with open(OUT_LOG_NAME,"a") as out_log_file:
     out_log_file.write("Jax devices: {}".format(jax.devices()))
-    out_log_file.write("MPI utils available: {}".format(nk.utils.mpi.available))
     out_log_file.write("N = {}, samples = {}, iters = {}, sampler = {}, TOTAL_SZ = {}, machine = {}, dtype = {}, alpha = {}, eta = {}\n".format(fq.SITES,fq.SAMPLES,fq.NUM_ITER,fq.SAMPLER, fq.TOTAL_SZ,fq.MACHINE, fq.DTYPE, fq.ALPHA, fq.ETA))
 with open('out-models_table.txt','a') as table_file:
     table_file.write("# N = {}, samples = {}, iters = {}, sampler = {}, TOTAL_SZ = {}, machine = {}, dtype = {}, alpha = {}, eta = {}\n".format(fq.SITES,fq.SAMPLES,fq.NUM_ITER,fq.SAMPLER, fq.TOTAL_SZ,fq.MACHINE, fq.DTYPE, fq.ALPHA, fq.ETA))
@@ -119,7 +110,7 @@ name = "none"
 steps_until_conv = np.zeros((no_repeats,4))
 min_energy_error = np.zeros((no_repeats,4))
 
-for m in range(38):
+for m in range(38,0,-1):
     start = time.time()
     for j in range(no_repeats):
         # model definition
