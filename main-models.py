@@ -1,5 +1,6 @@
 from re import M
 import sys, getopt
+from mpi4py import MPI
 # trying to set up parallel CPUs apparently does not work well
 # import os
 # from mpi4py import MPI
@@ -18,6 +19,7 @@ import copy
 print("Python version: {}".format(sys.version))
 print("NetKet version: {}".format(nk.__version__))	
 print("NumPy version: {}".format(np.__version__))
+print("Jax devices: {}".format(jax.devices()))
 
 file = sys.argv[-1]
 if len(sys.argv) == 1:
