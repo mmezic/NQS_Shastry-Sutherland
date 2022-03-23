@@ -40,7 +40,7 @@ from lattice_and_ops import log_results
 from GCNN_Nomura import GCNN_my
 ho = HamOps()
 
-PREFIX = "" #"test/"
+PREFIX = "logs/" #"test/"
 OUT_NAME = PREFIX+"models"+str(fq.SITES) # output file name
 OUT_LOG_NAME = PREFIX+"out.txt"            # filename for output logging
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
@@ -50,7 +50,7 @@ with open(OUT_LOG_NAME,"a") as out_log_file:
     out_log_file.write("N = {}, samples = {}, iters = {}, sampler = {}, TOTAL_SZ = {}, machine = {}, dtype = {}, alpha = {}, eta = {}\n".format(fq.SITES,fq.SAMPLES,fq.NUM_ITER,fq.SAMPLER, fq.TOTAL_SZ,fq.MACHINE, fq.DTYPE, fq.ALPHA, fq.ETA))
 with open('out-models_table.txt','a') as table_file:
     table_file.write("# N = {}, samples = {}, iters = {}, sampler = {}, TOTAL_SZ = {}, machine = {}, dtype = {}, alpha = {}, eta = {}\n".format(fq.SITES,fq.SAMPLES,fq.NUM_ITER,fq.SAMPLER, fq.TOTAL_SZ,fq.MACHINE, fq.DTYPE, fq.ALPHA, fq.ETA))
-    table_file.write("# i      name     params   time     eta  DS: min_s  avg  min_err   MSR: min_s  avg  min_err   AF: min_s  avg  min_err  MSR: min_s  avg  min_err\n")
+    table_file.write("# i       name      params  time    eta  DS: min_s avg_err min_err  MSR: min_s avg_err min_err  AF: min_s avg_err min_err  MSR: min_s avg_err min_err\n")
 
 lattice = Lattice(fq.SITES)
 
@@ -118,6 +118,7 @@ no_repeats = 4
 name = "none"
 steps_until_conv = np.zeros((no_repeats,4))
 min_energy_error = np.zeros((no_repeats,4))
+average_final_energy = np.zeros((no_repeats,4))
 
 for m in range(38):
     start = time.time()
@@ -263,7 +264,7 @@ for m in range(38):
         
         ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
-        MODEL_LOG_NAME = OUT_NAME+"_"+name+"_"+str(ETAS[m%no_etas])+"_"
+        MODEL_LOG_NAME = OUT_NAME+"_"+name+"_"+str(ETAS[m%no_etas])+"_"+str(j)+"_"
         no_of_runs = 4
         for i,gs in enumerate([gs_1d,gs_2d,gs_1a,gs_2a]):
             start = time.time()
@@ -284,6 +285,8 @@ for m in range(38):
             energy_convergence = np.asarray([data[i]["Energy"]["Mean"]["real"] for i in range(no_of_runs)])
         else:
             energy_convergence = np.asarray([data[i]["Energy"]["Mean"] for i in range(no_of_runs)])
+        
+        average_final_energy[j] = np.average(energy_convergence[:,-50:],axis=1)
         steps_until_convergence = [next((i for i,v in enumerate(energy_convergence[j]) if v < threshold_energies[j]), np.inf) for j in range(no_of_runs)]
         min_energy_error[j] = [np.min(np.abs(energy_convergence[j] - exact_ground_energies[j])) for j in range(no_of_runs)]
         steps_until_conv[j] = np.asarray(steps_until_convergence)
@@ -298,11 +301,15 @@ for m in range(38):
     end = time.time()
     
     min_steps = np.min(steps_until_conv,axis=0)
-    average_steps = np.average(steps_until_conv,axis=0)
-    pm_steps = np.std(steps_until_conv,axis=0)
+    min_avg_final_energy = np.min(average_final_energy,axis=0)
+    min_avg_final_energy_relative_error = (exact_ground_energies-min_avg_final_energy)/exact_ground_energies
+    # pm_steps = np.std(steps_until_conv,axis=0)
+    # average_steps = np.average(steps_until_conv,axis=0)
     min_min_energy_error = np.min(min_energy_error,axis=0)
     with open('out-models_table.txt','a') as table_file:
-                        # i       name     params   time     eta  DS: min_s  avg  min_err   MSR: min_s  avg  min_err   AF: min_s  avg  min_err  MSR: min_s  avg  min_err
-        table_file.write("{:2.0f}  {:<15}  {:5.0f}  {:5.1f}  {:6.5f}  {:6.0f} {:6.1f} {:6.3}   {:6.0f} {:6.1f} {:6.3f}   {:6.0f} {:6.1f} {:6.3}  {:6.0f} {:6.1f} {:6.3f}\n".format(m,name,vs_1.n_parameters,(end-start)/60,ETAS[m%no_etas],min_steps[0],average_steps[0],min_min_energy_error[0],min_steps[1],average_steps[1],min_min_energy_error[1],min_steps[2],average_steps[2],min_min_energy_error[2],min_steps[3],average_steps[3],min_min_energy_error[3]))
+                        # i       name      params  time    eta  DS: min_s avg_err min_err  MSR: min_s avg_err min_err  AF: min_s avg_err min_err  MSR: min_s avg_err min_err
+        table_file.write("{:2.0f}  {:<17}  {:5.0f}  {:5.1f}  {:4.3f}  {:6.0f} {:9.4f} {:8.3}   {:6.0f} {:6.1f} {:8.3f}   {:6.0f} {:6.1f} {:8.3}  {:6.0f} {:6.1f} {:8.3f}\n".format(m,name,vs_1.n_parameters,(end-start)/60,ETAS[m%no_etas],min_steps[0],min_avg_final_energy_relative_error[0],min_min_energy_error[0],min_steps[1],min_avg_final_energy_relative_error[1],min_min_energy_error[1],min_steps[2],min_avg_final_energy_relative_error[2],min_min_energy_error[2],min_steps[3],min_avg_final_energy_relative_error[3],min_min_energy_error[3]))
     steps_until_conv = np.zeros((no_repeats,4))
     min_energy_error = np.zeros((no_repeats,4))
+    average_final_energy = np.zeros((no_repeats,4))
+    
