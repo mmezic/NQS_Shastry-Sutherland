@@ -190,7 +190,7 @@ for m in range(38,0,-1):
         elif m//no_etas == 11:
             name = "GCNN_aut[8,4]"
             num_layers = 2
-            feature_dims = [8,4]
+            feature_dims = (8,4)
             machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_1)
             machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_2)
             machine_3 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_1)
@@ -198,7 +198,7 @@ for m in range(38,0,-1):
         elif m//no_etas == 12:
             name = "GCNN_aut[16,16]"
             num_layers = 2
-            feature_dims = [16,16]
+            feature_dims = (16,16)
             machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_1)
             machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_2)
             machine_3 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_1)
