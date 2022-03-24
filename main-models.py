@@ -199,7 +199,6 @@ for m in fq.INDICES:
         elif m//no_etas == 10:
             name = "GCNN_my_8trans"
             alpha=8
-            print(translation_group)
             machine_1 = GCNN_my(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_2 = GCNN_my(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_3 = GCNN_my(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
@@ -214,7 +213,7 @@ for m in fq.INDICES:
         elif m//no_etas == 12:
             name = "GCNN_aut[8,4]"
             num_layers = 2
-            feature_dims = [8,4]
+            feature_dims = (8,4)
             machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_1)
             machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_2)
             machine_3 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_1)
@@ -222,7 +221,7 @@ for m in fq.INDICES:
         elif m//no_etas == 13:
             name = "GCNN_trans[8,4]"
             num_layers = 2
-            feature_dims = [8,4]
+            feature_dims = (8,4)
             machine_1 = nk.models.GCNN(symmetries=translation_group, dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_trans_1)
             machine_2 = nk.models.GCNN(symmetries=translation_group, dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_trans_2)
             machine_3 = nk.models.GCNN(symmetries=translation_group, dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_trans_1)
@@ -230,7 +229,7 @@ for m in fq.INDICES:
         elif m//no_etas == 14:
             name = "GCNN_aut[16,16]"
             num_layers = 2
-            feature_dims = [16,16]
+            feature_dims = (16,16)
             machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_1)
             machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_2)
             machine_3 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_1)
