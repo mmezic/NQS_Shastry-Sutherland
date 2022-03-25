@@ -17,6 +17,8 @@ sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages')
 import netket as nk	
 import numpy as np
 import jax
+import flax
+import optax
 # import mpi4jax
 import time
 import json	
@@ -128,6 +130,7 @@ for m in fq.INDICES:
     min_energy_error = np.zeros((no_repeats,no_of_runs))
     average_final_energy = np.zeros((no_repeats,no_of_runs))
     start = time.time()
+    ETA = ETAS[m%no_etas]
     for j in range(no_repeats):
         # model definition
         if m//no_etas == 0:
@@ -234,6 +237,18 @@ for m in fq.INDICES:
             machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_2)
             machine_3 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_1)
             machine_4 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_2)
+        elif m//no_etas == 15:
+            name = "RBMModPhase_2"
+            machine_1 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
+            machine_2 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
+            machine_3 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
+            machine_4 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
+        elif m//no_etas == 15:
+            name = "RBMModPhase_8"
+            machine_1 = nk.models.RBMModPhase(alpha=8, use_hidden_bias=True, dtype=np.float64)
+            machine_2 = nk.models.RBMModPhase(alpha=8, use_hidden_bias=True, dtype=np.float64)
+            machine_3 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
+            machine_4 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
         else:
             raise Exception(str("undefined MACHINE: ")+str(fq.MACHINE))
 
@@ -257,10 +272,26 @@ for m in fq.INDICES:
                 print("Warning! Undefined fq.SAMPLER:", fq.SAMPLER, ", dafaulting to MetropolisExchange fq.SAMPLER")
 
         # Optimzer
-        optimizer_1 = nk.optimizer.Sgd(learning_rate=ETAS[m%no_etas])
-        optimizer_2 = nk.optimizer.Sgd(learning_rate=ETAS[m%no_etas])
-        optimizer_3 = nk.optimizer.Sgd(learning_rate=ETAS[m%no_etas])
-        optimizer_4 = nk.optimizer.Sgd(learning_rate=ETAS[m%no_etas])
+        if name[:5] != "RBMMo":
+            optimizer_1 = nk.optimizer.Sgd(learning_rate=ETA)
+            optimizer_2 = nk.optimizer.Sgd(learning_rate=ETA)
+            optimizer_3 = nk.optimizer.Sgd(learning_rate=ETA)
+            optimizer_4 = nk.optimizer.Sgd(learning_rate=ETA)
+        else:
+            final_ETA = 2/7*ETA
+            optm_1=optax.sgd(optax.linear_schedule(0,final_ETA,fq.NUM_ITER))
+            optm_2=optax.sgd(optax.linear_schedule(0,final_ETA,fq.NUM_ITER))
+            optm_3=optax.sgd(optax.linear_schedule(0,final_ETA,fq.NUM_ITER))
+            optm_4=optax.sgd(optax.linear_schedule(0,final_ETA,fq.NUM_ITER))
+            optp_1=optax.sgd(optax.linear_schedule(5*final_ETA,final_ETA,fq.NUM_ITER))
+            optp_2=optax.sgd(optax.linear_schedule(5*final_ETA,final_ETA,fq.NUM_ITER))
+            optp_3=optax.sgd(optax.linear_schedule(5*final_ETA,final_ETA,fq.NUM_ITER))
+            optp_4=optax.sgd(optax.linear_schedule(5*final_ETA,final_ETA,fq.NUM_ITER))
+            # The multi-transform optimizer uses different optimisers for different parts of the parameters.
+            optimizer_1 = optax.multi_transform({'o1': optm_1, 'o2': optp_1}, flax.core.freeze({"Dense_0":"o1", "Dense_1":"o2"}))
+            optimizer_2 = optax.multi_transform({'o1': optm_2, 'o2': optp_2}, flax.core.freeze({"Dense_0":"o1", "Dense_1":"o2"}))
+            optimizer_3 = optax.multi_transform({'o1': optm_3, 'o2': optp_3}, flax.core.freeze({"Dense_0":"o1", "Dense_1":"o2"}))
+            optimizer_4 = optax.multi_transform({'o1': optm_4, 'o2': optp_4}, flax.core.freeze({"Dense_0":"o1", "Dense_1":"o2"}))
 
         # Stochastic Reconfiguration
         sr_1 = nk.optimizer.SR(diag_shift=0.01)
@@ -285,12 +316,12 @@ for m in fq.INDICES:
         
         ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
-        MODEL_LOG_NAME = OUT_NAME+"_"+name+"_"+str(ETAS[m%no_etas])+"_"+str(j)+"_"
+        MODEL_LOG_NAME = OUT_NAME+"_"+name+"_"+str(ETA)+"_"+str(j)+"_"
         no_of_runs = 4
         for i,gs in enumerate([gs_1d,gs_2d,gs_1a,gs_2a]):
             start = time.time()
             if fq.VERBOSE:
-                print("Running",name,"in the", "DS" if i <= 2 else "AF", "phase", "without" if i%2==0 else "with", "MSR, learning rate =",ETAS[m%no_etas])
+                print("Running",name,"in the", "DS" if i <= 2 else "AF", "phase", "without" if i%2==0 else "with", "MSR, learning rate =",ETA)
             gs.run(out=MODEL_LOG_NAME+["DS_normal","DS_MSR","AF_normal","AF_MSR"][i], n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
             end = time.time()
             if m == 0:
@@ -327,5 +358,5 @@ for m in fq.INDICES:
     min_min_energy_error = np.min(min_energy_error,axis=0)
     with open('out-models_table.txt','a') as table_file:
                         # i       name      params  time    eta  DS: min_s avg_err min_err  MSR: min_s avg_err min_err  AF: min_s avg_err min_err  MSR: min_s avg_err min_err
-        table_file.write("{:2.0f}  {:<17}  {:5.0f}  {:5.1f}  {:4.3f}  {:5.0f} {:5.2f} {:8.3}   {:5.0f} {:5.2f} {:8.3f}   {:5.0f} {:5.2f} {:8.3}  {:5.0f} {:5.2f} {:8.3f}\n".format(m,name,vs_1.n_parameters,(end-start)/60,ETAS[m%no_etas],min_steps[0],min_avg_final_energy_relative_error[0],min_min_energy_error[0],min_steps[1],min_avg_final_energy_relative_error[1],min_min_energy_error[1],min_steps[2],min_avg_final_energy_relative_error[2],min_min_energy_error[2],min_steps[3],min_avg_final_energy_relative_error[3],min_min_energy_error[3]))
+        table_file.write("{:2.0f}  {:<17}  {:5.0f}  {:5.1f}  {:4.3f}  {:5.0f} {:5.2f} {:8.3}   {:5.0f} {:5.2f} {:8.3f}   {:5.0f} {:5.2f} {:8.3}  {:5.0f} {:5.2f} {:8.3f}\n".format(m,name,vs_1.n_parameters,(end-start)/60,ETA,min_steps[0],min_avg_final_energy_relative_error[0],min_min_energy_error[0],min_steps[1],min_avg_final_energy_relative_error[1],min_min_energy_error[1],min_steps[2],min_avg_final_energy_relative_error[2],min_min_energy_error[2],min_steps[3],min_avg_final_energy_relative_error[3],min_min_energy_error[3]))
     
