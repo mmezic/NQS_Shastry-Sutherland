@@ -206,10 +206,10 @@ for m in fq.INDICES:
         elif m//no_etas == 11:
             name = "GCNN_my_8notVisible"
             alpha=8
-            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
+            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
+            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
+            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
         elif m//no_etas == 12:
             name = "GCNN_aut[8,4]"
             num_layers = 2
