@@ -323,7 +323,7 @@ for m in fq.INDICES:
         for i,gs in enumerate([gs_1d,gs_2d,gs_1a,gs_2a]):
             start = time.time()
             if fq.VERBOSE:
-                print("Running",name,"in the", "DS" if i <= 2 else "AF", "phase", "without" if i%2==0 else "with", "MSR, learning rate =",ETA)
+                print("Running",name,"in the", "DS" if i < 2 else "AF", "phase", "without" if i%2==0 else "with", "MSR, learning rate =",ETA)
             gs.run(out=MODEL_LOG_NAME+["DS_normal","DS_MSR","AF_normal","AF_MSR"][i], n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
             end = time.time()
             if m == 0:
