@@ -220,6 +220,10 @@ class Operators:
     def P_r_inv(self,i,msr): # inverse of cyclic permutation of 4 fq.SITES located at position i
         return self.P_cykl_inv(i,self.lattice.rt(i),self.lattice.lrt(i),self.lattice.bot(i),msr)
 
+    # returns Q operator where r=i is here:
+    # i---X
+    # |   |
+    # X---X  it is expected that there is no diagonal bond inside
     def Q_r(self,i,msr):
         return .5*(self.P_r(i,msr) + self.P_r_inv(i,msr))
 
@@ -244,7 +248,8 @@ class Operators:
                         m_s2 += state.estimate(m_s2_partial_operator).mean
                         variance += state.estimate(m_s2_partial_operator).variance
                     m_s2_partial_operator = 0
-        m_s2 = m_s2/M**2
+        m_s2 = m_s2/(M**2)
+        variance = variance/(M**2)
         return m_s2, variance
     
     def m_sSquared_slow_MSR(self,state):
@@ -266,7 +271,8 @@ class Operators:
                         m_s2 += state.estimate(m_s2_partial_operator).mean
                         variance += state.estimate(m_s2_partial_operator).variance
                     m_s2_partial_operator = 0
-        m_s2 = m_s2/M**2
+        m_s2 = m_s2/(M**2)
+        variance = variance/(M**2)
         return m_s2, variance
 
 """

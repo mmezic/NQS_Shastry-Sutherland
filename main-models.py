@@ -17,6 +17,8 @@ sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages')
 import netket as nk	
 import numpy as np
 import jax
+import flax
+import optax
 # import mpi4jax
 import time
 import json	
@@ -40,7 +42,9 @@ from lattice_and_ops import log_results
 from GCNN_Nomura import GCNN_my
 ho = HamOps()
 
-PREFIX = "" #"test/"
+PREFIX = "logs/" #"test/"
+if not os.path.exists(PREFIX):
+    os.mkdir(PREFIX)
 OUT_NAME = PREFIX+"models"+str(fq.SITES) # output file name
 OUT_LOG_NAME = PREFIX+"out.txt"            # filename for output logging
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
@@ -50,7 +54,7 @@ with open(OUT_LOG_NAME,"a") as out_log_file:
     out_log_file.write("N = {}, samples = {}, iters = {}, sampler = {}, TOTAL_SZ = {}, machine = {}, dtype = {}, alpha = {}, eta = {}\n".format(fq.SITES,fq.SAMPLES,fq.NUM_ITER,fq.SAMPLER, fq.TOTAL_SZ,fq.MACHINE, fq.DTYPE, fq.ALPHA, fq.ETA))
 with open('out-models_table.txt','a') as table_file:
     table_file.write("# N = {}, samples = {}, iters = {}, sampler = {}, TOTAL_SZ = {}, machine = {}, dtype = {}, alpha = {}, eta = {}\n".format(fq.SITES,fq.SAMPLES,fq.NUM_ITER,fq.SAMPLER, fq.TOTAL_SZ,fq.MACHINE, fq.DTYPE, fq.ALPHA, fq.ETA))
-    table_file.write("# i      name     params   time     eta  DS: min_s  avg  min_err   MSR: min_s  avg  min_err   AF: min_s  avg  min_err  MSR: min_s  avg  min_err\n")
+    table_file.write("# i       name      params  time    eta  DS: min_s  avg_err  min_err  MSR: min_s  avg_err  min_err  AF: min_s  avg_err  min_err  MSR: min_s  avg_err  min_err\n")
 
 lattice = Lattice(fq.SITES)
 
@@ -75,8 +79,8 @@ hilbert = nk.hilbert.Spin(s=.5, N=g.n_nodes, total_sz=fq.TOTAL_SZ)
 print("There are", len(g.automorphisms()), "full symmetries.")
 # deciding point between DS and AF phase is set to 0.5
 #####################""" assume only the fully symmetric models """##########################
-characters_dimer_1 = np.ones((len(g.automorphisms()),), dtype=complex)
-characters_dimer_2 = characters_dimer_1
+characters_1 = np.ones((len(g.automorphisms()),), dtype=complex)
+characters_2 = characters_1
     
 # Hamiltonian definition
 hd_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.JEXCH1D,fq.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
@@ -95,7 +99,8 @@ else:
 if fq.VERBOSE:
     print("Exact DS energy:",exact_ground_energy_DS)
     print("Exact AF energy:",exact_ground_energy_AF)
-
+exact_ground_energies = np.array([exact_ground_energy_DS,exact_ground_energy_DS,exact_ground_energy_AF,exact_ground_energy_AF])
+threshold_energies = 0.995*exact_ground_energies
 
 # extract translations from the full symmetry group
 if not (fq.SITES in [4,16]):
@@ -110,17 +115,24 @@ for perm in g.automorphisms():
         if (aperm[0],aperm[1],aperm[3]) in ((0,1,3),(2,3,1),(8,9,11),(10,11,9)):
             translations.append(nk.utils.group._permutation_group.Permutation(aperm))
 translation_group = nk.utils.group._permutation_group.PermutationGroup(translations,degree=fq.SITES)
+characters_trans_1 = np.ones((len(translation_group),), dtype=complex)
+characters_trans_2 = characters_trans_1
 
+print(len(translation_group),len(g.automorphisms()))
+input()
 # some parameters of the benchmarking of the models
 ETAS = [0.01,0.05,0.2]
 no_etas = len(ETAS)
-no_repeats = 4
+no_of_runs = 4 # types of runs: DS_norm, DS_MSR, AF_norm, AF_MSR
+no_repeats = 4 # repeats of the same run due to inconsistent results
 name = "none"
-steps_until_conv = np.zeros((no_repeats,4))
-min_energy_error = np.zeros((no_repeats,4))
 
-for m in range(38):
+for m in fq.INDICES:
+    steps_until_conv = np.zeros((no_repeats,no_of_runs))
+    min_energy_error = np.zeros((no_repeats,no_of_runs))
+    average_final_energy = np.zeros((no_repeats,no_of_runs))
     start = time.time()
+    ETA = ETAS[m%no_etas]
     for j in range(no_repeats):
         # model definition
         if m//no_etas == 0:
@@ -169,8 +181,8 @@ for m in range(38):
             machine_3 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
             machine_4 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)
         elif m//no_etas == 7:
-            name = "RBMSymm_128trans"
-            alpha = 128
+            name = "RBMSymm_2trans"
+            alpha = 2
             machine_1 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
             machine_2 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)
             machine_3 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
@@ -178,40 +190,67 @@ for m in range(38):
         elif m//no_etas == 8:
             name = "GCNN_my_32"
             alpha=32
-            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
         elif m//no_etas == 9:
             name = "GCNN_my_8"
             alpha=8
-            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
         elif m//no_etas == 10:
-            name = "GCNN_my_32notVisible"
-            alpha=32
-            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            name = "GCNN_my_8trans"
+            alpha=8
+            machine_1 = GCNN_my(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_2 = GCNN_my(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_3 = GCNN_my(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_4 = GCNN_my(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
         elif m//no_etas == 11:
+            name = "GCNN_my_8notVisible"
+            alpha=8
+            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
+            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
+            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
+            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
+        elif m//no_etas == 12:
             name = "GCNN_aut[8,4]"
             num_layers = 2
-            feature_dims = [8,4]
-            machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_1)
-            machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_2)
-            machine_3 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_1)
-            machine_4 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_2)
-        elif m//no_etas == 12:
+            feature_dims = (8,4)
+            machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_1)
+            machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_2)
+            machine_3 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_1)
+            machine_4 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_2)
+        elif m//no_etas == 13:
+            name = "GCNN_trans[8,4]"
+            num_layers = 2
+            feature_dims = (8,4)
+            machine_1 = nk.models.GCNN(symmetries=translation_group, dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_trans_1)
+            machine_2 = nk.models.GCNN(symmetries=translation_group, dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_trans_2)
+            machine_3 = nk.models.GCNN(symmetries=translation_group, dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_trans_1)
+            machine_4 = nk.models.GCNN(symmetries=translation_group, dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_trans_2)
+        elif m//no_etas == 14:
             name = "GCNN_aut[16,16]"
             num_layers = 2
-            feature_dims = [16,16]
-            machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_1)
-            machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_2)
-            machine_3 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_1)
-            machine_4 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_dimer_2)
+            feature_dims = (16,16)
+            machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_1)
+            machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_2)
+            machine_3 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_1)
+            machine_4 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_2)
+        elif m//no_etas == 15:
+            name = "RBMModPhase_2"
+            machine_1 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
+            machine_2 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
+            machine_3 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
+            machine_4 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
+        elif m//no_etas == 16:
+            name = "RBMModPhase_8"
+            machine_1 = nk.models.RBMModPhase(alpha=8, use_hidden_bias=True, dtype=np.float64)
+            machine_2 = nk.models.RBMModPhase(alpha=8, use_hidden_bias=True, dtype=np.float64)
+            machine_3 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
+            machine_4 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
         else:
             raise Exception(str("undefined MACHINE: ")+str(fq.MACHINE))
 
@@ -235,10 +274,26 @@ for m in range(38):
                 print("Warning! Undefined fq.SAMPLER:", fq.SAMPLER, ", dafaulting to MetropolisExchange fq.SAMPLER")
 
         # Optimzer
-        optimizer_1 = nk.optimizer.Sgd(learning_rate=ETAS[m%no_etas])
-        optimizer_2 = nk.optimizer.Sgd(learning_rate=ETAS[m%no_etas])
-        optimizer_3 = nk.optimizer.Sgd(learning_rate=ETAS[m%no_etas])
-        optimizer_4 = nk.optimizer.Sgd(learning_rate=ETAS[m%no_etas])
+        if name[:5] != "RBMMo":
+            optimizer_1 = nk.optimizer.Sgd(learning_rate=ETA)
+            optimizer_2 = nk.optimizer.Sgd(learning_rate=ETA)
+            optimizer_3 = nk.optimizer.Sgd(learning_rate=ETA)
+            optimizer_4 = nk.optimizer.Sgd(learning_rate=ETA)
+        else:
+            final_ETA = 2/7*ETA
+            optm_1=optax.sgd(optax.linear_schedule(0,final_ETA,fq.NUM_ITER))
+            optm_2=optax.sgd(optax.linear_schedule(0,final_ETA,fq.NUM_ITER))
+            optm_3=optax.sgd(optax.linear_schedule(0,final_ETA,fq.NUM_ITER))
+            optm_4=optax.sgd(optax.linear_schedule(0,final_ETA,fq.NUM_ITER))
+            optp_1=optax.sgd(optax.linear_schedule(5*final_ETA,final_ETA,fq.NUM_ITER))
+            optp_2=optax.sgd(optax.linear_schedule(5*final_ETA,final_ETA,fq.NUM_ITER))
+            optp_3=optax.sgd(optax.linear_schedule(5*final_ETA,final_ETA,fq.NUM_ITER))
+            optp_4=optax.sgd(optax.linear_schedule(5*final_ETA,final_ETA,fq.NUM_ITER))
+            # The multi-transform optimizer uses different optimisers for different parts of the parameters.
+            optimizer_1 = optax.multi_transform({'o1': optm_1, 'o2': optp_1}, flax.core.freeze({"Dense_0":"o1", "Dense_1":"o2"}))
+            optimizer_2 = optax.multi_transform({'o1': optm_2, 'o2': optp_2}, flax.core.freeze({"Dense_0":"o1", "Dense_1":"o2"}))
+            optimizer_3 = optax.multi_transform({'o1': optm_3, 'o2': optp_3}, flax.core.freeze({"Dense_0":"o1", "Dense_1":"o2"}))
+            optimizer_4 = optax.multi_transform({'o1': optm_4, 'o2': optp_4}, flax.core.freeze({"Dense_0":"o1", "Dense_1":"o2"}))
 
         # Stochastic Reconfiguration
         sr_1 = nk.optimizer.SR(diag_shift=0.01)
@@ -263,20 +318,18 @@ for m in range(38):
         
         ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
-        MODEL_LOG_NAME = OUT_NAME+"_"+name+"_"+str(ETAS[m%no_etas])+"_"
+        MODEL_LOG_NAME = OUT_NAME+"_"+name+"_"+str(ETA)+"_"+str(j)+"_"
         no_of_runs = 4
         for i,gs in enumerate([gs_1d,gs_2d,gs_1a,gs_2a]):
             start = time.time()
             if fq.VERBOSE:
-                print("Running",name,"in the", "DS" if i <= 2 else "AF", "phase", "without" if i%2==0 else "with", "MSR, learning rate =",ETAS[m%no_etas])
+                print("Running",name,"in the", "DS" if i < 2 else "AF", "phase", "without" if i%2==0 else "with", "MSR, learning rate =",ETA)
             gs.run(out=MODEL_LOG_NAME+["DS_normal","DS_MSR","AF_normal","AF_MSR"][i], n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
             end = time.time()
             if m == 0:
                 print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
 
         # finding the number of steps needed to converge
-        exact_ground_energies = np.array([exact_ground_energy_DS,exact_ground_energy_DS,exact_ground_energy_AF,exact_ground_energy_AF])
-        threshold_energies = 0.995*exact_ground_energies
         data = []
         for i in range(no_of_runs):
             data.append(json.load(open(MODEL_LOG_NAME+["DS_normal","DS_MSR","AF_normal","AF_MSR"][i]+".log")))
@@ -284,6 +337,8 @@ for m in range(38):
             energy_convergence = np.asarray([data[i]["Energy"]["Mean"]["real"] for i in range(no_of_runs)])
         else:
             energy_convergence = np.asarray([data[i]["Energy"]["Mean"] for i in range(no_of_runs)])
+        
+        average_final_energy[j] = np.average(energy_convergence[:,-50:],axis=1)
         steps_until_convergence = [next((i for i,v in enumerate(energy_convergence[j]) if v < threshold_energies[j]), np.inf) for j in range(no_of_runs)]
         min_energy_error[j] = [np.min(np.abs(energy_convergence[j] - exact_ground_energies[j])) for j in range(no_of_runs)]
         steps_until_conv[j] = np.asarray(steps_until_convergence)
@@ -298,11 +353,12 @@ for m in range(38):
     end = time.time()
     
     min_steps = np.min(steps_until_conv,axis=0)
-    average_steps = np.average(steps_until_conv,axis=0)
-    pm_steps = np.std(steps_until_conv,axis=0)
+    min_avg_final_energy = np.min(average_final_energy,axis=0)
+    min_avg_final_energy_relative_error = -np.log10((exact_ground_energies-min_avg_final_energy)/exact_ground_energies)
+    # pm_steps = np.std(steps_until_conv,axis=0)
+    # average_steps = np.average(steps_until_conv,axis=0)
     min_min_energy_error = np.min(min_energy_error,axis=0)
     with open('out-models_table.txt','a') as table_file:
-                        # i       name     params   time     eta  DS: min_s  avg  min_err   MSR: min_s  avg  min_err   AF: min_s  avg  min_err  MSR: min_s  avg  min_err
-        table_file.write("{:2.0f}  {:<15}  {:5.0f}  {:5.1f}  {:6.5f}  {:6.0f} {:6.1f} {:6.3}   {:6.0f} {:6.1f} {:6.3f}   {:6.0f} {:6.1f} {:6.3}  {:6.0f} {:6.1f} {:6.3f}\n".format(m,name,vs_1.n_parameters,(end-start)/60,ETAS[m%no_etas],min_steps[0],average_steps[0],min_min_energy_error[0],min_steps[1],average_steps[1],min_min_energy_error[1],min_steps[2],average_steps[2],min_min_energy_error[2],min_steps[3],average_steps[3],min_min_energy_error[3]))
-    steps_until_conv = np.zeros((no_repeats,4))
-    min_energy_error = np.zeros((no_repeats,4))
+                        # i       name      params  time    eta  DS: min_s avg_err min_err  MSR: min_s avg_err min_err  AF: min_s avg_err min_err  MSR: min_s avg_err min_err
+        table_file.write("{:2.0f}  {:<17}  {:5.0f}  {:5.1f}  {:4.3f}  {:5.0f} {:5.2f} {:8.3}   {:5.0f} {:5.2f} {:8.3f}   {:5.0f} {:5.2f} {:8.3}  {:5.0f} {:5.2f} {:8.3f}\n".format(m,name,vs_1.n_parameters,(end-start)/60,ETA,min_steps[0],min_avg_final_energy_relative_error[0],min_min_energy_error[0],min_steps[1],min_avg_final_energy_relative_error[1],min_min_energy_error[1],min_steps[2],min_avg_final_energy_relative_error[2],min_min_energy_error[2],min_steps[3],min_avg_final_energy_relative_error[3],min_min_energy_error[3]))
+    

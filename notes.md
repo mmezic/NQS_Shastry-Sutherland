@@ -63,7 +63,7 @@
 - <a href="https://www.physicsforums.com/threads/when-does-a-wavefunction-inherit-the-symmetries-of-the-hamiltonian.643672/">link</a> In general the whole eigensubspace will be invariant under any transformation that leaves the hamiltonian invariant. For a one dimensional ground state that means you have invariance up to a phase factor.
 - Jaktože Carleo nepoužíval MSR a přesto mu to našlo GS, který nesplňuje symetrie
 
-## schůzka 3.12
+## Schůzka 3.12
 
 - promyslet si jak naimplementovat symmetrie
 - [ ] udělat dimer pomocí G-CNN - dokáží ho vyřešit?
@@ -227,7 +227,7 @@ where $S$ is *quantum Fisher information matrix*.
 - **3)** výsledky: 
   - <img src="figures/NGDvsSGD.png" width="700"/>
 
-## schůzka 18.2.
+## Schůzka 18.2.
 - [x] **1)** přečíst si článek *Accuracy of RBM for one-dimensional j1-j2 heisenberg model*
 - [ ] **2)** Rozhodnout se, jestli používat symetrie (a případně to dobře zdůvodnit) 
 - [x] **3)** analyticky sepsat, proč je použití `SymmRBM` špatné (protože nemá visible bias - a snad ani nejde z principu přidat?)
@@ -254,7 +254,7 @@ where $S$ is *quantum Fisher information matrix*.
 ![](figures/optimizer_comparison_2.png)
 
 
-## schůzka 26.2.
+## Schůzka 26.2.
 
 - [ ] postit RBM a myRBM s více body na metacentru, abych měl obrázek do DP
 - [ ] spustit na N=20 s MC
@@ -318,7 +318,7 @@ where $S$ is *quantum Fisher information matrix*.
 - potřeboval bych zjistit, podle jaké irrep se transformují GS v magnetických plaquettách - není to někde explicitně spočítané?
 
 
-## schůzka 4.3.2022
+## Schůzka 4.3.2022
 
 - [ ] **1)** spustit RBM & myRBM na 8*8 mřížce a nechat to běžet hodně dlouho (potřeba MC)
 - [ ] **2)** zkusit na 4*4 vypnout PBC v mag poli
@@ -348,15 +348,70 @@ Zkusit inicializovat váhy na *správnou* hodnotu. Rovnoměrně rozdělené s ro
     - myslím, že kdybych chytře použil learning rate schedule **3)**, dostal bych se na jejich accuracy
 
 
-## schůzka 18.3.2022
-TODO:
+Probrat na schůzce:
 - vypnutí PBC moc nepomůže (viz graf)
 - probrat strukturu práce
 - ¿ potřebuju vůbec grafiky & cluster ?
 - nedokázal jsem přesně replikovat výsledky J1-J2 o cca 1 řád
+## Schůzka 18.3.2022
+- v metecentru mi velké mřížky možná padají kvůli nedostatku paměti
+- [x] **1)** pustit **8x8** na GPU
+- [ ] **2)** pohrát si s $\eta$ u `H_Z`
+- [x] **3)** přegenerovat 2x2 SSM pro 4x4
+    - pustit 4x a udělat $\pm$ chybu
+    - pro `RBMModPhase` použít *doporučené* hodnoty $\eta$ schedule
+- [ ] **4)** finite-size scaling
+
+- Diplomka
+    - bez magnetického pole dát 8x8 mřížku
+    - přidat finite-size scaling (tj. závislost $E/N$ na $N$ + parametry uspořádání)
+    - zkusit redefinovat $m_{\rm DS}$, aby byl v intervalu [0,1] podle toho, že najdu analytickou hodnotu v AF fázi a nějak to přeškáluji
+        - 4,8,16,20,36,...?...,64
+        + vybrat nějaký model který na to použít (nejspíš `RBM` a `myRBM`)
 
 ## moje poznámky
 - 20.3.2022 jsem všude nahradil stdev 0.001 -> 0.01
 - 22.3.2022 všechny energie jsem vydělil 4, aby to bylo konzistentní s definicí v DP
-TODO: nacist modely a dostat z nich hodnoty PS parametru plus AF parametru pro MSR (pro MSR byla pouzita non-MSR verze)
-- variance AF_slow byla zle naimplementovana, ale teď už je ok
+    - variance AF_slow byla zle naimplementovana, ale teď už je ok
+    - TODO: nacist modely a dostat z nich hodnoty PS parametru plus AF parametru pro MSR (pro MSR byla pouzita non-MSR verze)
+        - hotovo
+
+## moje TODO
+- udělat obrázek popisující průměrování energií z posledních 100 iterací a záporné hodnoty zpsůobené asi numerickou přesnotsí
+
+
+
+## Schůzka 25.3.
+Agenda:
+- **3) Benchmarking tabulka**
+- **DŮLEŽITÉ: Jakám způsobem mám udělat benchmarkingové porovnání?**
+    - počet iterací není dobrý indikátor, protože hodně záleží na počtu krorů
+    - accuracy se zase bude zvyšovat se snižující se learning rate
+    - můj nápad: vybrat model, který dosáhl nejlepší accuracy a u něj uvést počet kroků
+- v konvergenci je zajímavý **gap**, když vypnu spojnice (viz graf `accuracy_example.plt`)
+- nejsem si jistý, jak porovnácat scheduler $\eta$ s konstantním $\eta$ u všech ostatních modelů
+- **Visible biasy** nejsou až tak skvělé, jak se mi zdálo. Rozdíl byl hlavně způsobený malým rozptylem při inicializaci.
+    - ověřil jsem si, že velké počty kroků pro RBM bez biasů jsou **PŘEVÁŽNĚ ZPŮSOBENY INICIALIZACÍ σ=0.001** a zmizí při σ=0.01
+    - jak u RBM, tak u GCNN i myGCNN lze problém s konverzencí vyřešit zvětšením σ namísto přidávání visible biasů
+    - netketí default je 0.01, ale já jsem celou dobu používal 0.001 
+![](figures/visible_bias.png)
+- **Projít** výsledky pro 8x8
+- **Jak submitovyt joby na miltiCPU?**
+```module load NetKet/3.3.2.post1-OpenMPI-4.1.1-CUDA-11.6.0
+python $script -f config-models16
+```
+ je asi o 50% rychlejší než 
+```module load Python/3.9.6-GCCcore-11.2.0-NetKet
+module load intel/2020a
+mpirun -np 36 python $script -f config-models16
+```
+
+TODO:
+- dogenerovat tabulku a vybrat model, který použiu na $H_Z$
+- zkusit dva modely z tabulky pustit s SAMPLES=5000 (do appendixu) a podívat se, jak hodně to zlepší accuracy
+- do tabulky už nepřidávat zmenšování learning ratu
+- SAMPLES mění finální rozptyl nad exaktní energií
+
+TODO:
+- dokončit tabulku
+- vybrat si jeden nejlepší model, který potom pustím na případu s mag polem
