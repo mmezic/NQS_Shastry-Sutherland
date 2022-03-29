@@ -118,6 +118,8 @@ translation_group = nk.utils.group._permutation_group.PermutationGroup(translati
 characters_trans_1 = np.ones((len(translation_group),), dtype=complex)
 characters_trans_2 = characters_trans_1
 
+print(len(translation_group),len(g.automorphisms()))
+input()
 # some parameters of the benchmarking of the models
 ETAS = [0.01,0.05,0.2]
 no_etas = len(ETAS)
@@ -321,7 +323,7 @@ for m in fq.INDICES:
         for i,gs in enumerate([gs_1d,gs_2d,gs_1a,gs_2a]):
             start = time.time()
             if fq.VERBOSE:
-                print("Running",name,"in the", "DS" if i <= 2 else "AF", "phase", "without" if i%2==0 else "with", "MSR, learning rate =",ETA)
+                print("Running",name,"in the", "DS" if i < 2 else "AF", "phase", "without" if i%2==0 else "with", "MSR, learning rate =",ETA)
             gs.run(out=MODEL_LOG_NAME+["DS_normal","DS_MSR","AF_normal","AF_MSR"][i], n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
             end = time.time()
             if m == 0:
