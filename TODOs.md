@@ -16,3 +16,4 @@ TODO:
 
 ## thesis text
 - Zmínit článek `Neural tensor contractions and the expressive power of deep neural quantum states` v úvodu
+- dopsat do práce, že jsme narazili na problém s konvergencí bez viditelných biasů, ale bylo to způsobeno pouze moc malou inicializací - z toho můžeme usuzovat, že visible biasy mohou pomáhat při konvergenci v těžkých chvílích
