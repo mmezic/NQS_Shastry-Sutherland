@@ -243,7 +243,7 @@ for m in fq.INDICES:
             machine_2 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
             machine_3 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
             machine_4 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
-        elif m//no_etas == 15:
+        elif m//no_etas == 16:
             name = "RBMModPhase_8"
             machine_1 = nk.models.RBMModPhase(alpha=8, use_hidden_bias=True, dtype=np.float64)
             machine_2 = nk.models.RBMModPhase(alpha=8, use_hidden_bias=True, dtype=np.float64)
