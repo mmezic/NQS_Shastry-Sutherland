@@ -332,14 +332,14 @@ def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,exact_energy,steps_until_conv
             JEXCH1, 
             gs_1.energy.mean.real,                          gs_1.energy.variance, 
             gs_2.energy.mean.real,                          gs_2.energy.variance, 
-            gs_1.estimate(ops.m_z).mean.real,               gs_1.estimate(ops.m_z).variance, 
+            # gs_1.estimate(ops.m_z).mean.real,               gs_1.estimate(ops.m_z).variance, 
+            gs_1.estimate(ops.m_plaquette_op).mean.real,    gs_1.estimate(ops.m_plaquette_op).variance, # ZMENA
             gs_1.estimate(ops.m_dimer_op).mean.real,        gs_1.estimate(ops.m_dimer_op).variance, 
             m_s2_1,                                         m_s2v_1, 
-            # gs_1.estimate(ops.m_plaquette_op).mean.real,    gs_1.estimate(ops.m_plaquette_op).variance, 
-            gs_2.estimate(ops.m_z).mean.real,               gs_2.estimate(ops.m_z).variance, 
+            # gs_2.estimate(ops.m_z).mean.real,               gs_2.estimate(ops.m_z).variance, 
+            gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).variance, # ZMENA
             gs_2.estimate(ops.m_dimer_op).mean.real,        gs_2.estimate(ops.m_dimer_op).variance, 
             m_s2_2,                                         m_s2v_2, 
-            # gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).variance, 
             exact_energy, samples, iters, str(steps_until_convergence)[1:-1]),file=file)
         file.close()
 
