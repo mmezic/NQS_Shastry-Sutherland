@@ -19,9 +19,9 @@ I have two auxiliary files which I load from almost all of my scripts and notebo
 The file [GCNN_Nomura.py](GCNN_Nomura.py) contains a slight modification of the source code from the `NetKet` implementation of the G-CNN to also include a visible bias. This file is only needed when using this model (I abbreviate it as *GCNN_my* or *myRBM* in the code).
 
 There are a few modified versions of [main](main.py) file depending on a use-case:
- - [main.py](main.py) generates a dependance on the coupling constant $J$.
- - [main_pre-trained.py](main_pre-trained.py) uses **transfer learning** - the weights at the end of last run are saved and used in the next run while changing the values of $J'$.
- - [main-mag.py](main-mag.py) generates a dependance on the magnetic field $h$.
+ - [main.py](main.py) generates a dependance on the **coupling constant J**.
+ - [main_pre-trained.py](main_pre-trained.py) uses **transfer learning** - the weights at the end of last run are saved and used in the next run while changing the values of J'.
+ - [main-mag.py](main-mag.py) generates a dependance on the **magnetic field h**.
  - [main-mag_pre-trained.py](main-mag_pre-trained.py) uses **transfer learning** while changing the values of $h$.
- - [main-models.py](main-models.py) is used to generate a table of convergence steps and accuracies of many different models for two given values of $J'$ and possibly for given values of learning rate.
+ - [main-models.py](main-models.py) is used to generate a **benchmarking table** of convergence steps and accuracies of many different models for two given values of J' and possibly for given values of learning rate.
 
