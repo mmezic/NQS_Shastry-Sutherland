@@ -3,7 +3,7 @@
 #PBS -N mezera_nk
 #PBS -A OPEN-23-38
 #PBS -q qprod
-#PBS -l walltime=11:35:00
+#PBS -l walltime=47:35:00
 #PBS -l select=1:ncpus=36:mem=16gb
 #PBS -j oe
 ###%// select=4:ncpus=36:mpiprocs=36:ompthreads=1:mem=16gb
