@@ -40,3 +40,6 @@ TODO:
     + finite size scaling ... jaké používat errorbary? ... jejich velikost totiž nesouvisí s η, ale s #samples
 ### Appendixové
 
+## Další věci
+- pustit 64 na KFESu s HODN2 samples, abchoym viděli, jak se zmenšuje errorbar
+- **udělat errorbar zprůměrováním posledních 50 hodnot a zjistit, jestli to dává smysl**
