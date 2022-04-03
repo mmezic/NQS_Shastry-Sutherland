@@ -118,8 +118,6 @@ translation_group = nk.utils.group._permutation_group.PermutationGroup(translati
 characters_trans_1 = np.ones((len(translation_group),), dtype=complex)
 characters_trans_2 = characters_trans_1
 
-print(len(translation_group),len(g.automorphisms()))
-input()
 # some parameters of the benchmarking of the models
 ETAS = [0.01,0.05,0.2]
 no_etas = len(ETAS)
