@@ -377,7 +377,7 @@ Probrat na schůzce:
         - hotovo
 
 ## moje TODO
-- udělat obrázek popisující průměrování energií z posledních 100 iterací a záporné hodnoty zpsůobené asi numerickou přesnotsí
+- [x] udělat obrázek popisující průměrování energií z posledních 100 iterací a záporné hodnoty zpsůobené asi numerickou přesnotsí
 
 
 
@@ -415,3 +415,14 @@ TODO:
 TODO:
 - dokončit tabulku
 - vybrat si jeden nejlepší model, který potom pustím na případu s mag polem
+
+### Agenda schůzky 1.4.2022
+- projít jeho připomínky do DP
+- projít benchmarkingovou tabulku
+    - nejlepší je GCNN, **ale** má největší výpočetní náročnost
+- finite-size scaling
+- ukázat grafy v DP, jestli jsou OK?
+    - co všechno dát do *results*?
+
+
+## Schůzka 1.4.2022

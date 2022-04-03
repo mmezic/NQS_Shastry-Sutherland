@@ -230,13 +230,11 @@ for m in fq.INDICES:
             machine_3 = nk.models.GCNN(symmetries=translation_group, dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_trans_1)
             machine_4 = nk.models.GCNN(symmetries=translation_group, dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_trans_2)
         elif m//no_etas == 14:
-            name = "GCNN_aut[16,16]"
-            num_layers = 2
-            feature_dims = (16,16)
-            machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_1)
-            machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_2)
-            machine_3 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_1)
-            machine_4 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=num_layers, features=feature_dims, characters=characters_2)
+            name = "Jastrow"
+            machine_1 = nk.models.Jastrow(dtype=fq.DTYPE)
+            machine_2 = nk.models.Jastrow(dtype=fq.DTYPE)
+            machine_3 = nk.models.Jastrow(dtype=fq.DTYPE)
+            machine_4 = nk.models.Jastrow(dtype=fq.DTYPE)
         elif m//no_etas == 15:
             name = "RBMModPhase_2"
             machine_1 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
