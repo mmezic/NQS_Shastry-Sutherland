@@ -21,6 +21,6 @@ module add py-pip/py-pip-19.3-intel-19.0.4-hudzomi
 export OMP_NUM_THREADS=16
 FILE=/storage/praha1/home/mezic/diplomka/netket_scripts/main-models.py
 echo FILE=$FILE
-python3 $FILE -f config-models16z
+python3 $FILE -f config-models16
 echo "end"
 cp -r $SCRATCHDIR/* $SOURCE
