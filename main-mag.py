@@ -69,7 +69,12 @@ else:
     # AF phase if fully symmetric
     characters_dimer_1 = np.ones((len(g.automorphisms()),), dtype=complex)
     characters_dimer_2 = characters_dimer_1
-    
+
+# operator of total magnetization
+m_z = sum(nk.operator.spin.sigmaz(hilbert, i) for i in range(hilbert.size))
+with open("out_mag.txt", "a") as file_mag:
+    print("# H_Z    E       E_err   E_inter_mean   E_iter_std  MSR:   E   E_err   E_inter_mean   E_iter_std ", file=file_mag)
+
 for H_Z in fq.STEPS:
     # Hamiltonian definition
     ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(fq.JEXCH1,fq.JEXCH2, h_z = H_Z, use_MSR=False), bond_ops_colors=ho.bond_color)
@@ -141,6 +146,8 @@ for H_Z in fq.STEPS:
         end = time.time()
         if H_Z == fq.STEPS[0]:
             print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
+        # second short run to estimate errorbars
+        gs.run(out=OUT_NAME+"_"+str(round(H_Z,2))+"_"+str(i)+"errs", n_iter=int(fq.N_POST_ITER),show_progress=fq.VERBOSE, obs={'magnetization':m_z})
 
     threshold_energy = 0.995*exact_ground_energy
     data = []
@@ -161,6 +168,20 @@ for H_Z in fq.STEPS:
             print("m_s^2 =", gs.estimate(ops.m_s2_op_MSR))
             print("m_s^2 =", gs.estimate(ops.m_s2_op), "<--- no MSR!!")
     
+    # estimating the errorbars
+    data = []
+    for i in range(no_of_runs):
+        data.append(json.load(open(OUT_NAME+"_"+str(round(H_Z,2))+"_"+str(i)+"errs.log")))
+    if type(data[0]["Energy"]["Mean"]) == dict: #DTYPE in (np.complex128, np.complex64):#, np.float64):# and False:
+        energy_convergence = [data[i]["Energy"]["Mean"]["real"] for i in range(no_of_runs)]
+        mag_convergence = [data[i]["magnetization"]["Mean"]["real"] for i in range(no_of_runs)]
+    else:
+        energy_convergence = [data[i]["Energy"]["Mean"] for i in range(no_of_runs)]
+        mag_convergence = [data[i]["magnetization"]["Mean"] for i in range(no_of_runs)]
+
+    with open("out_mag.txt", "a") as file_mag:
+        print("{:5.2f}   {:10.5f} {:10.5f} {:10.5f} {:10.5f}   {:10.5f} {:10.5f} {:10.5f} {:10.5f}".format(H_Z, gs_1.energy.mean.real, gs_1.energy.error_of_mean, np.mean(energy_convergence[0]), np.std(energy_convergence[0]), gs_2.energy.mean.real, gs_2.energy.error_of_mean, np.mean(energy_convergence[1]), np.std(energy_convergence[1])), file=file_mag)
+
     if no_of_runs==2:
         log_results(H_Z,gs_1,gs_2,ops, samples = fq.SAMPLES, iters = fq.NUM_ITER, exact_energy = exact_ground_energy,steps_until_convergence = steps_until_convergence,filename=OUT_LOG_NAME)
     else:
