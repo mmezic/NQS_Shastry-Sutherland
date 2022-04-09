@@ -246,7 +246,7 @@ class Operators:
                         m_s2 += (state.transpose()@(m_s2_partial_operator@state))#[0]
                     else:
                         m_s2 += state.estimate(m_s2_partial_operator).mean
-                        variance += state.estimate(m_s2_partial_operator).variance
+                        variance += state.estimate(m_s2_partial_operator).error_of_mean
                     m_s2_partial_operator = 0
         m_s2 = m_s2/(M**2)
         variance = variance/(M**2)
@@ -266,10 +266,10 @@ class Operators:
                         m_s2 += (state.transpose()@(m_s2_partial_operator@state))#[0]
                     elif type(state) == nk.vqs.MCState:
                         m_s2 += state.expect(m_s2_partial_operator).mean
-                        variance += state.expect(m_s2_partial_operator).variance
+                        variance += state.expect(m_s2_partial_operator).error_of_mean
                     else:
                         m_s2 += state.estimate(m_s2_partial_operator).mean
-                        variance += state.estimate(m_s2_partial_operator).variance
+                        variance += state.estimate(m_s2_partial_operator).error_of_mean
                     m_s2_partial_operator = 0
         m_s2 = m_s2/(M**2)
         variance = variance/(M**2)
@@ -317,34 +317,34 @@ def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,exact_energy,steps_until_conv
         m_s2_2, m_s2v_2 = float(m_s2_2.real), float(m_s2v_2)
 
     else:
-        m_s2_1, m_s2v_1 = gs_1.estimate(ops.m_s2_op).mean.real, gs_1.estimate(ops.m_s2_op).variance
-        m_s2_2, m_s2v_2 = gs_2.estimate(ops.m_s2_op_MSR).mean.real, gs_2.estimate(ops.m_s2_op_MSR).variance
+        m_s2_1, m_s2v_1 = gs_1.estimate(ops.m_s2_op).mean.real, gs_1.estimate(ops.m_s2_op).error_of_mean
+        m_s2_2, m_s2v_2 = gs_2.estimate(ops.m_s2_op_MSR).mean.real, gs_2.estimate(ops.m_s2_op_MSR).error_of_mean
     print("{:6.3f} {:10.5f} {:8.5f}  {:10.5f} {:8.5f}  {:8.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:8.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:10.5f} {:5.0f} {:5.0f} {}".format(
         JEXCH1, 
-        gs_1.energy.mean.real,                          gs_1.energy.variance, 
-        gs_2.energy.mean.real,                          gs_2.energy.variance, 
-        # gs_1.estimate(ops.m_z).mean.real,               gs_1.estimate(ops.m_z).variance, 
-        gs_1.estimate(ops.m_plaquette_op).mean.real,    gs_1.estimate(ops.m_plaquette_op).variance, # ZMENA 
-        gs_1.estimate(ops.m_dimer_op).mean.real,        gs_1.estimate(ops.m_dimer_op).variance, 
+        gs_1.energy.mean.real,                          gs_1.energy.error_of_mean, 
+        gs_2.energy.mean.real,                          gs_2.energy.error_of_mean, 
+        # gs_1.estimate(ops.m_z).mean.real,               gs_1.estimate(ops.m_z).error_of_mean, 
+        gs_1.estimate(ops.m_plaquette_op).mean.real,    gs_1.estimate(ops.m_plaquette_op).error_of_mean, # ZMENA 
+        gs_1.estimate(ops.m_dimer_op).mean.real,        gs_1.estimate(ops.m_dimer_op).error_of_mean, 
         m_s2_1,                                         m_s2v_1, 
-        # gs_2.estimate(ops.m_z).mean.real,               gs_2.estimate(ops.m_z).variance, 
-        gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).variance, # ZMENA
-        gs_2.estimate(ops.m_dimer_op).mean.real,        gs_2.estimate(ops.m_dimer_op).variance, 
+        # gs_2.estimate(ops.m_z).mean.real,               gs_2.estimate(ops.m_z).error_of_mean, 
+        gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).error_of_mean, # ZMENA
+        gs_2.estimate(ops.m_dimer_op).mean.real,        gs_2.estimate(ops.m_dimer_op).error_of_mean, 
         m_s2_2,                                         m_s2v_2, 
         exact_energy, samples, iters, str(steps_until_convergence)[1:-1]))
     if filename is not None:
         file = open(filename, "a")
         print("{:6.3f} {:10.5f} {:8.5f}  {:10.5f} {:8.5f}  {:8.4f} {:6.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:10.5f} {:5.0f} {:5.0f} {}".format(
             JEXCH1, 
-            gs_1.energy.mean.real,                          gs_1.energy.variance, 
-            gs_2.energy.mean.real,                          gs_2.energy.variance, 
-            # gs_1.estimate(ops.m_z).mean.real,               gs_1.estimate(ops.m_z).variance, 
-            gs_1.estimate(ops.m_plaquette_op).mean.real,    gs_1.estimate(ops.m_plaquette_op).variance, # ZMENA
-            gs_1.estimate(ops.m_dimer_op).mean.real,        gs_1.estimate(ops.m_dimer_op).variance, 
+            gs_1.energy.mean.real,                          gs_1.energy.error_of_mean, 
+            gs_2.energy.mean.real,                          gs_2.energy.error_of_mean, 
+            # gs_1.estimate(ops.m_z).mean.real,               gs_1.estimate(ops.m_z).error_of_mean, 
+            gs_1.estimate(ops.m_plaquette_op).mean.real,    gs_1.estimate(ops.m_plaquette_op).error_of_mean, # ZMENA
+            gs_1.estimate(ops.m_dimer_op).mean.real,        gs_1.estimate(ops.m_dimer_op).error_of_mean, 
             m_s2_1,                                         m_s2v_1, 
-            # gs_2.estimate(ops.m_z).mean.real,               gs_2.estimate(ops.m_z).variance, 
-            gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).variance, # ZMENA
-            gs_2.estimate(ops.m_dimer_op).mean.real,        gs_2.estimate(ops.m_dimer_op).variance, 
+            # gs_2.estimate(ops.m_z).mean.real,               gs_2.estimate(ops.m_z).error_of_mean, 
+            gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).error_of_mean, # ZMENA
+            gs_2.estimate(ops.m_dimer_op).mean.real,        gs_2.estimate(ops.m_dimer_op).error_of_mean, 
             m_s2_2,                                         m_s2v_2, 
             exact_energy, samples, iters, str(steps_until_convergence)[1:-1]),file=file)
         file.close()
