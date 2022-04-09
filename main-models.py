@@ -247,6 +247,13 @@ for m in fq.INDICES:
             machine_2 = nk.models.RBMModPhase(alpha=8, use_hidden_bias=True, dtype=np.float64)
             machine_3 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
             machine_4 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
+        elif m//no_etas == 17:
+            name = "Jastrow_visible"
+            from lattice_and_ops import Jastrow
+            machine_1 = Jastrow()
+            machine_2 = Jastrow()
+            machine_3 = Jastrow()
+            machine_4 = Jastrow()
         else:
             raise Exception(str("undefined MACHINE: ")+str(fq.MACHINE))
 

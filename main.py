@@ -24,8 +24,8 @@ from lattice_and_ops import permutation_sign
 from lattice_and_ops import log_results
 ho = HamOps()
 
-OUT_NAME = fq.MACHINE+str(fq.SITES) # output file name
-OUT_LOG_NAME = "out.txt"            # filename for output logging
+OUT_NAME = fq.MACHINE+str(fq.SITES)+"reverse" # output file name
+OUT_LOG_NAME = "out-reverse.txt"            # filename for output logging
 print("N = ",fq.SITES, ", samples = ",fq.SAMPLES,", iters = ",fq.NUM_ITER, ", sampler = ",fq.SAMPLER, ", TOTAL_SZ = ", fq.TOTAL_SZ, ", machine = ", fq.MACHINE, ", dtype = ", fq.DTYPE, ", alpha = ", fq.ALPHA, ", eta = ", fq.ETA, sep="")
 with open(OUT_LOG_NAME,"a") as out_log_file:
     out_log_file.write("N = {}, samples = {}, iters = {}, sampler = {}, TOTAL_SZ = {}, machine = {}, dtype = {}, alpha = {}, eta = {}\n".format(fq.SITES,fq.SAMPLES,fq.NUM_ITER,fq.SAMPLER, fq.TOTAL_SZ,fq.MACHINE, fq.DTYPE, fq.ALPHA, fq.ETA))
