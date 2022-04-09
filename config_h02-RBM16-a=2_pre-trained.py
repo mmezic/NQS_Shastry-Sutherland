@@ -8,11 +8,12 @@ H_Z      = 0
 TOTAL_SZ = None            # 0, None ... restriction of Hilbert space	
 SAMPLER = 'exact'       # 'local' = MetropolisLocal, 'exchange' = MetropolisExchange, 'exact' = ExactSampler
 MACHINE = 'RBM'         # 'RBM', 'RBMSymm'
+USE_PBC = True
 DTYPE = np.complex128   # type of weights in neural network
 ALPHA = 2              # N_hidden / N_visible	
 ETA   = .01            # learning rate (0.01 usually works)	
 SAMPLES = 1500	
-NUM_ITER = 700
+NUM_ITER = 70
 N_PRE_ITER = 20        # number of iteration before checking for convergence to speed up the process if the model is already pre-trained
 N_POST_ITER = 50
 VERBOSE = True         # should we print more detailed results

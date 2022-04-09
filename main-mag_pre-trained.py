@@ -139,7 +139,7 @@ for H_Z in fq.STEPS:
             gs.run(out=OUT_NAME+"_"+str(round(H_Z,2))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
         else:
             print(fq.N_PRE_ITER, "iters were sufficient to converge, skipping next", fq.NUM_ITER, "iters...")
-        # third shoet run to estimate errorbars
+        # third short run to estimate errorbars
         gs.run(out=OUT_NAME+"_"+str(round(H_Z,2))+"_"+str(i)+"errs", n_iter=int(fq.N_POST_ITER),show_progress=fq.VERBOSE, obs={'magnetization':m_z})
 
     # finding the number of steps needed to converge
