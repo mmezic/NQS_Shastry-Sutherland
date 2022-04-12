@@ -173,6 +173,20 @@ for JEXCH1 in fq.STEPS:
             print("m_s^2 =", float(ops.m_sSquared_slow(gs)[0].real))
             print("m_s^2 =", float(ops.m_sSquared_slow_MSR(gs)[0].real), "<--- no MSR!!")
     
+    # estimating the errorbars
+    data = []
+    for i in range(no_of_runs):
+        data.append(json.load(open(OUT_NAME+"_"+str(round(JEXCH1,2))+"_"+str(i)+".log")))
+    if type(data[0]["Energy"]["Mean"]) == dict: #DTYPE in (np.complex128, np.complex64):#, np.float64):# and False:
+        energy_convergence = [data[i]["Energy"]["Mean"]["real"] for i in range(no_of_runs)]
+    else:
+        energy_convergence = [data[i]["Energy"]["Mean"] for i in range(no_of_runs)]
+
+    with open("out_err.txt", "a") as file_mag:
+        if JEXCH1 == fq.STEPS[0]:
+            print("J1    E  err_of_mean  E_50avg  E_err_of_50avg    MSR: E  err_of_mean  E_50avg  E_err_of_50avg", file=file_mag)   
+        print("{:5.2f}   {:10.5f} {:10.5f} {:10.5f} {:10.5f}    {:10.5f} {:10.5f} {:10.5f} {:10.5f}".format(JEXCH1, gs_1.energy.mean.real, gs_1.energy.error_of_mean, np.mean(energy_convergence[0]), np.std(energy_convergence[0]), gs_2.energy.mean.real, gs_2.energy.error_of_mean, np.mean(energy_convergence[1]), np.std(energy_convergence[1])), file=file_mag)
+
     if no_of_runs==2:
         log_results(JEXCH1,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename=OUT_LOG_NAME)
     else:
