@@ -21,8 +21,8 @@ cd $SCRATCHDIR
 
 module add NetKet/3.3.2.post1-OpenMPI-4.1.1-CUDA-11.6.0
 # export OMP_NUM_THREADS=36
-FILE=/home/mezic/netket_scripts/main-models.py
+FILE=/home/mezic/netket_scripts/main.py
 echo FILE=$FILE
-python3 $FILE -f config-models16barb
+python3 $FILE -f config_RBM16-alpha=2
 echo "end"
 cp -r $SCRATCHDIR/*.log $SOURCE
