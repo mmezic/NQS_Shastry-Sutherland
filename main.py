@@ -184,8 +184,8 @@ for JEXCH1 in fq.STEPS:
 
     with open("out_err.txt", "a") as file_mag:
         if JEXCH1 == fq.STEPS[0]:
-            print("J1    E  err_of_mean  E_50avg  E_err_of_50avg    MSR: E  err_of_mean  E_50avg  E_err_of_50avg", file=file_mag)   
-        print("{:5.2f}   {:10.5f} {:10.5f} {:10.5f} {:10.5f}    {:10.5f} {:10.5f} {:10.5f} {:10.5f}".format(JEXCH1, gs_1.energy.mean.real, gs_1.energy.error_of_mean, np.mean(energy_convergence[0]), np.std(energy_convergence[0]), gs_2.energy.mean.real, gs_2.energy.error_of_mean, np.mean(energy_convergence[1]), np.std(energy_convergence[1])), file=file_mag)
+            print("J1  exactE     E  err_of_mean  E_50avg  E_err_of_50avg    MSR: E  err_of_mean  E_50avg  E_err_of_50avg", file=file_mag)   
+        print("{:5.2f}  {:10.5f}     {:10.5f} {:10.5f} {:10.5f} {:10.5f}     {:10.5f} {:10.5f} {:10.5f} {:10.5f}".format(JEXCH1, exact_ground_energy, gs_1.energy.mean.real, gs_1.energy.error_of_mean, np.mean(energy_convergence[0][-50:]), np.std(energy_convergence[0][-50:]), gs_2.energy.mean.real, gs_2.energy.error_of_mean, np.mean(energy_convergence[1][-50:]), np.std(energy_convergence[1][-50:])), file=file_mag)
 
     if no_of_runs==2:
         log_results(JEXCH1,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename=OUT_LOG_NAME)
