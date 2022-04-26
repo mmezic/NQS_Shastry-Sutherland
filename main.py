@@ -1,6 +1,8 @@
 import sys, getopt, os
 sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages')
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "0") # Report only TF errors by default
+import os
+os.environ["JAX_PLATFORM_NAME"] = "cpu"
 import netket as nk	
 import numpy as np
 import jax
