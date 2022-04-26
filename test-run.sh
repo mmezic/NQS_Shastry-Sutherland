@@ -24,7 +24,7 @@ echo "cd " $SCR >>$SOURCE/stroj.txt
 echo "ssh " `hostname` >>$SOURCE/stroj.txt
 
 # copy script to the scratch directory
-cp $PBS_O_WORKDIR/config-mod*.py $PBS_O_WORKDIR/lattice_and_ops.py $PBS_O_WORKDIR/GCNN_Nomura.py $PBS_O_WORKDIR/$script $SCR
+cp $PBS_O_WORKDIR/config-mod*.py $PBS_O_WORKDIR/lattice_and_ops.py $PBS_O_WORKDIR/pRBM.py $PBS_O_WORKDIR/$script $SCR
 # change directory to the sratch
 cd $SCR || exit
 # run simulation

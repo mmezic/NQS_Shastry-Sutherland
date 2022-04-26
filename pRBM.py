@@ -1,17 +1,5 @@
-# Copyright 2021 The NetKet Authors - All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# This file is a direct copy of the NetKet source code downloaded from https://github.com/netket/netket/blob/master/netket/models/equivariant.py
+# It was slightly extended by Matej Mezera (2022) to include visible biases in the GCNN.
 
 from typing import Tuple, Any
 
@@ -42,7 +30,8 @@ default_gcnn_initializer = lecun_normal(in_axis=1, out_axis=0)
 def identity(x):
     return x
 
-class GCNN_Irrep_my(nn.Module):
+""" NetKet implementation of GCNN_Irrep() method modified by Matej Mezera (2022). Implementation is extended include visible biases under the additional argument use_visible_bias = True. """
+class pRBM_Irrep(nn.Module):
     r"""Implements a GCNN by projecting onto irreducible
     representations of the group. The projection onto
     the group is implemented with matrix multiplication
@@ -102,7 +91,7 @@ class GCNN_Irrep_my(nn.Module):
     visible_bias_init: NNInitFunc = normal(stddev=0.1)
     """Initializer for the visible bias."""
     use_visible_bias: bool = True
-    """if True adds a bias to the input not passed through the nonlinear layer."""
+    """If True adds a bias to the input not passed through the nonlinear layer."""
 
     def setup(self):
 
@@ -163,8 +152,8 @@ class GCNN_Irrep_my(nn.Module):
             return x
 
 
-
-def GCNN_my(
+""" NetKet implementation of GCNN modified by Matej Mezera (2022). Implementation is extended include visible biases. """
+def pRBM(
     symmetries=None,
     product_table=None,
     irreps=None,
@@ -286,7 +275,7 @@ def GCNN_my(
         if product_table is None:
             product_table = HashableArray(sg.product_table)
         if parity:
-            raise Exception("Toto nefunguje - zvolen spatny mod vypoctu GCNN")
+            raise NotImplementedError("Wrong type of GCNN evaluation choosen. This is not implemented yet.")
             return GCNN_Parity_FFT(
                 symmetries=sym,
                 product_table=product_table,
@@ -298,7 +287,7 @@ def GCNN_my(
                 **kwargs,
             )
         else:
-            raise Exception("Toto nefunguje - zvolen spatny mod vypoctu GCNN")
+            raise NotImplementedError("Wrong type of GCNN evaluation choosen. This is not implemented yet.")
             return GCNN_FFT(
                 symmetries=sym,
                 product_table=product_table,
@@ -315,7 +304,7 @@ def GCNN_my(
             irreps = tuple(HashableArray(irrep) for irrep in sg.irrep_matrices())
 
         if parity:
-            raise Exception("Toto nefunguje - zvolen spatny mod vypoctu GCNN")
+            raise NotImplementedError("Wrong type of GCNN evaluation choosen. This is not implemented yet.")
             return GCNN_Parity_Irrep(
                 symmetries=sym,
                 irreps=irreps,
@@ -326,7 +315,7 @@ def GCNN_my(
                 **kwargs,
             )
         else:
-            return GCNN_Irrep_my(
+            return pRBM_Irrep(
                 symmetries=sym,
                 irreps=irreps,
                 layers=layers,
