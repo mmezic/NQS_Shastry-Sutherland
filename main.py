@@ -141,39 +141,40 @@ for JEXCH1 in fq.STEPS:
 
     ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
-    no_of_runs = 2 #2 ... bude se pocitat i druhý způsob (za použití MSR)
-    use_2 = 0 # in case of one run
+
+    runs = [1,1] # Here we can set for which basis to perform the simulation. E.g. [0,1] means don't run normal basis, run MSR basis. We run the simulation for both basis by default [1,1]
+    runs = fq.RUNS
+    no_of_runs = np.sum(runs) # 1 - one run for variables with ..._1;  2 - both runs for variables ..._1 and ..._2
+    run_only_2 = (runs[1]==1 and runs[0]==0) # in case of no_of_runs=1
     if exact_ground_energy != 0 and fq.VERBOSE == True:
         print("J1 =",JEXCH1,"; Expected exact energy:", exact_ground_energy)
-    for i,gs in enumerate([gs_1,gs_2][use_2:use_2+no_of_runs]):
+    for i,gs in enumerate([gs_1,gs_2][run_only_2:run_only_2+no_of_runs]):
         start = time.time()
-        gs.run(out=OUT_NAME+"_"+str(round(JEXCH1,2))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
+        gs.run(out=OUT_NAME+"_"+str(round(JEXCH1,3))+"_"+str(i), n_iter=int(fq.NUM_ITER),show_progress=fq.VERBOSE)
         end = time.time()
         if JEXCH1 == fq.STEPS[0]:
             print("The type {} of {} calculation took {} min".format(i,fq.MACHINE ,(end-start)/60))
-
         
-
     # finding the number of steps needed to converge
     threshold_energy = 0.995*exact_ground_energy
     data = []
     for i in range(no_of_runs):
-        data.append(json.load(open(OUT_NAME+"_"+str(round(JEXCH1,2))+"_"+str(i)+".log")))
+        data.append(json.load(open(OUT_NAME+"_"+str(round(JEXCH1,3))+"_"+str(i)+".log")))
     if type(data[0]["Energy"]["Mean"]) == dict: #DTYPE in (np.complex128, np.complex64):#, np.float64):# and False:
         energy_convergence = [data[i]["Energy"]["Mean"]["real"] for i in range(no_of_runs)]
     else:
         energy_convergence = [data[i]["Energy"]["Mean"] for i in range(no_of_runs)]
     steps_until_convergence = [next((i for i,v in enumerate(energy_convergence[j]) if v < threshold_energy), -1) for j in range(no_of_runs)]
-
     if fq.VERBOSE == True:
-        for i,gs in enumerate([gs_1,gs_2][use_2:use_2+no_of_runs]):
+        for i,gs in enumerate([gs_1,gs_2][run_only_2:run_only_2+no_of_runs]):
             print("Trained RBM with MSR:" if i else "Trained RBM without MSR:")
             print("m_d^2 =", gs.estimate(ops.m_dimer_op))
-            print("m_p =", gs.estimate(ops.m_plaquette_op_MSR))
+            print("m_p =", gs.estimate(ops.m_plaquette_op))
             print("m_s^2 =", float(ops.m_sSquared_slow(gs)[0].real))
             print("m_s^2 =", float(ops.m_sSquared_slow_MSR(gs)[0].real), "<--- no MSR!!")
     
     if no_of_runs==2:
         log_results(JEXCH1,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename=OUT_LOG_NAME)
     else:
-        log_results(JEXCH1,gs_1,gs_1,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename=OUT_LOG_NAME)
+        gs = gs_2 if run_only_2 else gs_1
+        log_results(JEXCH1,gs,gs,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename=OUT_LOG_NAME)
