@@ -39,7 +39,7 @@ from lattice_and_ops import Operators
 from lattice_and_ops import HamOps
 from lattice_and_ops import permutation_sign
 from lattice_and_ops import log_results
-from GCNN_Nomura import GCNN_my
+from pRBM import pRBM
 ho = HamOps()
 
 PREFIX = "logs/" #"test/"
@@ -75,7 +75,7 @@ g = nk.graph.Graph(edges=edge_colors)
 
 hilbert = nk.hilbert.Spin(s=.5, N=g.n_nodes, total_sz=fq.TOTAL_SZ)
 
-# This part is only relevant for GCNN or myRBM machine
+# This part is only relevant for GCNN or pRBM machine
 print("There are", len(g.automorphisms()), "full symmetries.")
 # deciding point between DS and AF phase is set to 0.5
 #####################""" assume only the fully symmetric models """##########################
@@ -188,31 +188,31 @@ for m in fq.INDICES:
         elif m//no_etas == 8:
             name = "GCNN_my_32"
             alpha=32
-            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_1 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_2 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_3 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_4 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
         elif m//no_etas == 9:
             name = "GCNN_my_8"
             alpha=8
-            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_1 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_2 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_3 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_4 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
         elif m//no_etas == 10:
             name = "GCNN_my_8trans"
             alpha=8
-            machine_1 = GCNN_my(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_2 = GCNN_my(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_3 = GCNN_my(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-            machine_4 = GCNN_my(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_1 = pRBM(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_2 = pRBM(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_3 = pRBM(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+            machine_4 = pRBM(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
         elif m//no_etas == 11:
             name = "GCNN_my_8notVisible"
             alpha=8
-            machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
-            machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
-            machine_3 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
-            machine_4 = GCNN_my(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
+            machine_1 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
+            machine_2 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
+            machine_3 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
+            machine_4 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
         elif m//no_etas == 12:
             name = "GCNN_aut[8,4]"
             num_layers = 2
