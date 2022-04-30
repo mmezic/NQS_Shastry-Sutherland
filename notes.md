@@ -451,3 +451,8 @@ TODO:
     - ~~metropolis má tak velký rozptyl oproti exact sampleru, že z toho nejde vůbec vykoukat informace o gapu~~
     - metropolis NEVYKAZUJE ŽÁDNÝ GAP, viz obrázek teams
     - celkově je docela těžké vůbec nastavit hodnoty tak, aby tam byl gap, většinou tam není (musí být MSR, dimerová fáze a větší počet samplů, aby něco šlo vidět)
+
+
+## Agenda schůzky 21.4.
+- pokud to skutečně najde PS fázi, tak bychom mohli použít transfer learning a dostat se do správného poměru J/J'
+- co vše se hodí do outlooku?
