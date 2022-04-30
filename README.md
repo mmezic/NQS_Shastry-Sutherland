@@ -16,7 +16,7 @@ I use three different clusters with different scripts for submission:
 ## File structure
 I have two auxiliary files which I load from almost all of my scripts and notebooks. The file [lattice_and_ops.py](lattice_and_ops.py) contains auxiliary classes and functions, for example it contains the implementation of the structure of lattice, a method for quick definition of Shastry-Shutterland Hamiltonian possibly with a magnetic field or Marshall sign rule, and implementation of the order parameters.
 
-The file [GCNN_Nomura.py](GCNN_Nomura.py) contains a slight modification of the source code from the `NetKet` implementation of the G-CNN to also include a visible bias. This file is only needed when using this model (I abbreviate it as *GCNN_my* or *myRBM* in the code).
+The file [pRBM.py](pRBM.py) contains a slight modification of the source code from the `NetKet` implementation of the G-CNN to also include a visible bias. This file is only needed when using this model (I abbreviate it as *pRBM* or *pRBM* in the code).
 
 There are a few modified versions of [main](main.py) file depending on a use-case:
  - [main.py](main.py) generates a dependance on the **coupling constant J**.

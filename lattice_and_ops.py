@@ -22,11 +22,11 @@ class Lattice:
             self.width = [6,6,6,6,6,6]	
             self.right_shift = 0	
             self.bottom_shift = 0	
-        elif self.SITES == 20: #tile shape definition	
+        elif self.SITES == 20:
             self.indent = [3,1,0,1,1,2]	
             self.width = [1,4,5,5,4,1]	
-            self.right_shift = 2 #vertical shift of the center of right cell (in the upward direction)	
-            self.bottom_shift = 4 #horizontal shift of the center of bottom cell (in the left direction)
+            self.right_shift = 2  # vertical shift of the center of right cell (in the upward direction)	
+            self.bottom_shift = 4 # horizontal shift of the center of bottom cell (in the left direction)
         elif self.SITES == 16:
             self.indent = [0,0,0,0]
             self.width = [4,4,4,4]
@@ -43,10 +43,10 @@ class Lattice:
             self.right_shift = 0
             self.bottom_shift = 0
         else:
-            raise Exception("Invalid number of self.SITES given.")
+            raise Exception("Invalid number of SITES given. Supported numbers of sites: 4,8,16,20,36,64,100.")
         self.N = sum(self.width) #number of nodes
 
-        assert self.N == self.SITES, "Error! Lattice is given wrongly. The checksum of sites failed."
+        assert self.N == self.SITES, "Error during the Lattice initialization. The checksum of sites failed."
 
         deg45 = True # special case when angle of tiling is 45 deg
         i = 0
@@ -64,7 +64,7 @@ class Lattice:
 
         self.left_shift = len(self.width) - self.right_shift + self.vertical_gap #vertical shift of the center of (top) left tile (in the upward direction)
 
-
+        # Exymple of the tile with 20 sites. Here, i and j denote cortinates and the numbers denote cardinal indices of each site. 
         # i j-->
         # | .   .   .   0  
         # V .   1   2   3   4
@@ -73,22 +73,22 @@ class Lattice:
         #   .   15  16  17  18
         #   .   .   19
 
-    def position(self,node): #returns positional indices i,j of the node
+    def position(self,node): # returns positional indices i,j of the node given by the cardinal index
         row, n = 0, 0
         while n+self.width[row] <= node:
             n += self.width[row]
             row += 1
         column = self.indent[row] + node - n 
         return row, column
-    def index_n(self,row, column): #returns index n given positional indices
+    def index_n(self,row, column): # returns cardinal index n given positional indices
         return sum(self.width[0:row]) + column - self.indent[row]
-    def is_last(self,node):
+    def is_last(self,node): # returns true if the node is on the rightmost edge of the tile
         row, column = self.position(node)
         return (column == self.width[row] + self.indent[row] - 1)
-    def is_first(self,node):
+    def is_first(self,node): # returns true if the node is on the leftmost edge of the tile
         row, column = self.position(node)
         return (column == self.indent[row])
-    def is_lowest(self,node):
+    def is_lowest(self,node): # returns true if the node is on the bottom edge of the tile
         row, column = self.position(node)
         if row == len(self.width) - 1:
             return True
@@ -98,7 +98,7 @@ class Lattice:
                 return False
             else:
                 return True
-    def rt(self, node): #returns index n of right neighbour
+    def rt(self, node): # returns ordinal index n of right neighbour
         if self.is_last(node):
             new_row = (self.position(node)[0] + self.right_shift)%(len(self.width)+self.vertical_gap)
             if new_row == len(self.width): # special case of gap
@@ -106,7 +106,7 @@ class Lattice:
             return sum(self.width[0:new_row])
         else:
             return (node+1)%self.N
-    def lft(self, node): #returns index n of left neighbour
+    def lft(self, node): # returns ordinal index n of left neighbour
         if self.is_first(node):
             new_row = (self.position(node)[0] + self.left_shift)%(len(self.width)+self.vertical_gap)
             if new_row == len(self.width):
@@ -114,7 +114,7 @@ class Lattice:
             return sum(self.width[0:new_row])+self.width[new_row]-1
         else:
             return (node-1)%self.N
-    def bot(self, node): #returns index n of bottom neighbour
+    def bot(self, node): # returns ordinal index n of bottom neighbour
         row, column = self.position(node)
         if self.is_lowest(node):
             no_of_columns = np.array(self.width)+np.array(self.indent)
@@ -132,7 +132,7 @@ class Lattice:
 
 
 """
-Defines order parameter operators for a given lattice. Both MSR and non-MSR operators are defined.
+This clas contains definitions of order parameter operators for a given lattice. Both MSR and non-MSR operators are defined here.
 """
 class Operators:
     def __init__(self,lattice,hilbert, mszsz_interaction, exchange_interaction):
@@ -171,67 +171,73 @@ class Operators:
         M = self.hilbert.size
         for i in range(M):
             for j in range(M):
-                self.m_s2_op_MSR += self.SS_MSR(i,j) * (-1)**np.sum(self.lattice.position(i)+self.lattice.position(j)) #(i+j) #chyba?
+                self.m_s2_op_MSR += self.SS_MSR(i,j) * (-1)**np.sum(self.lattice.position(i)+self.lattice.position(j))
         self.m_s2_op_MSR = self.m_s2_op_MSR/(M**2)
 
         self.m_s2_op = 0
         for i in range(M):
             for j in range(M):
-                self.m_s2_op += self.SS(i,j) * (-1)**np.sum(self.lattice.position(i)+self.lattice.position(j)) #(i+j) #chyba?
+                self.m_s2_op += self.SS(i,j) * (-1)**np.sum(self.lattice.position(i)+self.lattice.position(j))
         self.m_s2_op = self.m_s2_op/(M**2)
 
         
 
-    def SS_old(self,i,j): # S_i * S_j
-        return 2*nk.operator.spin.sigmap(self.hilbert,i,DTYPE="float64")@nk.operator.spin.sigmam(self.hilbert,j,DTYPE="float64")+2*nk.operator.spin.sigmam(self.hilbert,i,DTYPE="float64")@nk.operator.spin.sigmap(self.self.hilbert,j,DTYPE="float64")+nk.operator.spin.sigmaz(self.hilbert,i,DTYPE="float64")@nk.operator.spin.sigmaz(self.hilbert,j,DTYPE="float64")
-        #return nk.operator.spin.sigmax(self.hilbert, i)@nk.operator.spin.sigmax(self.hilbert, j) + nk.operator.spin.sigmay(self.hilbert, i)@nk.operator.spin.sigmay(self.hilbert, j) + nk.operator.spin.sigmaz(self.hilbert, i)@nk.operator.spin.sigmaz(self.hilbert, j)
-
-    def SS(self,i,j): #different method of definition
+    """ Returns S_i * S_j coupling operator for normal basis. The ordinal integers i and j denote two sites in the lattice (i and j are not coordinates). """
+    def SS(self,i,j):
         if i==j:
             return nk.operator.LocalOperator(self.hilbert,operators=[[3,0],[0,3]],acting_on=[i])
         else:
             return nk.operator.LocalOperator(self.hilbert,operators=(self.mszsz+self.exchange),acting_on=[i,j])
 
-    def SS_MSR(self,i,j): #different method of definition
+    """ Returns S_i * S_j coupling operator for MSR basis. The ordinal integers i and j denote two sites in the lattice (i and j are not coordinates). """
+    def SS_MSR(self,i,j):
         if i==j:
             return nk.operator.LocalOperator(self.hilbert,operators=[[3,0],[0,3]],acting_on=[i])
         elif (np.sum(self.lattice.position(i))+np.sum(self.lattice.position(j)))%2 == 0:            # same sublattice 
             return nk.operator.LocalOperator(self.hilbert,operators=(self.mszsz+self.exchange),acting_on=[i,j])
         else:                                                                                       # different sublattice 
             return nk.operator.LocalOperator(self.hilbert,operators=(self.mszsz-self.exchange),acting_on=[i,j])
-    
 
-    def P(self,i,j,msr=False): # two particle permutation operator
+    """ Alternative equivalent definition of the S_i * S_j coupling operator using sigma matrices. """
+    def SS_old(self,i,j): # S_i * S_j
+        return 2*nk.operator.spin.sigmap(self.hilbert,i,DTYPE="float64")@nk.operator.spin.sigmam(self.hilbert,j,DTYPE="float64")+2*nk.operator.spin.sigmam(self.hilbert,i,DTYPE="float64")@nk.operator.spin.sigmap(self.self.hilbert,j,DTYPE="float64")+nk.operator.spin.sigmaz(self.hilbert,i,DTYPE="float64")@nk.operator.spin.sigmaz(self.hilbert,j,DTYPE="float64")
+
+    """ Two-particle permutation operator. $$\hat{P}_{ij} = \frac{1}{2} (\hat{S}_i\cdot \hat{S}_j + \hat{1})$$. The ordinal integers i and j denote two sites in the lattice (i and j are not coordinates). """
+    def P(self,i,j,msr=False): 
         if msr == False:
             return .5*(self.SS(i,j)+nk.operator.LocalOperator(self.hilbert,operators=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]],acting_on=[i,j]))
         else:
             return .5*(self.SS_MSR(i,j)+nk.operator.LocalOperator(self.hilbert,operators=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]],acting_on=[i,j]))
 
-
-    def P_cykl(self,i,j,k,l,msr): # 4 particle cyclic permutation operator
+    """ Four-particle cyclic permutation operator defined as a product of three two-particle permutations. The ordinal integers i, j, k and l denote two sites in the lattice (these are not coordinates). """
+    def P_cykl(self,i,j,k,l,msr):
         return self.P(i,k,msr)@self.P(k,l,msr)@self.P(i,j,msr)
-    def P_cykl_inv(self,i,j,k,l,msr): # inverse of 4 particle cyclic permutation operator
+
+    """ Inverse four-particle cyclic permutation operator defined as a product of three two-particle permutations. The ordinal integers i, j, k and l denote two sites in the lattice (these are not coordinates). """
+    def P_cykl_inv(self,i,j,k,l,msr):
         return self.P(j,l,msr)@self.P(k,l,msr)@self.P(i,j,msr)
 
-    def P_r(self,i,msr): # cyclic permutation of 4 fq.SITES located at position i
+    """ Cyclic permutation of four sites. The top left site is located at the index i. """
+    def P_r(self,i,msr):
         return self.P_cykl(i,self.lattice.rt(i),self.lattice.lrt(i),self.lattice.bot(i),msr)
-        # i --> i j  .... we assigne a lrt cell to each index i
+        # i --> i j  .... we assigne a lower right cell to the input index i
         #       l k
-    def P_r_inv(self,i,msr): # inverse of cyclic permutation of 4 fq.SITES located at position i
+    
+    """ Inverse cyclic permutation of four sites. The top left site is located at the index i. """
+    def P_r_inv(self,i,msr):
         return self.P_cykl_inv(i,self.lattice.rt(i),self.lattice.lrt(i),self.lattice.bot(i),msr)
 
-    # returns Q operator where r=i is here:
-    # i---X
-    # |   |
-    # X---X  it is expected that there is no diagonal bond inside
+    """ Returns the Q operator where index i indicates the top left corner:
+    i---X
+    |   |
+    X---X  
+    It is implicitly expected that there is no diagonal bond inside. """
     def Q_r(self,i,msr):
         return .5*(self.P_r(i,msr) + self.P_r_inv(i,msr))
 
 
-    """
-    Calculates the value of AF order parameter from either a vector (ndarray) representation of state or NN representation. This method is slower but probably (why?) uses less memory.
-    The value of partial sum is saved in batches of MEMORY_SIZE 
-    """
+    """ Calculates the value of AF order parameter from either a vector (ndarray) representation of state or NN representation. This method is slower but uses less memory.
+    The value of partial sum is saved in batches of MEMORY_SIZE to avoid "out of memory" errors. """
     def m_sSquared_slow(self,state):
         MEMORY_SIZE = 8
         m_s2_partial_operator = 0
@@ -279,26 +285,25 @@ class Operators:
 Class containing auxiliary operators which helps with defining a hamiltonian.
 """
 class HamOps:
-    #Sigma^z*Sigma^z interactions
+    # Sigma^z*Sigma^z interactions:
     sigmaz = [[1, 0], [0, -1]]
     mszsz = (np.kron(sigmaz, sigmaz)) # = sz*sz = [[1,0,0,0],[0,-1,0,0],[0,0,-1,0],[0,0,0,1]]
-    #Exchange interactions
+    # Exchange interactions:
     exchange = np.asarray([[0, 0, 0, 0], [0, 0, 2, 0], [0, 2, 0, 0], [0, 0, 0, 0]]) # = sx*sx+sy*sy = 1/2*(sp*sm+sm*sp)
     full_spin = mszsz+exchange # = S*S = sx*sx + sy*sy + sz*sz
-    bond_color = [1, 2, 1, 2, 2, 3] # J1 mszsz; J2 mszsz; J1 exchange; J2 exchange; h_z applied to all vertices <=> adding h_z to all SS-bonds
+    bond_color = [1, 2, 1, 2, 2, 3] # J mszsz; J' mszsz; J exchange; J' exchange; h_z applied to all vertices <=> adding h_z to all SS-bonds (J-bonds have color 1; J'-bonds have color 2; number 3 is an auxiliary color in case of no PBC)
     def __init__(self) -> None:
         pass
     
-    scale = 2 # = 2/hbar normalization factor thans to S = hbar/2 * σ
+    scale = 2 # = 2/hbar; this is normalization factor due to S = hbar/2 * σ
     mag_field_z = scale * np.asarray([[2,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,-2]]) # = sz*1 + 1*sz
-
+    
+    """ Returns a list of operators compatible with the bond_color: J mszsz; J' mszsz; J exchange; J' exchange; h_z; h_z. """
     def bond_operator(self, jexch1=1, jexch2=1, use_MSR=False, h_z = 0):
         sign = -1 if use_MSR else 1
         return [(jexch1 * self.mszsz).tolist(),(jexch2 * self.mszsz).tolist(),(sign*jexch1 * self.exchange).tolist(),(jexch2 * self.exchange).tolist(), (h_z * self.mag_field_z).tolist(), (h_z * self.mag_field_z).tolist(),]
 
-"""
-Calculates the number of swaps forming the given permutation. Returns 1 or -1.
-"""
+""" Calculates the parity of the given permutation (number of swaps needed). Returns 1 or -1. """
 def permutation_sign(permutation):
     length = len(permutation)
     count = 0
@@ -308,14 +313,14 @@ def permutation_sign(permutation):
                 count +=1
     return -1 if count%2 else 1
 
-# note: gs_2 is expected to have MSR
+""" Writes the log including values of energies and order parameters to both screen and a file. 
+NOTE: gs_2 is expedted here to have MSR basis. """
 def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,exact_energy,steps_until_convergence,filename=None):
-    if ops.hilbert.size > 30: # osetreni podminky pomaleho vyhodnocovani AF parametru usporadani kvuli pretekani pameti
+    if ops.hilbert.size > 30: # If the system is too large, AF order parameter tends to fail due to memory overflow. The method m_sSquared_slow addresses this issue.
         m_s2_1, m_s2v_1 = ops.m_sSquared_slow(gs_1)
         m_s2_1, m_s2v_1 = float(m_s2_1.real), float(m_s2v_1)
         m_s2_2, m_s2v_2 = ops.m_sSquared_slow_MSR(gs_2)
         m_s2_2, m_s2v_2 = float(m_s2_2.real), float(m_s2v_2)
-
     else:
         m_s2_1, m_s2v_1 = gs_1.estimate(ops.m_s2_op).mean.real, gs_1.estimate(ops.m_s2_op).error_of_mean
         m_s2_2, m_s2v_2 = gs_2.estimate(ops.m_s2_op_MSR).mean.real, gs_2.estimate(ops.m_s2_op_MSR).error_of_mean
@@ -354,6 +359,7 @@ import netket.nn as nknn
 import flax.linen as nn
 import jax
 import jax.numpy as jnp
+""" Implementation of Jastrow ansatz with visible biases (Jastrow+b). """
 class Jastrow(nknn.Module):
     @nknn.compact
     def __call__(self, x):
