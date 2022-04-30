@@ -455,4 +455,4 @@ TODO:
 
 ## Agenda schůzky 21.4.
 - pokud to skutečně najde PS fázi, tak bychom mohli použít transfer learning a dostat se do správného poměru J/J'
-- co vše se hodí do outlooku?
+- co vše se hodí do outlooku? 
