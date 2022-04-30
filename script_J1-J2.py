@@ -27,8 +27,8 @@ TOTAL_SZ = 0          # 0, None ... restriction of Hilbert space
 #USE_MSR = True          # Should we use a Marshall sign rule? In this notebook, we use both.
 
 """machine learning"""
-MACHINE  = "myRBM_trans"        # RBM, RBMSymm, RBMSymm_transl, RBMModPhase, GCNN, Jastrow, myRBM
-USE_VISIBLE_BIAS = False        # in case of myRBM or myRBM_trans
+MACHINE  = "pRBM_trans"        # RBM, RBMSymm, RBMSymm_transl, RBMModPhase, GCNN, Jastrow, pRBM
+USE_VISIBLE_BIAS = False        # in case of pRBM or pRBM_trans
 DTYPE    = np.complex128 # data-type of weights in neural network
 ALPHA    = 1            # N_hidden / N_visible
 ETA      = .01          # learning rate (0.01 usually works)
@@ -163,14 +163,14 @@ elif MACHINE == "Jastrow":
     from lattice_and_ops import Jastrow
     machine_1 = Jastrow()
     machine_2 = Jastrow()
-elif MACHINE == "myRBM":
-    from GCNN_Nomura import GCNN_my
-    machine_1 = GCNN_my(symmetries=g.automorphisms(), dtype=DTYPE, layers=1, features=ALPHA*SITES, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=USE_VISIBLE_BIAS)
-    machine_2 = GCNN_my(symmetries=g.automorphisms(), dtype=DTYPE, layers=1, features=ALPHA*SITES, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=USE_VISIBLE_BIAS)
-elif MACHINE == "myRBM_trans":
-    from GCNN_Nomura import GCNN_my
-    machine_1 = GCNN_my(symmetries=translation_group, dtype=DTYPE, layers=1, features=ALPHA*SITES, characters=np.ones_like(translation_group[0],dtype=complex), output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=USE_VISIBLE_BIAS)
-    machine_2 = GCNN_my(symmetries=translation_group, dtype=DTYPE, layers=1, features=ALPHA*SITES, characters=np.ones_like(translation_group[0],dtype=complex), output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=USE_VISIBLE_BIAS)
+elif MACHINE == "pRBM":
+    from pRBM import pRBM
+    machine_1 = pRBM(symmetries=g.automorphisms(), dtype=DTYPE, layers=1, features=ALPHA*SITES, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=USE_VISIBLE_BIAS)
+    machine_2 = pRBM(symmetries=g.automorphisms(), dtype=DTYPE, layers=1, features=ALPHA*SITES, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=USE_VISIBLE_BIAS)
+elif MACHINE == "pRBM_trans":
+    from pRBM import pRBM
+    machine_1 = pRBM(symmetries=translation_group, dtype=DTYPE, layers=1, features=ALPHA*SITES, characters=np.ones_like(translation_group[0],dtype=complex), output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=USE_VISIBLE_BIAS)
+    machine_2 = pRBM(symmetries=translation_group, dtype=DTYPE, layers=1, features=ALPHA*SITES, characters=np.ones_like(translation_group[0],dtype=complex), output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=USE_VISIBLE_BIAS)
 elif MACHINE == "RBMModPhase":
     machine_1 = nk.models.RBMModPhase(alpha=ALPHA, use_hidden_bias=True, dtype=DTYPE)
     machine_2 = nk.models.RBMModPhase(alpha=ALPHA, use_hidden_bias=True, dtype=DTYPE)

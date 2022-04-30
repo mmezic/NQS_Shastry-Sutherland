@@ -256,7 +256,7 @@ where $S$ is *quantum Fisher information matrix*.
 
 ## Schůzka 26.2.
 
-- [ ] postit RBM a myRBM s více body na metacentru, abych měl obrázek do DP
+- [ ] postit RBM a pRBM s více body na metacentru, abych měl obrázek do DP
 - [ ] spustit na N=20 s MC
 - [ ] zkusit použít POUZE translace
 - [ ] zkusit prozkoumat grupové věci pro $N=20$
@@ -279,7 +279,7 @@ where $S$ is *quantum Fisher information matrix*.
 - výsledky mag pole:
     - RBM α=2 na laptopu dopadl docela dobře, ale
     - RBM α=16 na metacentru s hodně samply i iteracemi dopadl hodně hůř
-    - myRBM α=16 dopadl také katastrofálně (možná kvůli symetriím)
+    - pRBM α=16 dopadl také katastrofálně (možná kvůli symetriím)
     - RBM α=2 na metacentru zpřesnil původní výpočet, ale stejně to není moc accurate
 
 - [x] ZKUSIT BLOCHŮV TEOREM
@@ -320,7 +320,7 @@ where $S$ is *quantum Fisher information matrix*.
 
 ## Schůzka 4.3.2022
 
-- [ ] **1)** spustit RBM & myRBM na 8*8 mřížce a nechat to běžet hodně dlouho (potřeba MC)
+- [ ] **1)** spustit RBM & pRBM na 8*8 mřížce a nechat to běžet hodně dlouho (potřeba MC)
 - [ ] **2)** zkusit na 4*4 vypnout PBC v mag poli
     - mělo by to zhladšit funkci
     - chceme zjistit, zda je problém v expresivitě RBM nebo v konvergenci?
@@ -367,7 +367,7 @@ Probrat na schůzce:
     - přidat finite-size scaling (tj. závislost $E/N$ na $N$ + parametry uspořádání)
     - zkusit redefinovat $m_{\rm DS}$, aby byl v intervalu [0,1] podle toho, že najdu analytickou hodnotu v AF fázi a nějak to přeškáluji
         - 4,8,16,20,36,...?...,64
-        + vybrat nějaký model který na to použít (nejspíš `RBM` a `myRBM`)
+        + vybrat nějaký model který na to použít (nejspíš `RBM` a `pRBM`)
 
 ## moje poznámky
 - 20.3.2022 jsem všude nahradil stdev 0.001 -> 0.01
@@ -426,3 +426,33 @@ TODO:
 
 
 ## Schůzka 1.4.2022
+- viz. TODO
+
+### Agenda schůzky 8.4.2022
+
+- 09.04.2022 jsem všude nahradil `.variance` -> `.error_of_mean`
+
+
+
+## Agenda shůzky 13.4.
+- už umím počítat správně errorbary!! (jen jsem tam měl předtím chybu)
+- divná věc: při znovu-vyhodnocování energie načtením modelu ze souboru (bez dalšího učení) se energie snižuje s vícenásobným spuštěním vyhodnocením
+- zajímavé zmenšení errorbaru v DS finite-size-scaling
+    - všimněte si, že poslední iterace má malý errorbar
+![](figures/finite-size-scaling-convergence.png)
+- jak přidat do appendixu kód?
+- můžu v úvodu citovat Janu?
+- fyzikální motivate RBM, jak to mám vlastně popsat?
+- zeptat se Žondy na citaci O(ε^2)
+
+
+## Agenda schůzky 14.4. 
+- spustil jsem Metropolis na systému s gapem:
+    - ~~metropolis má tak velký rozptyl oproti exact sampleru, že z toho nejde vůbec vykoukat informace o gapu~~
+    - metropolis NEVYKAZUJE ŽÁDNÝ GAP, viz obrázek teams
+    - celkově je docela těžké vůbec nastavit hodnoty tak, aby tam byl gap, většinou tam není (musí být MSR, dimerová fáze a větší počet samplů, aby něco šlo vidět)
+
+
+## Agenda schůzky 21.4.
+- pokud to skutečně najde PS fázi, tak bychom mohli použít transfer learning a dostat se do správného poměru J/J'
+- co vše se hodí do outlooku?
