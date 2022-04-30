@@ -8,6 +8,7 @@ convergence_plots/
 old_logs/
 old_configs/
 archive/
+figures/
 out.txt
 out*.txt
 'out-models_table.txt'
