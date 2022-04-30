@@ -4,8 +4,8 @@ SITES    = 64            # 4, 8, 16, 20 ... number of vertices in a tile determi
 JEXCH1   = .2            # nn interaction	
 JEXCH2   = 1            # nnn interaction	
 """machine learning"""	
-TOTAL_SZ = None            # 0, None ... restriction of Hilbert space	
-SAMPLER = 'local'       # 'local' = MetropolisLocal, 'exchange' = MetropolisExchange, 'exact' = ExactSampler
+TOTAL_SZ = 0            # 0, None ... restriction of Hilbert space	
+SAMPLER = 'exchange'       # 'local' = MetropolisLocal, 'exchange' = MetropolisExchange, 'exact' = ExactSampler
 MACHINE = 'RBM'         # 'RBM', 'RBMSymm'
 DTYPE = np.complex128   # type of weights in neural network
 ALPHA = 8              # N_hidden / N_visible	
@@ -15,7 +15,7 @@ NUM_ITER = 1000
 N_PRE_ITER = 100        # number of iteration before checking for convergence to speed up the process if the model is already pre-trained
 VERBOSE = True         # should we print more detailed results
 # pro tento array jsem to jeste nespoustel --> prave bezi
-STEPS = np.array([0.82,0.79,0.77,0.71,0.73,0.3]) #np.arange(0.0,1.21,step=0.1)
+STEPS = np.arange(0.715,0.731,step=0.01)
 num_layers = 2
 feature_dims = (8,4)
 STEPS_A = [int(SITES/2), SITES, SITES*2, SITES*4]   # grid search across ALPHAs (used only in main-gridSearch.py)

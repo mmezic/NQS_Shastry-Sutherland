@@ -143,7 +143,7 @@ for JEXCH1 in fq.STEPS:
 
     ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
-    no_of_runs = 2 #2 ... bude se pocitat i druhý způsob (za použití MSR)
+    no_of_runs = 1 #2 ... bude se pocitat i druhý způsob (za použití MSR)
     use_2 = 0 # in case of one run
     if exact_ground_energy != 0 and fq.VERBOSE == True:
         print("J1 =",JEXCH1,"; Expected exact energy:", exact_ground_energy)
@@ -171,7 +171,7 @@ for JEXCH1 in fq.STEPS:
         for i,gs in enumerate([gs_1,gs_2][use_2:use_2+no_of_runs]):
             print("Trained RBM with MSR:" if i else "Trained RBM without MSR:")
             print("m_d^2 =", gs.estimate(ops.m_dimer_op))
-            print("m_p =", gs.estimate(ops.m_plaquette_op_MSR))
+            print("m_p =", gs.estimate(ops.m_plaquette_op))
             print("m_s^2 =", float(ops.m_sSquared_slow(gs)[0].real))
             print("m_s^2 =", float(ops.m_sSquared_slow_MSR(gs)[0].real), "<--- no MSR!!")
     
@@ -187,7 +187,11 @@ for JEXCH1 in fq.STEPS:
     with open("out_err.txt", "a") as file_mag:
         if JEXCH1 == fq.STEPS[0]:
             print("J1  exactE     E  err_of_mean  E_50avg  E_err_of_50avg    MSR: E  err_of_mean  E_50avg  E_err_of_50avg", file=file_mag)   
-        print("{:5.2f}  {:10.5f}     {:10.5f} {:10.5f} {:10.5f} {:10.5f}     {:10.5f} {:10.5f} {:10.5f} {:10.5f}".format(JEXCH1, exact_ground_energy, gs_1.energy.mean.real, gs_1.energy.error_of_mean, np.mean(energy_convergence[0][-50:]), np.std(energy_convergence[0][-50:]), gs_2.energy.mean.real, gs_2.energy.error_of_mean, np.mean(energy_convergence[1][-50:]), np.std(energy_convergence[1][-50:])), file=file_mag)
+        if no_of_runs == 2:
+            print("{:5.2f}  {:10.5f}     {:10.5f} {:10.5f} {:10.5f} {:10.5f}     {:10.5f} {:10.5f} {:10.5f} {:10.5f}".format(JEXCH1, exact_ground_energy, gs_1.energy.mean.real, gs_1.energy.error_of_mean, np.mean(energy_convergence[0][-50:]), np.std(energy_convergence[0][-50:]), gs_2.energy.mean.real, gs_2.energy.error_of_mean, np.mean(energy_convergence[1][-50:]), np.std(energy_convergence[1][-50:])), file=file_mag)
+        else:
+            print("{:5.2f}  {:10.5f}     {:10.5f} {:10.5f} {:10.5f} {:10.5f} ".format(JEXCH1, exact_ground_energy, gs_1.energy.mean.real, gs_1.energy.error_of_mean, np.mean(energy_convergence[0][-50:]), np.std(energy_convergence[0][-50:])), file=file_mag)
+
 
     if no_of_runs==2:
         log_results(JEXCH1,gs_1,gs_2,ops,fq.SAMPLES,fq.NUM_ITER,exact_ground_energy,steps_until_convergence,filename=OUT_LOG_NAME)
