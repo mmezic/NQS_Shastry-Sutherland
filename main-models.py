@@ -158,28 +158,28 @@ for m in fq.INDICES:
             machine_3 = nk.models.RBM(dtype=fq.DTYPE, alpha=16,use_visible_bias=False)
             machine_4 = nk.models.RBM(dtype=fq.DTYPE, alpha=16,use_visible_bias=False)
         elif m//no_etas == 4:
-            name = "RBMSymm_16aut"
+            name = "sRBM_16aut"
             alpha= 16
             machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha) 
             machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha)
             machine_3 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha) 
             machine_4 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha)
         elif m//no_etas == 5:
-            name = "RBMSymm_128aut"
+            name = "sRBM_128aut"
             alpha = 128
             machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha) 
             machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha)
             machine_3 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha) 
             machine_4 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha)
         elif m//no_etas == 6:
-            name = "RBMSymm_16trans"
+            name = "sRBM_16trans"
             alpha = 16
             machine_1 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
             machine_2 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)
             machine_3 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
             machine_4 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)
         elif m//no_etas == 7:
-            name = "RBMSymm_2trans"
+            name = "sRBM_2trans"
             alpha = 2
             machine_1 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
             machine_2 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)

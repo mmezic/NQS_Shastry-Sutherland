@@ -111,7 +111,7 @@ for JEXCH1 in fq.STEPS:
     if fq.MACHINE == "RBM":
         machine_1 = nk.models.RBM(dtype=fq.DTYPE, alpha=fq.ALPHA)
         machine_2 = nk.models.RBM(dtype=fq.DTYPE, alpha=fq.ALPHA)
-    elif fq.MACHINE == "RBMSymm":
+    elif fq.MACHINE == "sRBM":
         machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=fq.ALPHA) 
         machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=fq.ALPHA)
     elif fq.MACHINE == "GCNN":

@@ -170,7 +170,7 @@ for JEXCH1 in fq.STEPS:
 
     # Symmetric RBM Spin fq.MACHINE
     # and Symmetric RBM Spin fq.MACHINE with MSR
-    if fq.MACHINE == "RBMSymm":
+    if fq.MACHINE == "sRBM":
         machine = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=fq.ALPHA)  #<--- zde je použita celá grupa symetrii (ne jen translace)
         machine_MSR = nk.models.RBMSymm(g.automorphisms(),dtype=fq.DTYPE, alpha=fq.ALPHA)
     else:

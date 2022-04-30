@@ -1,8 +1,7 @@
 import sys, getopt, os
-sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages')
-os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "0") # Report only TF errors by default
-import os
-os.environ["JAX_PLATFORM_NAME"] = "cpu"
+sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages') # path to my netket installation
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "1")                               # Report only TF warnings and errors by default
+os.environ["JAX_PLATFORM_NAME"] = "cpu"                                          # set to 'gpu' or 'cpu'
 import netket as nk	
 import numpy as np
 import jax
@@ -14,11 +13,7 @@ print("NumPy version: {}".format(np.__version__))
 print("MPI:", nk.utils.mpi.available)
 print("Devices:", jax.devices())
 
-file = sys.argv[-1]
-if len(sys.argv) == 1: # if no config file is specifies, use config.py by default
-    file = "config"
-print(file)
-cf = __import__(file) # import configuration under cf alias
+# load the necesary classes from the auxiliary file
 from lattice_and_ops import Lattice
 from lattice_and_ops import Operators
 from lattice_and_ops import HamOps
@@ -26,10 +21,18 @@ from lattice_and_ops import permutation_sign
 from lattice_and_ops import log_results
 ho = HamOps()
 
-OUT_NAME = cf.MACHINE+str(cf.SITES) # output file name for logging the machine (.mpack file) and the convergence log (.log file)
-OUT_LOG_NAME = "out.txt"            # filename for final logging of energies and order parameters
+# load the configuration file
+# if no config file is specifies, use 'config.py' by default
+config_file_name = "config" if len(sys.argv) == 1 else sys.argv[-1]
+print("Loading configuration from", config_file_name)
+cf = __import__(config_file_name)       # import configuration under cf alias
+
+
+OUT_NAME = cf.MACHINE+str(cf.SITES)     # output file name for storing the machine (.mpack file) and the logging the convergence (.log file)
+OUT_LOG_NAME = "out.txt"                # filename for final logging of energies and order parameters
+
 print("N = ",cf.SITES, ", samples = ",cf.SAMPLES,", iters = ",cf.NUM_ITER, ", sampler = ",cf.SAMPLER, ", TOTAL_SZ = ", cf.TOTAL_SZ, ", machine = ", cf.MACHINE, ", dtype = ", cf.DTYPE, ", alpha = ", cf.ALPHA, ", eta = ", cf.ETA, sep="")
-with open(OUT_LOG_NAME,"a") as out_log_file: # heager of the log file
+with open(OUT_LOG_NAME,"a") as out_log_file: # header of the log file
     out_log_file.write("N = {}, samples = {}, iters = {}, sampler = {}, TOTAL_SZ = {}, machine = {}, dtype = {}, alpha = {}, eta = {}\n".format(cf.SITES,cf.SAMPLES,cf.NUM_ITER,cf.SAMPLER, cf.TOTAL_SZ,cf.MACHINE, cf.DTYPE, cf.ALPHA, cf.ETA))
 
 lattice = Lattice(cf.SITES)
@@ -37,7 +40,7 @@ lattice = Lattice(cf.SITES)
 # Define custom graph
 edge_colors = []
 for node in range(cf.SITES):
-    edge_colors.append([node,lattice.rt(node), 1]) #horizontal connections
+    edge_colors.append([node,lattice.rt(node), 1])  #horizontal connections
     edge_colors.append([node,lattice.bot(node), 1]) #vertical connections
     row, column = lattice.position(node)
     if column%2 == 0:
@@ -85,6 +88,7 @@ for perm in g.automorphisms():
             translations.append(nk.utils.group._permutation_group.Permutation(aperm))
 translation_group = nk.utils.group._permutation_group.PermutationGroup(translations,degree=cf.SITES)
 
+# The central loop that scans the phase space.
 for JEXCH1 in cf.STEPS:
     # Hamiltonian definition
     ha_1 = nk.operator.GraphOperator(hilbert, graph=g, bond_ops=ho.bond_operator(JEXCH1,cf.JEXCH2, use_MSR=False), bond_ops_colors=ho.bond_color)
@@ -102,7 +106,7 @@ for JEXCH1 in cf.STEPS:
     if cf.MACHINE == "RBM":
         machine_1 = nk.models.RBM(dtype=cf.DTYPE, alpha=cf.ALPHA)
         machine_2 = nk.models.RBM(dtype=cf.DTYPE, alpha=cf.ALPHA)
-    elif cf.MACHINE == "RBMSymm":
+    elif cf.MACHINE == "sRBM":
         machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=cf.DTYPE, alpha=cf.ALPHA) 
         machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=cf.DTYPE, alpha=cf.ALPHA)
     elif cf.MACHINE == "GCNN":
@@ -139,8 +143,8 @@ for JEXCH1 in cf.STEPS:
     # The variational state (drive to byla nk.variational.MCState)
     vs_1 = nk.vqs.MCState(sampler_1, machine_1, n_samples=cf.SAMPLES)
     vs_2 = nk.vqs.MCState(sampler_2, machine_2, n_samples=cf.SAMPLES)
-    vs_1.init_parameters(jax.nn.initializers.normal(stddev=0.01))
-    vs_2.init_parameters(jax.nn.initializers.normal(stddev=0.01))
+    vs_1.init_parameters(jax.nn.initializers.normal(stddev=cf.SIGMA))
+    vs_2.init_parameters(jax.nn.initializers.normal(stddev=cf.SIGMA))
 
     gs_1 = nk.VMC(hamiltonian=ha_1 ,optimizer=optimizer_1,preconditioner=sr_1,variational_state=vs_1)   # 0 ... normal basis
     gs_2 = nk.VMC(hamiltonian=ha_2 ,optimizer=optimizer_2,preconditioner=sr_2,variational_state=vs_2)   # 1 ...    MSR basis

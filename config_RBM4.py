@@ -6,10 +6,11 @@ JEXCH2   = 1            # nnn interaction
 """machine learning"""	
 TOTAL_SZ = None            # 0, None ... restriction of Hilbert space	
 SAMPLER = 'exact'       # 'local' = MetropolisLocal, 'exchange' = MetropolisExchange, 'exact' = ExactSampler
-MACHINE = 'GCNN'         # 'RBM', 'RBMSymm'
+MACHINE = 'GCNN'         # 'RBM', 'sRBM'
 DTYPE = np.complex128   # type of weights in neural network
 ALPHA = 16              # N_hidden / N_visible	
 ETA   = .005            # learning rate (0.01 usually works)	
+SIGMA = .01             # variance of parameters during initialization
 SAMPLES = 2500	
 NUM_ITER = 500	
 VERBOSE = False         # should we print more detailed results
