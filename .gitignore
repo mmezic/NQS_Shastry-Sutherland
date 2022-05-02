@@ -9,6 +9,8 @@ old_logs/
 old_configs/
 archive/
 figures/
+ressurection/
+logs/
 out.txt
 out*.txt
 'out-models_table.txt'

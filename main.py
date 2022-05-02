@@ -65,12 +65,12 @@ if cf.JEXCH1 < 0.6: # deciding point between DS and AF phase is set to 0.6
     for perm in g.automorphisms():
         # print(perm, "with sign", permutation_sign(np.asarray(perm)))
         characters.append(permutation_sign(np.asarray(perm)))
-    characters_dimer_1 = np.asarray(characters,dtype=complex)
-    characters_dimer_2 = characters_dimer_1
+    characters_1 = np.asarray(characters,dtype=complex)
+    characters_2 = characters_1
 else:
     # AF phase if fully symmetric
-    characters_dimer_1 = np.ones((len(g.automorphisms()),), dtype=complex)
-    characters_dimer_2 = characters_dimer_1
+    characters_1 = np.ones((len(g.automorphisms()),), dtype=complex)
+    characters_2 = characters_1
 
 # This part is only relevant for GCNN or pRBM used only with the translation group enforced. 
 if False and not (cf.SITES in [4,16]):
@@ -110,12 +110,12 @@ for JEXCH1 in cf.STEPS:
         machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=cf.DTYPE, alpha=cf.ALPHA) 
         machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=cf.DTYPE, alpha=cf.ALPHA)
     elif cf.MACHINE == "GCNN":
-        machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=cf.DTYPE, layers=cf.num_layers, features=cf.feature_dims, characters=characters_dimer_1)
-        machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=cf.DTYPE, layers=cf.num_layers, features=cf.feature_dims, characters=characters_dimer_2)
+        machine_1 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=cf.DTYPE, layers=cf.num_layers, features=cf.feature_dims, characters=characters_1)
+        machine_2 = nk.models.GCNN(symmetries=g.automorphisms(), dtype=cf.DTYPE, layers=cf.num_layers, features=cf.feature_dims, characters=characters_2)
     elif cf.MACHINE == "pRBM":
         from pRBM import pRBM
-        machine_1 = pRBM(symmetries=g.automorphisms(), dtype=cf.DTYPE, layers=1, features=cf.ALPHA, characters=characters_dimer_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
-        machine_2 = pRBM(symmetries=g.automorphisms(), dtype=cf.DTYPE, layers=1, features=cf.ALPHA, characters=characters_dimer_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+        machine_1 = pRBM(symmetries=g.automorphisms(), dtype=cf.DTYPE, layers=1, features=cf.ALPHA, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
+        machine_2 = pRBM(symmetries=g.automorphisms(), dtype=cf.DTYPE, layers=1, features=cf.ALPHA, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
     else:
         raise Exception(str("undefined MACHINE: ")+str(cf.MACHINE))
 

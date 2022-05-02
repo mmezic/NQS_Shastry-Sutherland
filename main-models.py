@@ -236,24 +236,24 @@ for m in fq.INDICES:
             machine_3 = nk.models.Jastrow(dtype=fq.DTYPE)
             machine_4 = nk.models.Jastrow(dtype=fq.DTYPE)
         elif m//no_etas == 15:
-            name = "RBMModPhase_2"
+            name = "pmRBM_2"
             machine_1 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
             machine_2 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
             machine_3 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
             machine_4 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
         elif m//no_etas == 16:
-            name = "RBMModPhase_8"
+            name = "pmRBM_8"
             machine_1 = nk.models.RBMModPhase(alpha=8, use_hidden_bias=True, dtype=np.float64)
             machine_2 = nk.models.RBMModPhase(alpha=8, use_hidden_bias=True, dtype=np.float64)
             machine_3 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
             machine_4 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
         elif m//no_etas == 17:
-            name = "Jastrow_visible"
-            from lattice_and_ops import Jastrow
-            machine_1 = Jastrow()
-            machine_2 = Jastrow()
-            machine_3 = Jastrow()
-            machine_4 = Jastrow()
+            name = "Jastrow+b"
+            from lattice_and_ops import Jastrow_b
+            machine_1 = Jastrow_b()
+            machine_2 = Jastrow_b()
+            machine_3 = Jastrow_b()
+            machine_4 = Jastrow_b()
         else:
             raise Exception(str("undefined MACHINE: ")+str(fq.MACHINE))
 
