@@ -29,7 +29,7 @@ cf = __import__(config_file_name)       # import configuration under cf alias
 
 
 OUT_NAME = cf.MACHINE+str(cf.SITES)     # output file name for storing the machine (.mpack file) and the logging the convergence (.log file)
-OUT_LOG_NAME = "out.txt"                # filename for final logging of energies and order parameters
+OUT_LOG_NAME = "out_"+cf.NAME+".txt"            # filename for final logging of energies and order parameters
 
 print("N = ",cf.SITES, ", samples = ",cf.SAMPLES,", iters = ",cf.NUM_ITER, ", sampler = ",cf.SAMPLER, ", TOTAL_SZ = ", cf.TOTAL_SZ, ", machine = ", cf.MACHINE, ", dtype = ", cf.DTYPE, ", alpha = ", cf.ALPHA, ", eta = ", cf.ETA, sep="")
 with open(OUT_LOG_NAME,"a") as out_log_file: # header of the log file
@@ -194,7 +194,7 @@ for JEXCH1 in cf.STEPS:
         energy_convergence = [data[i]["Energy"]["Mean"] for i in range(no_of_runs)]
 
     # logging the final energies
-    with open("out_err.txt", "a") as file_mag:
+    with open("out_err_"+cf.NAME+".txt", "a") as file_mag:
         if JEXCH1 == cf.STEPS[0]:
             print("J1  exactE     E  err_of_mean  E_50avg  E_err_of_50avg    MSR: E  err_of_mean  E_50avg  E_err_of_50avg", file=file_mag)   
         if no_of_runs == 2:
