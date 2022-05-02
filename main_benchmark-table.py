@@ -42,7 +42,7 @@ from lattice_and_ops import log_results
 from pRBM import pRBM
 ho = HamOps()
 
-PREFIX = "logs/" #"test/"
+PREFIX = "logs/"
 if not os.path.exists(PREFIX):
     os.mkdir(PREFIX)
 OUT_NAME = PREFIX+"models"+str(fq.SITES) # output file name
@@ -186,28 +186,28 @@ for m in fq.INDICES:
             machine_3 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
             machine_4 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)
         elif m//no_etas == 8:
-            name = "GCNN_my_32"
+            name = "pRBM_32"
             alpha=32
             machine_1 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_2 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_3 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_4 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
         elif m//no_etas == 9:
-            name = "GCNN_my_8"
+            name = "pRBM_8"
             alpha=8
             machine_1 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_2 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_3 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_4 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
         elif m//no_etas == 10:
-            name = "GCNN_my_8trans"
+            name = "pRBM_8trans"
             alpha=8
             machine_1 = pRBM(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_2 = pRBM(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_3 = pRBM(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_4 = pRBM(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
         elif m//no_etas == 11:
-            name = "GCNN_my_8notVisible"
+            name = "pRBM_8notVisible"
             alpha=8
             machine_1 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
             machine_2 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
@@ -277,7 +277,7 @@ for m in fq.INDICES:
                 print("Warning! Undefined fq.SAMPLER:", fq.SAMPLER, ", dafaulting to MetropolisExchange fq.SAMPLER")
 
         # Optimzer
-        if name[:5] != "RBMMo":
+        if name[:5] != "pmRBM":
             optimizer_1 = nk.optimizer.Sgd(learning_rate=ETA)
             optimizer_2 = nk.optimizer.Sgd(learning_rate=ETA)
             optimizer_3 = nk.optimizer.Sgd(learning_rate=ETA)
@@ -336,7 +336,7 @@ for m in fq.INDICES:
         data = []
         for i in range(no_of_runs):
             data.append(json.load(open(MODEL_LOG_NAME+["DS_normal","DS_MSR","AF_normal","AF_MSR"][i]+".log")))
-        if type(data[0]["Energy"]["Mean"]) == dict: #DTYPE in (np.complex128, np.complex64):#, np.float64):# and False:
+        if type(data[0]["Energy"]["Mean"]) == dict:
             energy_convergence = np.asarray([data[i]["Energy"]["Mean"]["real"] for i in range(no_of_runs)])
         else:
             energy_convergence = np.asarray([data[i]["Energy"]["Mean"] for i in range(no_of_runs)])
@@ -358,10 +358,8 @@ for m in fq.INDICES:
     min_steps = np.min(steps_until_conv,axis=0)
     min_avg_final_energy = np.min(average_final_energy,axis=0)
     min_avg_final_energy_relative_error = -np.log10((exact_ground_energies-min_avg_final_energy)/exact_ground_energies)
-    # pm_steps = np.std(steps_until_conv,axis=0)
-    # average_steps = np.average(steps_until_conv,axis=0)
     min_min_energy_error = np.min(min_energy_error,axis=0)
-    with open('out-models_table.txt','a') as table_file:
+    with open('out_benchmark-table.txt','a') as table_file:
                         # i       name      params  time    eta  DS: min_s avg_err min_err  MSR: min_s avg_err min_err  AF: min_s avg_err min_err  MSR: min_s avg_err min_err
         table_file.write("{:2.0f}  {:<17}  {:5.0f}  {:5.1f}  {:4.3f}  {:5.0f} {:5.2f} {:8.3}   {:5.0f} {:5.2f} {:8.3f}   {:5.0f} {:5.2f} {:8.3}  {:5.0f} {:5.2f} {:8.3f}\n".format(m,name,vs_1.n_parameters,(end-start)/60,ETA,min_steps[0],min_avg_final_energy_relative_error[0],min_min_energy_error[0],min_steps[1],min_avg_final_energy_relative_error[1],min_min_energy_error[1],min_steps[2],min_avg_final_energy_relative_error[2],min_min_energy_error[2],min_steps[3],min_avg_final_energy_relative_error[3],min_min_energy_error[3]))
     
