@@ -88,6 +88,10 @@ for perm in g.automorphisms():
             translations.append(nk.utils.group._permutation_group.Permutation(aperm))
 translation_group = nk.utils.group._permutation_group.PermutationGroup(translations,degree=cf.SITES)
 
+runs = cf.runs # Here we can set for which basis to perform the simulation. E.g. [0,1] means don't run normal basis, run MSR basis. We run the simulation for both basis by default [1,1]
+no_of_runs = np.sum(runs) # 1 - one run for variables with ..._1;  2 - both runs for variables ..._1 and ..._2
+run_only_2 = (runs[1]==1 and runs[0]==0) # in case of no_of_runs=1
+
 # The central loop that scans the phase space.
 for JEXCH1 in cf.STEPS:
     # Hamiltonian definition
@@ -106,6 +110,16 @@ for JEXCH1 in cf.STEPS:
     if cf.MACHINE == "RBM":
         machine_1 = nk.models.RBM(dtype=cf.DTYPE, alpha=cf.ALPHA)
         machine_2 = nk.models.RBM(dtype=cf.DTYPE, alpha=cf.ALPHA)
+    elif cf.MACHINE == "RBM-b":
+        machine_1 = nk.models.RBM(dtype=cf.DTYPE, alpha=cf.ALPHA, use_visible_bias=False)
+        machine_2 = nk.models.RBM(dtype=cf.DTYPE, alpha=cf.ALPHA, use_visible_bias=False)
+    elif cf.MACHINE == "Jastrow":
+        machine_1 = nk.models.Jastrow(dtype=cf.DTYPE)
+        machine_2 = nk.models.Jastrow(dtype=cf.DTYPE)
+    elif cf.MACHINE == "Jastrow+b":
+        from lattice_and_ops import Jastrow_b
+        machine_1 = Jastrow_b()
+        machine_2 = Jastrow_b()
     elif cf.MACHINE == "sRBM":
         machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=cf.DTYPE, alpha=cf.ALPHA) 
         machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=cf.DTYPE, alpha=cf.ALPHA)
@@ -151,9 +165,6 @@ for JEXCH1 in cf.STEPS:
 
     ops = Operators(lattice,hilbert,ho.mszsz,ho.exchange)
 
-    runs = cf.runs # Here we can set for which basis to perform the simulation. E.g. [0,1] means don't run normal basis, run MSR basis. We run the simulation for both basis by default [1,1]
-    no_of_runs = np.sum(runs) # 1 - one run for variables with ..._1;  2 - both runs for variables ..._1 and ..._2
-    run_only_2 = (runs[1]==1 and runs[0]==0) # in case of no_of_runs=1
     if exact_ground_energy != 0 and cf.VERBOSE == True:
         print("J1 =",JEXCH1,"; Expected exact energy:", exact_ground_energy)
     for i,gs in enumerate([gs_1,gs_2][run_only_2:run_only_2+no_of_runs]):
@@ -179,10 +190,11 @@ for JEXCH1 in cf.STEPS:
         # print useful info about order parameters to the screen
         for i,gs in enumerate([gs_1,gs_2][run_only_2:run_only_2+no_of_runs]):
             print("Trained RBM with MSR:" if i else "Trained RBM without MSR:")
-            print("m_d^2 =", gs.estimate(ops.m_dimer_op))
-            print("m_p =", gs.estimate(ops.m_plaquette_op))
-            print("m_s^2 =", float(ops.m_sSquared_slow(gs)[0].real))
-            print("m_s^2 =", float(ops.m_sSquared_slow_MSR(gs)[0].real), "<--- MSR")
+            print("m_DS =", gs.estimate(ops.m_dimer_op))
+            print("m_PS =", gs.estimate(ops.m_plaquette_op))
+            print("m_AF =", float(ops.m_sSquared_slow(gs)[0].real))
+            print("m_PS_MSR =", gs.estimate(ops.m_plaquette_op))
+            print("m_AF_MSR =", float(ops.m_sSquared_slow_MSR(gs)[0].real))
     
     # estimating the errorbars
     data = []
