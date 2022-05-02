@@ -5,7 +5,7 @@ JEXCH1   = 0.2            # nn interaction
 JEXCH2   = 1            # nnn interaction	
 H_Z      = 0
 """machine learning"""	
-TOTAL_SZ = None            # 0, None ... restriction of Hilbert space	
+TOTAL_SZ = None         # 0 or None ... restriction of Hilbert space	
 SAMPLER = 'exact'       # 'local' = MetropolisLocal, 'exchange' = MetropolisExchange, 'exact' = ExactSampler
 MACHINE = 'RBM'         # 'RBM', 'sRBM'
 DTYPE = np.complex128   # type of weights in neural network
@@ -14,9 +14,9 @@ ETA   = .01             # learning rate (0.01 usually works)
 SIGMA = .01             # variance of parameters during initialization
 SAMPLES = 500	
 NUM_ITER = 200
-N_PRE_ITER = 50        # number of iteration before checking for convergence to speed up the process if the model is already pre-trained
-VERBOSE = True         # should we print more detailed results
-STEPS = np.arange(0.2,1.95,step=2.1)	
+N_PRE_ITER = 50         # number of iteration before checking for convergence to speed up the process if the model is already pre-trained
+VERBOSE = True          # should we print more detailed results
+STEPS = np.arange(0.0,1.21,step=0.2)	
 RUNS = [1,1]
 NAME = "test"
 STEPS_A = [int(SITES/2), SITES, SITES*2, SITES*4]   # grid search across ALPHAs (used only in main-gridSearch.py)

@@ -360,7 +360,7 @@ import flax.linen as nn
 import jax
 import jax.numpy as jnp
 """ Implementation of Jastrow ansatz with visible biases (Jastrow+b). """
-class Jastrow(nknn.Module):
+class Jastrow_b(nknn.Module):
     @nknn.compact
     def __call__(self, x):
         x = jnp.atleast_2d(x)
