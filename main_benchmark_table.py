@@ -1,13 +1,5 @@
 from re import M
 import sys, getopt, os
-# trying to set up parallel CPUs apparently does not work well
-# import os
-# from mpi4py import MPI
-# size = MPI.COMM_WORLD.Get_size()
-# rank = MPI.COMM_WORLD.Get_rank()
-# name = MPI.Get_processor_name()
-# os.environ['XLA_FLAGS'] = '--xla_force_host_platform_device_count={size}'
-# sys.stdout.write("Hello, World! I am process %d of %d on %s.\n"%(rank, size, name))
 # from mpi4py import MPI
 # rank = MPI.COMM_WORLD.Get_rank()
 # # set only one visible device
@@ -16,13 +8,10 @@ import sys, getopt, os
 sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages')	
 import netket as nk	
 import numpy as np
-import jax
-import flax
-import optax
+import jax, flax, optax
 # import mpi4jax
 import time
 import json	
-import copy
 print("Python version: {}".format(sys.version))
 print("NetKet version: {}".format(nk.__version__))	
 print("NumPy version: {}".format(np.__version__))
@@ -31,13 +20,12 @@ print("MPI utils available: {}".format(nk.utils.mpi.available))
 
 file = sys.argv[-1]
 if len(sys.argv) == 1:
-    file = "config-models"
+    file = "config_benchmark_table"
 print(file)
 fq = __import__(file)
 from lattice_and_ops import Lattice
 from lattice_and_ops import Operators
 from lattice_and_ops import HamOps
-from lattice_and_ops import permutation_sign
 from lattice_and_ops import log_results
 from pRBM import pRBM
 ho = HamOps()

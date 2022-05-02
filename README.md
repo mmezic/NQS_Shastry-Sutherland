@@ -23,5 +23,5 @@ There are a few modified versions of [main](main.py) file depending on a use-cas
  - [main_pre-trained.py](main_pre-trained.py) uses **transfer learning** - the weights at the end of last run are saved and used in the next run while changing the values of J'.
  - [main-mag.py](main-mag.py) generates a dependance on the **magnetic field h**.
  - [main-mag_pre-trained.py](main-mag_pre-trained.py) uses **transfer learning** while changing the values of $h$.
- - [main-models.py](main-models.py) is used to generate a **benchmarking table** of convergence steps and accuracies of many different models for two given values of J' and possibly for given values of learning rate.
+ - [main_benchmark_table.py](main_benchmark_table.py) is used to generate a **benchmarking table** of convergence steps and accuracies of many different models for two given values of J' and possibly for given values of learning rate.
 
