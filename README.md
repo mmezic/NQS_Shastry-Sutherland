@@ -2,7 +2,8 @@
 
 This repository contains codes for my master thesis. I study the properties of various stochastic methods on different lattices. The primary functioning code can be found in the [main_notebook.ipynb](main_notebook.ipynb) file. All of my code is based on the [NetKet](https://www.netket.org) library.
 
-## Installation
+## Quick start
+### Installation
 The scripts require Python 3.7 or higner installed on Linux or MacOS.
 NetKet runs on Linux ond MacOS, and experementally. The basic instalation can be done by running:
 ```
@@ -11,8 +12,10 @@ pip install --upgrade 'netket'
 ```
 For more detailed description, or installation to GPU, see the official [NetKet website](https://www.netket.org/get_started/).
 
-## Quick start
-The most strainghtforward way is to start with the notebook file [main_notebook.ipynb](main_notebook.ipynb). It contains 
+### Usage
+The most strainghtforward way is to start with the notebook file [main_notebook.ipynb](main_notebook.ipynb). It contains the definitions of the Shastry-Sutherland Hamiltonian and all types of neural network architectures presented in my thesis. The parameters of the simulation may be specified at the beginning of the notebook. After the simulation is over, is also produces an interactive plot of the energy dependance on the number of iterations, where you can see how good or badly the selected architecture performs.
+
+More technical usage of my other scripts is described bellow.
 
 ## File structure
 For more advanced usage, i.e., to generate the data that are presented in my thesis, I prepared the following files. These scripts execute multiple (independent or transferred) runs, and after each run, they write the results (final energy, order parameters, ...) to the output file. The output files may be used to generate the same plots as were presented in the thesis.
