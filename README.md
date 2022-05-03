@@ -4,23 +4,22 @@ This repository contains codes for my master thesis. I study the properties of v
 
 ## Quick start
 ### Installation
-The scripts require Python 3.7 or higner installed on Linux or MacOS.
-NetKet runs on Linux ond MacOS, and experementally. The basic instalation can be done by running:
+The scripts require Python 3.7 or higher installed on Linux or macOS (and experimentally on Windows). The basic installation can be done by running:
 ```
 pip install --upgrade pip
 pip install --upgrade 'netket' 
 ```
-For more detailed description, or installation to GPU, see the official [NetKet website](https://www.netket.org/get_started/).
+For a more detailed description or a guide to installation on GPU, see the official [NetKet website](https://www.netket.org/get_started/).
 
 ### Usage
-The most strainghtforward way is to start with the notebook file [main_notebook.ipynb](main_notebook.ipynb). It contains the definitions of the Shastry-Sutherland Hamiltonian and all types of neural network architectures presented in my thesis. The parameters of the simulation may be specified at the beginning of the notebook. After the simulation is over, is also produces an interactive plot of the energy dependance on the number of iterations, where you can see how good or badly the selected architecture performs.
+The most straightforward way is to start with the notebook file [main_notebook.ipynb](main_notebook.ipynb). It contains the definitions of the Shastry-Sutherland Hamiltonian and all types of neural network architectures presented in my thesis. The parameters of the simulation may be specified at the beginning of the notebook. After the simulation is over, it also produces an interactive plot of the energy dependence on the number of iterations. You can see there how well the selected architecture performs. By default, it executes the simulation in both the normal and the MSR basis.
 
-More technical usage of my other scripts is described bellow.
+More technical usage of my other scripts is described below.
 
 ## File structure
 For more advanced usage, i.e., to generate the data that are presented in my thesis, I prepared the following files. These scripts execute multiple (independent or transferred) runs, and after each run, they write the results (final energy, order parameters, ...) to the output file. The output files may be used to generate the same plots as were presented in the thesis.
 
-The basic script is in the [main](main.py) file and a slight modifications of this file to specific use-cases are as follows:
+The basic script is in the [main](main.py) file, and slight modifications of this file to specific use-cases are as follows:
  - [main.py](main.py) generates a dependence on the **coupling constant J**.
  - [main_pre-trained.py](main_pre-trained.py) uses **transfer learning** - the weights at the end of the last run are saved and used in the next run while changing the values of J'.
  - [main-mag.py](main-mag.py) generates a dependence on the **magnetic field h**.
@@ -34,7 +33,7 @@ The basic script is in the [main](main.py) file and a slight modifications of th
 
 
 ## Submitting to a cluster
-The file [main.py](main.py) and its modifications contain code that can be submitted to a computational cluster. It loads the parameters of the simulation from one of configuration files so that multiple different simulations can be submitted without conflicts. The name of the config file may be given as an argument during submission, for example:
+The file [main.py](main.py) and its modifications contain code that can be submitted to a computational cluster. It loads the parameters of the simulation from one of the configuration files so that multiple different simulations can be submitted without conflicts. The name of the config file may be given as an argument during submission, for example:
 ```
 python3 main.py -f config
 ```
