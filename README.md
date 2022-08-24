@@ -41,6 +41,6 @@ will load the simulation parameters from the [config.py](config.py) file.
 
 I use three different clusters with different scripts for submission:
 - For [MetaCentrum](https://metavo.metacentrum.cz/), I use [run_MetaCentrum.qsub](run_MetaCentrum.qsub).
-- For cluster Barbora from [IT4I](https://www.it4i.cz/), I use [run_Barbora-CPU.sh](run_Barbora-CPU.sh) or [run_Barbora-GPU.sh](run_Barbora-GPU.sh).
+- For cluster Barbora from [IT4I](https://www.it4i.cz/), I use [run_Barbora_CPU.sh](run_Barbora_CPU.sh) or [run_Barbora_GPU.sh](run_Barbora_GPU.sh).
     - the GPU is worth only for larger systems (at least 40 spins)
 - For our local server at KFES, I run the jobs directly from the terminal since there is no scheduler.
