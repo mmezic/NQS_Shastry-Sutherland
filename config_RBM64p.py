@@ -15,9 +15,9 @@ NUM_ITER = 1000*2
 N_PRE_ITER = 100        # number of iteration before checking for convergence to speed up the process if the model is already pre-trained
 VERBOSE = False         # should we print more detailed results
 # pro tento array jsem to jeste nespoustel --> prave bezi
-STEPS = np.array([1.00,1.05]) #np.array([.60,.90,.50,1.00]) #np.array([.67,.65,.60,.81,.85]) #np.array([0.730,0.720,0.710,0.700,0.690])#0.770,0.780,0.760,0.750,0.790,0.740])
+STEPS = np.array([0.8,0.65,0.68,0.705]) #np.array([0.715,0.725,0.735,.695]) #np.array([1.00,1.05]) #np.array([.60,.90,.50,1.00]) #np.array([.67,.65,.60,.81,.85]) #np.array([0.730,0.720,0.710,0.700,0.690])#0.770,0.780,0.760,0.750,0.790,0.740])
 RUNS = [1,0] # normal & MSR
-NAME = "pp"
+NAME = "pp2"
 num_layers = 2
 feature_dims = (8,4)
 STEPS_A = [int(SITES/2), SITES, SITES*2, SITES*4]   # grid search across ALPHAs (used only in main-gridSearch.py)

@@ -1,9 +1,9 @@
 #!/bin/bash
 #PBS -S /bin/bash
 #PBS -N mezera_nk
-#PBS -A OPEN-23-38
+#PBS -A OPEN-24-38
 #PBS -q qnvidia
-#PBS -l walltime=11:05:00
+#PBS -l walltime=21:55:00
 #PBS -l select=4:ncpus=24:mem=8gb
 #PBS -j oe
 
