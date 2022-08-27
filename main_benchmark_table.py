@@ -1,13 +1,5 @@
 from re import M
 import sys, getopt, os
-# trying to set up parallel CPUs apparently does not work well
-# import os
-# from mpi4py import MPI
-# size = MPI.COMM_WORLD.Get_size()
-# rank = MPI.COMM_WORLD.Get_rank()
-# name = MPI.Get_processor_name()
-# os.environ['XLA_FLAGS'] = '--xla_force_host_platform_device_count={size}'
-# sys.stdout.write("Hello, World! I am process %d of %d on %s.\n"%(rank, size, name))
 # from mpi4py import MPI
 # rank = MPI.COMM_WORLD.Get_rank()
 # # set only one visible device
@@ -16,13 +8,10 @@ import sys, getopt, os
 sys.path.append('/storage/praha1/home/mezic/.local/lib/python3.7/site-packages')	
 import netket as nk	
 import numpy as np
-import jax
-import flax
-import optax
+import jax, flax, optax
 # import mpi4jax
 import time
 import json	
-import copy
 print("Python version: {}".format(sys.version))
 print("NetKet version: {}".format(nk.__version__))	
 print("NumPy version: {}".format(np.__version__))
@@ -31,18 +20,17 @@ print("MPI utils available: {}".format(nk.utils.mpi.available))
 
 file = sys.argv[-1]
 if len(sys.argv) == 1:
-    file = "config-models"
+    file = "config_benchmark_table"
 print(file)
 fq = __import__(file)
 from lattice_and_ops import Lattice
 from lattice_and_ops import Operators
 from lattice_and_ops import HamOps
-from lattice_and_ops import permutation_sign
 from lattice_and_ops import log_results
 from pRBM import pRBM
 ho = HamOps()
 
-PREFIX = "logs/" #"test/"
+PREFIX = "logs/"
 if not os.path.exists(PREFIX):
     os.mkdir(PREFIX)
 OUT_NAME = PREFIX+"models"+str(fq.SITES) # output file name
@@ -158,56 +146,56 @@ for m in fq.INDICES:
             machine_3 = nk.models.RBM(dtype=fq.DTYPE, alpha=16,use_visible_bias=False)
             machine_4 = nk.models.RBM(dtype=fq.DTYPE, alpha=16,use_visible_bias=False)
         elif m//no_etas == 4:
-            name = "RBMSymm_16aut"
+            name = "sRBM_16aut"
             alpha= 16
             machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha) 
             machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha)
             machine_3 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha) 
             machine_4 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha)
         elif m//no_etas == 5:
-            name = "RBMSymm_128aut"
+            name = "sRBM_128aut"
             alpha = 128
             machine_1 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha) 
             machine_2 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha)
             machine_3 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha) 
             machine_4 = nk.models.RBMSymm(g.automorphisms(), dtype=fq.DTYPE, alpha=alpha)
         elif m//no_etas == 6:
-            name = "RBMSymm_16trans"
+            name = "sRBM_16trans"
             alpha = 16
             machine_1 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
             machine_2 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)
             machine_3 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
             machine_4 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)
         elif m//no_etas == 7:
-            name = "RBMSymm_2trans"
+            name = "sRBM_2trans"
             alpha = 2
             machine_1 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
             machine_2 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)
             machine_3 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha) 
             machine_4 = nk.models.RBMSymm(translation_group, dtype=fq.DTYPE, alpha=alpha)
         elif m//no_etas == 8:
-            name = "GCNN_my_32"
+            name = "pRBM_32"
             alpha=32
             machine_1 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_2 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_3 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_4 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
         elif m//no_etas == 9:
-            name = "GCNN_my_8"
+            name = "pRBM_8"
             alpha=8
             machine_1 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_2 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_3 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_4 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
         elif m//no_etas == 10:
-            name = "GCNN_my_8trans"
+            name = "pRBM_8trans"
             alpha=8
             machine_1 = pRBM(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_2 = pRBM(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_3 = pRBM(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
             machine_4 = pRBM(symmetries=translation_group, dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_trans_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=True)
         elif m//no_etas == 11:
-            name = "GCNN_my_8notVisible"
+            name = "pRBM_8notVisible"
             alpha=8
             machine_1 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_1, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
             machine_2 = pRBM(symmetries=g.automorphisms(), dtype=fq.DTYPE, layers=1, features=alpha, characters=characters_2, output_activation=nk.nn.log_cosh, use_bias=True, use_visible_bias=False)
@@ -236,24 +224,24 @@ for m in fq.INDICES:
             machine_3 = nk.models.Jastrow(dtype=fq.DTYPE)
             machine_4 = nk.models.Jastrow(dtype=fq.DTYPE)
         elif m//no_etas == 15:
-            name = "RBMModPhase_2"
+            name = "pmRBM_2"
             machine_1 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
             machine_2 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
             machine_3 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
             machine_4 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
         elif m//no_etas == 16:
-            name = "RBMModPhase_8"
+            name = "pmRBM_8"
             machine_1 = nk.models.RBMModPhase(alpha=8, use_hidden_bias=True, dtype=np.float64)
             machine_2 = nk.models.RBMModPhase(alpha=8, use_hidden_bias=True, dtype=np.float64)
             machine_3 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
             machine_4 = nk.models.RBMModPhase(alpha=2, use_hidden_bias=True, dtype=np.float64)
         elif m//no_etas == 17:
-            name = "Jastrow_visible"
-            from lattice_and_ops import Jastrow
-            machine_1 = Jastrow()
-            machine_2 = Jastrow()
-            machine_3 = Jastrow()
-            machine_4 = Jastrow()
+            name = "Jastrow+b"
+            from lattice_and_ops import Jastrow_b
+            machine_1 = Jastrow_b()
+            machine_2 = Jastrow_b()
+            machine_3 = Jastrow_b()
+            machine_4 = Jastrow_b()
         else:
             raise Exception(str("undefined MACHINE: ")+str(fq.MACHINE))
 
@@ -277,7 +265,7 @@ for m in fq.INDICES:
                 print("Warning! Undefined fq.SAMPLER:", fq.SAMPLER, ", dafaulting to MetropolisExchange fq.SAMPLER")
 
         # Optimzer
-        if name[:5] != "RBMMo":
+        if name[:5] != "pmRBM":
             optimizer_1 = nk.optimizer.Sgd(learning_rate=ETA)
             optimizer_2 = nk.optimizer.Sgd(learning_rate=ETA)
             optimizer_3 = nk.optimizer.Sgd(learning_rate=ETA)
@@ -336,7 +324,7 @@ for m in fq.INDICES:
         data = []
         for i in range(no_of_runs):
             data.append(json.load(open(MODEL_LOG_NAME+["DS_normal","DS_MSR","AF_normal","AF_MSR"][i]+".log")))
-        if type(data[0]["Energy"]["Mean"]) == dict: #DTYPE in (np.complex128, np.complex64):#, np.float64):# and False:
+        if type(data[0]["Energy"]["Mean"]) == dict:
             energy_convergence = np.asarray([data[i]["Energy"]["Mean"]["real"] for i in range(no_of_runs)])
         else:
             energy_convergence = np.asarray([data[i]["Energy"]["Mean"] for i in range(no_of_runs)])
@@ -358,10 +346,8 @@ for m in fq.INDICES:
     min_steps = np.min(steps_until_conv,axis=0)
     min_avg_final_energy = np.min(average_final_energy,axis=0)
     min_avg_final_energy_relative_error = -np.log10((exact_ground_energies-min_avg_final_energy)/exact_ground_energies)
-    # pm_steps = np.std(steps_until_conv,axis=0)
-    # average_steps = np.average(steps_until_conv,axis=0)
     min_min_energy_error = np.min(min_energy_error,axis=0)
-    with open('out-models_table.txt','a') as table_file:
+    with open('out_benchmark-table.txt','a') as table_file:
                         # i       name      params  time    eta  DS: min_s avg_err min_err  MSR: min_s avg_err min_err  AF: min_s avg_err min_err  MSR: min_s avg_err min_err
         table_file.write("{:2.0f}  {:<17}  {:5.0f}  {:5.1f}  {:4.3f}  {:5.0f} {:5.2f} {:8.3}   {:5.0f} {:5.2f} {:8.3f}   {:5.0f} {:5.2f} {:8.3}  {:5.0f} {:5.2f} {:8.3f}\n".format(m,name,vs_1.n_parameters,(end-start)/60,ETA,min_steps[0],min_avg_final_energy_relative_error[0],min_min_energy_error[0],min_steps[1],min_avg_final_energy_relative_error[1],min_min_energy_error[1],min_steps[2],min_avg_final_energy_relative_error[2],min_min_energy_error[2],min_steps[3],min_avg_final_energy_relative_error[3],min_min_energy_error[3]))
     

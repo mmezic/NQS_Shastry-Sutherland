@@ -20,7 +20,7 @@ echo "Hostname ssh " `hostname` >>$SOURCE/stroj.txt
 cd $SCRATCHDIR
 
 module add NetKet/3.3.2.post1-OpenMPI-4.1.1-CUDA-11.6.0
-# export OMP_NUM_THREADS=36
+export OMP_NUM_THREADS=36
 FILE=/home/mezic/netket_scripts/main2.py
 echo FILE=$FILE
 python3 $FILE -f config_RBM64_SZ_precise
