@@ -37,7 +37,7 @@ The file [main.py](main.py) and its modifications contain code that can be submi
 ```
 python3 main.py -f config
 ```
-will load the simulation parameters from the [config.py](config.py) file.
+will load the simulation parameters from the [config.py](config.py) file. 
 
 I use three different clusters with different scripts for submission:
 - For [MetaCentrum](https://metavo.metacentrum.cz/), I use [run_MetaCentrum.qsub](run_MetaCentrum.qsub).
