@@ -235,6 +235,27 @@ class Operators:
     def Q_r(self,i,msr):
         return .5*(self.P_r(i,msr) + self.P_r_inv(i,msr))
 
+    """ Returns the PS operator at lattice position i."""
+    def m_plaquette_op_at(self,i,msr=False,secondary_diagonal=False):
+        if self.lattice.SITES < 5: # plaquette operators cannot be defined for small lattices!
+            raise Exception("PS operator cannot be defined for small lattices!")
+        if secondary_diagonal:
+            return self.Q_r(i,msr)-self.Q_r(self.lattice.llft(i),msr)
+        else:
+            return self.Q_r(i,msr)-self.Q_r(self.lattice.lrt(i),msr)
+
+    """ Calculates the PS order parameter in a proper way (as a difference of two sub-checkerboards). This implementation works only for N=64."""
+    def PS_order_full(self, state, msr=False):
+        if self.lattice.SITES != 64:
+            print("WARNING: Current implementation of improved PS order parameter works only for N=64 lattice. Returning NaN instead...")
+            return np.nan
+        sum_of_plaquettes = 0
+        for i in [1,3,5,7,17,19,21,23,33,35,37,39,49,51,53,55]:
+            sum_of_plaquettes += state.estimate(self.Q_r(i,msr)).mean.real
+        for i in [8,10,12,14,24,26,28,30,40,42,44,46,56,58,60,62]:
+            sum_of_plaquettes -= state.estimate(self.Q_r(i,msr)).mean.real
+        return sum_of_plaquettes/16
+    
 
     """ Calculates the value of AF order parameter from either a vector (ndarray) representation of state or NN representation. This method is slower but uses less memory.
     The value of partial sum is saved in batches of MEMORY_SIZE to avoid "out of memory" errors. """
@@ -324,16 +345,17 @@ def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,exact_energy,steps_until_conv
     else:
         m_s2_1, m_s2v_1 = gs_1.estimate(ops.m_s2_op).mean.real, gs_1.estimate(ops.m_s2_op).error_of_mean
         m_s2_2, m_s2v_2 = gs_2.estimate(ops.m_s2_op_MSR).mean.real, gs_2.estimate(ops.m_s2_op_MSR).error_of_mean
+    m_PS = ops.PS_order_full(gs_1)
     print("{:6.3f} {:10.5f} {:8.5f}  {:10.5f} {:8.5f}  {:8.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:8.4f} {:7.4f}  {:7.4f} {:7.4f}  {:7.4f} {:7.4f}  {:10.5f} {:5.0f} {:5.0f} {}".format(
         JEXCH1, 
         gs_1.energy.mean.real,                          gs_1.energy.error_of_mean, 
         gs_2.energy.mean.real,                          gs_2.energy.error_of_mean, 
         # gs_1.estimate(ops.m_z).mean.real,               gs_1.estimate(ops.m_z).error_of_mean, 
-        gs_1.estimate(ops.m_plaquette_op).mean.real,    gs_1.estimate(ops.m_plaquette_op).error_of_mean, # ZMENA 
+        m_PS,    gs_1.estimate(ops.m_plaquette_op).mean.real, # ZMENA 
         gs_1.estimate(ops.m_dimer_op).mean.real,        gs_1.estimate(ops.m_dimer_op).error_of_mean, 
         m_s2_1,                                         m_s2v_1, 
         # gs_2.estimate(ops.m_z).mean.real,               gs_2.estimate(ops.m_z).error_of_mean, 
-        gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).error_of_mean, # ZMENA
+        0 , 0,  #gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).error_of_mean, # ZMENA
         gs_2.estimate(ops.m_dimer_op).mean.real,        gs_2.estimate(ops.m_dimer_op).error_of_mean, 
         m_s2_2,                                         m_s2v_2, 
         exact_energy, samples, iters, str(steps_until_convergence)[1:-1]))
@@ -344,11 +366,11 @@ def log_results(JEXCH1,gs_1,gs_2,ops,samples,iters,exact_energy,steps_until_conv
             gs_1.energy.mean.real,                          gs_1.energy.error_of_mean, 
             gs_2.energy.mean.real,                          gs_2.energy.error_of_mean, 
             # gs_1.estimate(ops.m_z).mean.real,               gs_1.estimate(ops.m_z).error_of_mean, 
-            gs_1.estimate(ops.m_plaquette_op).mean.real,    gs_1.estimate(ops.m_plaquette_op).error_of_mean, # ZMENA
+            m_PS,    gs_1.estimate(ops.m_plaquette_op).mean.real, # ZMENA
             gs_1.estimate(ops.m_dimer_op).mean.real,        gs_1.estimate(ops.m_dimer_op).error_of_mean, 
             m_s2_1,                                         m_s2v_1, 
             # gs_2.estimate(ops.m_z).mean.real,               gs_2.estimate(ops.m_z).error_of_mean, 
-            gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).error_of_mean, # ZMENA
+            0 , 0, #gs_2.estimate(ops.m_plaquette_op_MSR).mean.real,gs_2.estimate(ops.m_plaquette_op_MSR).error_of_mean, # ZMENA
             gs_2.estimate(ops.m_dimer_op).mean.real,        gs_2.estimate(ops.m_dimer_op).error_of_mean, 
             m_s2_2,                                         m_s2v_2, 
             exact_energy, samples, iters, str(steps_until_convergence)[1:-1]),file=file)
